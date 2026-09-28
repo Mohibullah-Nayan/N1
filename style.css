@@ -258,11 +258,3 @@
 .custom-dropdown-menu.show {
     display: block;
 }
-/* Custom scrollbar hiding for menu ribbon */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}

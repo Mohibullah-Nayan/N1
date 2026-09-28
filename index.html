@@ -1,1978 +1,659 @@
 <!DOCTYPE html>
-<html lang="bn" data-theme="light">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scent Perfume Atelier - Luxury Fragrance House</title>
-
+    <title>Scent Perfume Atelier</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Hind Siliguri', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    },
-                    colors: {
-                        brand: '#D97706',
-                        darkBg: '#090D16'
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        .glass-header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-        }
-
-        .dark .glass-header {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(16px);
-        }
-    </style>
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-stone-50 dark:bg-darkBg text-stone-800 dark:text-stone-100 font-sans transition-colors duration-300 flex flex-col justify-between selection:bg-amber-600 selection:text-white">
+<body class="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-neutral-50 font-['Inter'] text-neutral-800">
 
-    <div>
+    <!-- MAIN CONTAINER -->
+    <div class="custom-navbar-wrapper mb-4 md:mb-8 w-full">
+        <header class="top-header w-full flex flex-col lg:flex-row items-center justify-between gap-4 px-4 py-4">
 
-        <!-- ==================== ULTRA-MODERN PROFESSIONAL NAVBAR ==================== -->
-        <div class="custom-navbar-wrapper w-full sticky top-0 z-50 glass-header border-b border-stone-200/60 dark:border-slate-800 shadow-sm transition-all">
+            <!-- Logo -->
+            <a href="index.html" class="nav-logo shrink-0 text-2xl md:text-3xl">
+                SCENT<span>.</span>
+            </a>
 
-            <header class="top-header max-w-7xl mx-auto w-full flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
-
-                <!-- 1. Brand Logo with Glow Accent -->
-                <a href="index.html" class="nav-logo shrink-0 flex items-center gap-2.5 group">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-                        <i class="fa-solid fa-spray-can-sparkles text-sm"></i>
-                    </div>
-
-                    <span class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
-                        SCENT<span class="text-amber-600">.</span>
-                    </span>
-                </a>
-
-                <!-- 2. Sleek Realtime Search Bar -->
-                <div class="nav-search-wrapper hidden md:flex flex-1 max-w-md relative mx-4">
-                    <input
-                        type="text"
-                        id="productSearchInput"
-                        data-i18n-placeholder="search"
-                        placeholder="Search exclusive perfumes, ouds..."
-                        class="nav-search-input w-full bg-stone-100/90 dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700/80 rounded-full py-2 pl-11 pr-4 text-xs sm:text-sm focus:outline-none focus:border-amber-600 dark:focus:border-amber-500 transition shadow-inner"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-stone-400 text-xs"></i>
-                </div>
-
-                <!-- 3. Header Utilities & Actions -->
-                <div class="header-utls flex items-center gap-2 sm:gap-3 text-sm font-medium">
-
-                    <!-- Theme Toggle -->
-                    <button
-                        id="themeToggleBtn"
-                        class="w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition shadow-2xs"
-                        title="Toggle Theme"
-                    >
-                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
-                        <i class="fa-solid fa-sun hidden dark:inline text-xs text-amber-400"></i>
+            <!-- Search -->
+            <div class="nav-search-wrapper w-full lg:flex-1 lg:max-w-xl order-3 lg:order-none">
+                <div class="flex w-full">
+                    <input type="text" placeholder="Search in..." class="nav-search-input w-full min-w-0">
+                    <button class="nav-search-btn shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
-
-                    <!-- Language Selector -->
-                    <div class="hidden sm:flex items-center gap-1 border border-stone-200 dark:border-slate-700 rounded-full px-2.5 py-1.5 bg-stone-100 dark:bg-slate-800 text-xs">
-
-                        <i class="fa-solid fa-globe text-amber-600 text-[10px]"></i>
-
-                        <select
-                            id="languageSelect"
-                            class="bg-transparent outline-none cursor-pointer font-semibold text-stone-700 dark:text-stone-300"
-                        >
-                            <option value="en" class="dark:bg-slate-800">EN</option>
-                            <option value="bn" class="dark:bg-slate-800">বাংলা</option>
-                        </select>
-
-                    </div>
-
-                    <!-- Track Order Link -->
-                    <a
-                        href="track-order.html"
-                        class="utl-item hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-circle-question text-amber-600"></i>
-                        <span data-i18n="track">Track</span>
-                    </a>
-
-                    <!-- User Account / Sign In -->
-                    <a
-                        href="login.html"
-                        id="user-auth-link"
-                        class="utl-item flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-user text-amber-600"></i>
-                        <span class="hidden sm:inline" data-i18n="signIn">Sign In</span>
-                    </a>
-
-                    <!-- Wishlist -->
-                    <a
-                        href="wishlist.html"
-                        class="utl-item hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 transition text-stone-700 dark:text-stone-300 relative"
-                        title="Wishlist"
-                    >
-                        <i class="fa-regular fa-heart text-xs"></i>
-                    </a>
-
-                    <!-- Shopping Cart with Badge -->
-                    <a
-                        href="cart.html"
-                        class="utl-item relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3.5 py-2 rounded-full transition shadow-md font-semibold text-xs"
-                    >
-                        <i class="fa-solid fa-bag-shopping"></i>
-
-                        <span class="hidden sm:inline" data-i18n="cart">Cart</span>
-
-                        <span class="cart-count-badge bg-stone-900 text-amber-400 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow">
-                            1
-                        </span>
-                    </a>
-
-                </div>
-            </header>
-
-            <!-- Mobile Search Bar -->
-            <div class="md:hidden px-4 pb-2.5">
-                <div class="relative w-full">
-
-                    <input
-                        type="text"
-                        id="mobileSearchInput"
-                        data-i18n-placeholder="mobileSearch"
-                        placeholder="Search exclusive perfumes..."
-                        class="w-full bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-amber-600"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-stone-400 text-xs"></i>
-
                 </div>
             </div>
 
-            <!-- Navigation Links Ribbon -->
-            <nav class="menu-ribbon w-full border-t border-stone-200/50 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 py-2">
+            <!-- Header utilities -->
+            <div class="header-utls w-full lg:w-auto flex flex-wrap justify-center lg:justify-end items-center gap-3">
 
-                <ul class="menu-container flex items-center justify-center gap-6 sm:gap-12 px-4 w-full overflow-x-auto text-xs sm:text-sm font-semibold tracking-wider uppercase">
+                <!-- Language -->
+                <div class="flex items-center gap-1 border border-neutral-200 rounded px-2 py-1 text-sm bg-white">
+                    <i class="fa-solid fa-globe text-[#F26522]"></i>
+                    <select id="languageSelect"
+                        class="bg-transparent outline-none cursor-pointer font-medium text-neutral-700 max-w-[90px]">
+                        <option value="en">English</option>
+                        <option value="bn">বাংলা</option>
+                    </select>
+                </div>
 
-                    <li class="shrink-0">
-                        <a
-                            href="index.html"
-                            class="menu-link text-amber-600 dark:text-amber-500 transition flex items-center gap-1.5"
-                        >
-                            <i class="fa-solid fa-house text-[11px]"></i>
-                            <span data-i18n="home">Home</span>
-                        </a>
-                    </li>
-
-                    <li class="shrink-0">
-                        <a
-                            href="products.html"
-                            class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-                            data-i18n="allProducts"
-                        >
-                            All Products
-                        </a>
-                    </li>
-
-                    <li class="shrink-0">
-                        <a
-                            href="about.html"
-                            class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-                            data-i18n="about"
-                        >
-                            About Atelier
-                        </a>
-                    </li>
-
-                    <li class="shrink-0">
-                        <a
-                            href="contact.html"
-                            class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap"
-                            data-i18n="contact"
-                        >
-                            Contact Us
-                        </a>
-                    </li>
-
-                </ul>
-            </nav>
-
-        </div>
-
-
-        <!-- =========================================================
-             MAIN BODY
-        ========================================================== -->
-
-        <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-
-
-    <!-- =====================================================
-        HERO
-    ====================================================== -->
-
-    <div class="w-full relative overflow-hidden rounded-3xl shadow-2xl h-[360px] md:h-[480px] group bg-stone-900 border border-stone-200/10">
-
-
-        <!-- Slide 1 -->
-
-        <div id="slide-1" class="absolute inset-0 transition-opacity duration-700 opacity-100 flex items-center px-8 md:px-16 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10">
-
-            <img id="hero-img-1" src="" class="absolute inset-0 w-full h-full object-cover -z-10 group-hover:scale-105 transition-transform duration-1000" alt="Perfume 1">
-
-        </div>
-
-
-
-        <!-- Slide 2 -->
-
-        <div id="slide-2" class="absolute inset-0 transition-opacity duration-700 opacity-0 flex items-center px-8 md:px-16 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0 pointer-events-none">
-
-            <img id="hero-img-2" src="" class="absolute inset-0 w-full h-full object-cover -z-10" alt="Perfume 2">
-
-        </div>
-
-    
-
-                <!-- Previous -->
-                <button
-                    onclick="prevSlide()"
-                    type="button"
-                    class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-stone-800 w-11 h-11 rounded-full flex items-center justify-center shadow-lg z-30 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-300">
-
-                    <i class="fa-solid fa-chevron-left text-xs"></i>
-
-                </button>
-
-
-                <!-- Next -->
-                <button
-                    onclick="nextSlide()"
-                    type="button"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-stone-800 w-11 h-11 rounded-full flex items-center justify-center shadow-lg z-30 cursor-pointer opacity-0 group-hover:opacity-100 transition-all duration-300">
-
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-
-                </button>
-
-            </div>
-
-        </main>
-
-
-
-        <!-- =========================================================
-             CATEGORIES
-        ========================================================== -->
-
-        <section
-            class="mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div class="text-center mb-10">
-
-                <h3
-                    class="font-serif text-2xl md:text-3xl font-bold tracking-wide relative inline-block pb-3 after:content-[''] after:w-20 after:h-[2px] after:bg-amber-600 after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2">
-
-                    SHOP BY CATEGORIES
-
-                </h3>
-
-            </div>
-
-
-            <div
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 justify-items-center py-2">
-
-
-                <!-- Men -->
-                <a
-                    href="parfum.html"
-                    class="flex flex-col items-center group cursor-pointer">
-
-                    <div
-                        class="category-card relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 bg-white dark:bg-slate-900 rounded-full overflow-hidden shadow-md border-4 border-stone-200 dark:border-slate-800 group-hover:border-amber-600">
-
-                        <img
-                            src="./images/catagoris/6e47accfdcd9a0a2e76c5a16e0a82643.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt="Men">
-
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-7 bg-amber-950/90 backdrop-blur-sm flex items-center justify-center px-1">
-
-                            <span
-                                class="text-[11px] font-bold text-white uppercase tracking-wider truncate">
-
-                                MEN
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
+                <a href="track-order.html" class="utl-item whitespace-nowrap">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Track Order</span>
                 </a>
 
-
-
-                <!-- Women -->
-                <a
-                    href="oud.html"
-                    class="flex flex-col items-center group cursor-pointer">
-
-                    <div
-                        class="category-card relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 bg-white dark:bg-slate-900 rounded-full overflow-hidden shadow-md border-4 border-stone-200 dark:border-slate-800 group-hover:border-amber-600">
-
-                        <img
-                            src="./images/catagoris/OIP.webp"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt="Women">
-
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-7 bg-amber-950/90 backdrop-blur-sm flex items-center justify-center px-1">
-
-                            <span
-                                class="text-[11px] font-bold text-white uppercase tracking-wider truncate">
-
-                                WOMEN
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
+                <a href="login.html" id="user-auth-link" class="utl-item whitespace-nowrap">
+                    <i class="fa-regular fa-user"></i>
+                    <span>Sign In</span>
                 </a>
 
-
-
-                <!-- Kids -->
-                <a
-                    href="attar.html"
-                    class="flex flex-col items-center group cursor-pointer">
-
-                    <div
-                        class="category-card relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 bg-white dark:bg-slate-900 rounded-full overflow-hidden shadow-md border-4 border-stone-200 dark:border-slate-800 group-hover:border-amber-600">
-
-                        <img
-                            src="./images/catagoris/category-perfumes-for-children.webp"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt="Kids">
-
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-7 bg-amber-950/90 backdrop-blur-sm flex items-center justify-center px-1">
-
-                            <span
-                                class="text-[11px] font-bold text-white uppercase tracking-wider truncate">
-
-                                KIDS
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
+                <a href="wishlist.html" class="utl-item whitespace-nowrap">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>Wishlist</span>
                 </a>
 
-
-
-                <!-- Unisex -->
-                <a
-                    href="gift-sets.html"
-                    class="flex flex-col items-center group cursor-pointer">
-
-                    <div
-                        class="category-card relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 bg-white dark:bg-slate-900 rounded-full overflow-hidden shadow-md border-4 border-stone-200 dark:border-slate-800 group-hover:border-amber-600">
-
-                        <img
-                            src="./images/catagoris/12-Best-Unisex-Fragrances-You-Need-to-Try-3.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt="Unisex">
-
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-7 bg-amber-950/90 backdrop-blur-sm flex items-center justify-center px-1">
-
-                            <span
-                                class="text-[11px] font-bold text-white uppercase tracking-wider truncate">
-
-                                UNISEX
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </a>
-
-
-
-                <!-- Gift Sets -->
-                <a
-                    href="mens-luxury.html"
-                    class="flex flex-col items-center group cursor-pointer col-span-2 sm:col-span-1">
-
-                    <div
-                        class="category-card relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 bg-white dark:bg-slate-900 rounded-full overflow-hidden shadow-md border-4 border-stone-200 dark:border-slate-800 group-hover:border-amber-600">
-
-                        <img
-                            src="./images/catagoris/OIP (1).webp"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            alt="Gift Sets">
-
-                        <div
-                            class="absolute bottom-0 left-0 right-0 h-7 bg-amber-950/90 backdrop-blur-sm flex items-center justify-center px-1">
-
-                            <span
-                                class="text-[11px] font-bold text-white uppercase tracking-wider truncate">
-
-                                GIFT SETS
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================================
-             PREMIUM COMBOS
-        ========================================================== -->
-
-        <section
-            class="mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div
-                class="flex justify-between items-center mb-6 border-b border-stone-200 dark:border-slate-800 pb-3">
-
-                <h3
-                    class="font-serif text-xl md:text-2xl font-bold tracking-wide">
-
-                    Premium Combos
-
-                </h3>
-
-                <a
-                    href="products.html"
-                    class="text-sm font-semibold text-amber-600 hover:underline flex items-center gap-1">
-
-                    View All
-
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-
-                </a>
-
-            </div>
-
-
-            <div
-                id="premium-combos-grid"
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================================
-             PROMOTIONAL BANNER
-        ========================================================== -->
-
-        <section
-            id="side-banner-card"
-            class="mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 cursor-pointer">
-
-            <div
-                class="relative w-full h-[260px] md:h-[320px] rounded-3xl overflow-hidden shadow-xl flex items-center justify-center text-center px-6">
-
-                <img
-                    id="side-banner-img"
-                    src="https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?q=80&w=1400&auto=format&fit=crop"
-                    class="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-110 transition-transform duration-700"
-                    alt="Mid Banner">
-
-                <div class="absolute inset-0 bg-stone-950/65"></div>
-
-
-                <div
-                    class="relative z-10 max-w-xl p-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl text-white">
+                <a href="cart.html" class="utl-item relative whitespace-nowrap">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <span>Cart</span>
 
                     <span
-                        class="text-xs font-semibold tracking-widest uppercase text-amber-400 bg-black/40 px-3.5 py-1 rounded-full">
-
-                        Special Collection
-
+                        class="cart-count-badge bg-[#F26522] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center absolute -top-2 -right-3">
+                        1
                     </span>
+                </a>
 
+            </div>
+        </header>
 
-                    <h2
-                        id="side-banner-title"
-                        class="font-serif text-2xl md:text-3xl font-bold tracking-wide leading-snug mt-3">
+        <!-- Navigation -->
+        <nav class="menu-ribbon w-full">
+            <ul
+                class="menu-container flex items-center justify-center gap-2 sm:gap-4 md:gap-8 px-2 w-full overflow-hidden">
 
-                        Experience the Luxury,
-                        <br>
-                        Enjoy the Comfort
+                <li class=" shrink-0">
+                    <a href="index.html" class="menu-link font-bold text-lg sm:text-xl md:text-[25px] text-[#F26522]">
+                        Home
+                    </a>
+                </li>
 
-                    </h2>
+                <li class=" shrink-0">
+                    <a href="products.html" class="menu-link font-bold text-lg sm:text-xl md:text-[25px]">
+                        All~Product
+                    </a>
+                </li>
 
+                <li class="shrink-0">
+                    <a href="about.html" class="menu-link font-bold text-lg sm:text-xl md:text-[25px]">
+                        About
+                    </a>
+                </li>
 
-                    <p
-                        class="text-xs text-stone-200 font-light mt-2">
+                <li class="shrink-0">
+                    <a href="contact.html"
+                        class="menu-link font-bold text-sm sm:text-lg md:text-[25px] whitespace-nowrap">
+                        Contact us
+                    </a>
+                </li>
 
-                        Discover our elite collection, crafted with rare and authentic fragrance notes.
+            </ul>
+        </nav>
+    </div>
+    <!-- ================= MAIN BODY CONTENT ================= -->
+    <main class="w-full mx-auto px-0 mt-3">
 
-                    </p>
+        <!-- 2. MODERN E-COMMERCE HERO BANNER (Full Browser Width matching Nav Ribbon) -->
+        <div class="w-full bg-neutral-900 my-0">
+            <div class="w-full relative overflow-hidden h-[320px] md:h-[460px] group shadow-sm">
 
+                <!-- Slide 1 -->
+                <div id="slide-1"
+                    class="absolute inset-0 transition-opacity duration-700 opacity-100 flex items-center px-12 md:px-20 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10">
+                    <img id="hero-img-1" src="3"
+                        class="absolute inset-0 w-full h-full object-cover -z-10 cursor-pointer" alt="Perfume 1"
+                        onclick="goToProductDetails()">
+                    <div class="relative text-white z-20 max-w-md pointer-events-none">
+                        
+                    </div>
                 </div>
 
+                <!-- Slide 2 -->
+                <div id="slide-2"
+                    class="absolute inset-0 transition-opacity duration-700 opacity-0 flex items-center px-12 md:px-20 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-0 pointer-events-none">
+                    <img id="hero-img-2" src="#"
+                        class="absolute inset-0 w-full h-full object-cover -z-10 cursor-pointer" alt="Perfume 2"
+                        onclick="goToProductDetails()">
+                    <div class="relative text-white z-20 max-w-md pointer-events-none">
+                       
+                    </div>
+                </div>
+
+                <!-- Slider Navigation Arrows -->
+                <button onclick="prevSlide()"
+                    class="absolute left-6 top-1/2 -translate-y-1/2 bg-white/90 text-neutral-800 w-10 h-12 rounded-md flex items-center justify-center shadow-md z-30 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+                <button onclick="nextSlide()"
+                    class="absolute right-6 top-1/2 -translate-y-1/2 bg-white/90 text-neutral-800 w-10 h-12 rounded-md flex items-center justify-center shadow-md z-30 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white">
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
             </div>
-
-        </section>
-
-
-
-        <!-- =========================================================
-             SIGNATURE PERFUMES
-        ========================================================== -->
-
-        <section
-            class="mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div
-                class="flex justify-between items-center mb-6 border-b border-stone-200 dark:border-slate-800 pb-3">
-
-                <h3
-                    class="font-serif text-xl md:text-2xl font-bold tracking-wide">
-
-                    Signature Perfumes
-
-                </h3>
-
-                <a
-                    href="products.html?category=signature-attar"
-                    class="text-sm font-semibold text-amber-600 hover:underline flex items-center gap-1">
-
-                    View All
-
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-
-                </a>
-
-            </div>
-
-
-            <div
-                id="signature-attar-grid"
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 items-stretch">
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================================
-             ALL PRODUCTS
-        ========================================================== -->
-
-        <section
-            class="mt-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div
-                class="flex justify-between items-center mb-6 border-b border-stone-200 dark:border-slate-800 pb-3">
-
-                <h3
-                    class="font-serif text-xl md:text-2xl font-bold tracking-wide">
-
-                    All Products
-
-                </h3>
-
-                <a
-                    href="products.html"
-                    class="text-sm font-semibold text-amber-600 hover:underline flex items-center gap-1">
-
-                    View All
-
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-
-                </a>
-
-            </div>
-
-
-            <div
-                id="product-grid"
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================================
-             LOAD MORE
-        ========================================================== -->
-
-        <div class="text-center mt-12">
-
-            <button
-                id="load-more-btn"
-                onclick="loadMoreProducts()"
-                type="button"
-                class="border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white px-9 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md">
-
-                Load More Products
-
-            </button>
-
         </div>
 
+    </main>
 
 
-        <!-- =========================================================
-             VALUE PROPOSITION
-        ========================================================== -->
+    <!-- 3. FEATURED ROUND CATEGORIES -->
+    <section class="mt-10 px-4 md:px-8">
+        <div class="text-center mb-8">
+            <h3
+                class="text-[22px] font-bold text-neutral-800 tracking-wide relative inline-block after:content-[''] after:w-16 after:h-[2px] after:bg-[#2596be] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2">
+                SHOP BY CATEGORIES</h3>
+        </div>
 
-        <section
-            class="mt-16 py-14 px-4 md:px-8 bg-stone-100/80 dark:bg-slate-900/60 border-t border-stone-200 dark:border-slate-800">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-items-center py-2">
 
+            <!-- MEN -->
+            <a href="parfum.html" class="flex flex-col items-center group cursor-pointer">
+                <div
+                    class="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-all duration-300">
+                    <img src="./images/catagoris/6e47accfdcd9a0a2e76c5a16e0a82643.jpg"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        alt="Men">
+
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-8 bg-[#800032] flex items-center justify-center px-1">
+                        <span
+                            class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider text-center truncate">MEN</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- WOMEN -->
+            <a href="oud.html" class="flex flex-col items-center group cursor-pointer">
+                <div
+                    class="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-all duration-300">
+                    <img src="./images/catagoris/OIP.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        alt="Women">
+
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-8 bg-[#800032] flex items-center justify-center px-1">
+                        <span
+                            class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider text-center truncate">WOMEN</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- KIDS -->
+            <a href="attar.html" class="flex flex-col items-center group cursor-pointer">
+                <div
+                    class="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-all duration-300">
+                    <img src=".//images/catagoris/category-perfumes-for-children.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        alt="Kids">
+
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-8 bg-[#800032] flex items-center justify-center px-1">
+                        <span
+                            class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider text-center truncate">KIDS</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- UNISEX -->
+            <a href="gift-sets.html" class="flex flex-col items-center group cursor-pointer">
+                <div
+                    class="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-all duration-300">
+                    <img src=".//images/catagoris/12-Best-Unisex-Fragrances-You-Need-to-Try-3.jpg"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        alt="Unisex">
+
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-8 bg-[#800032] flex items-center justify-center px-1">
+                        <span
+                            class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider text-center truncate">UNISEX</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- GIFT SETS -->
+            <a href="mens-luxury.html" class="flex flex-col items-center group cursor-pointer">
+                <div
+                    class="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-all duration-300">
+                    <img src="./images/catagoris/OIP (1).webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        alt="Gift Sets">
+
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-8 bg-[#800032] flex items-center justify-center px-1">
+                        <span
+                            class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider text-center truncate">GIFT
+                            SETS</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </section>
+    <!-- 4. SECTION 1: 4-COLUMN PRODUCT GRID -->
+    <section class="mt-12 px-4 md:px-8">
+        <div class="flex justify-between items-center mb-4 border-b border-neutral-200 pb-2">
+            <h3 class="text-[20px] font-bold text-neutral-800 tracking-wide">Premium Combos</h3>
+            <a href="products.html" class="text-[15px] text-[#2596be] hover:underline flex items-center gap-1">View All
+                <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+        </div>
+
+        <!-- ডাইনামিক প্রোডাক্ট লোড হওয়ার জন্য সঠিক আইডিযুক্ত গ্রিড কন্টেইনার -->
+        <div id="premium-combos-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 items-stretch">
+            <!-- জাভাস্ক্রিপ্ট থেকে এই অংশে স্বয়ংক্রিয়ভাবে প্রোডাক্ট কার্ডগুলো লোড হবে -->
+        </div>
+    </section>
+
+    <!-- 5. MID-PAGE PROMOTIONAL FULL WIDTH BANNER WITH GLASS EFFECT & ANIMATION -->
+    <section class="mt-8 px-4 md:px-8">
+        <div
+            class="relative w-full h-[220px] md:h-[280px] rounded-xl overflow-hidden shadow-md flex items-center justify-center text-center px-6">
+            <!-- ব্যাকগ্রাউন্ড ইমেজ অটো-জুম অ্যানিমেশনসহ -->
+            <img src="https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?q=80&w=1400&auto=format&fit=crop"
+                class="absolute inset-0 w-full h-full object-cover animate-infinite-zoom" alt="Mid Banner">
+            <div class="absolute inset-0 bg-black/50"></div>
+
+            <!-- গ্লাস ইফেক্ট কার্ড যার ভেতর টেক্সট থাকবে -->
             <div
-                class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-
-                <!-- Delivery -->
-                <div
-                    class="bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700/80 p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:border-amber-600 transition">
-
-                    <div
-                        class="w-12 h-12 rounded-full bg-amber-600/10 text-amber-600 flex items-center justify-center shrink-0">
-
-                        <i class="fa-solid fa-box text-lg"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h4
-                            class="font-bold text-stone-800 dark:text-stone-100 text-sm">
-
-                            1/2 Days Delivery
-
-                        </h4>
-
-                        <p
-                            class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-
-                            Fastest nationwide delivery
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Authorized -->
-                <div
-                    class="bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700/80 p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:border-amber-600 transition">
-
-                    <div
-                        class="w-12 h-12 rounded-full bg-amber-600/10 text-amber-600 flex items-center justify-center shrink-0">
-
-                        <i class="fa-solid fa-award text-lg"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h4
-                            class="font-bold text-stone-800 dark:text-stone-100 text-sm">
-
-                            Authorized Product
-
-                        </h4>
-
-                        <p
-                            class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-
-                            Exchange within 30 days
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Support -->
-                <div
-                    class="bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700/80 p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:border-amber-600 transition">
-
-                    <div
-                        class="w-12 h-12 rounded-full bg-amber-600/10 text-amber-600 flex items-center justify-center shrink-0">
-
-                        <i class="fa-solid fa-headset text-lg"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h4
-                            class="font-bold text-stone-800 dark:text-stone-100 text-sm">
-
-                            Customer Support
-
-                        </h4>
-
-                        <p
-                            class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-
-                            Available 8 AM to 10 PM
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Payments -->
-                <div
-                    class="bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700/80 p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:border-amber-600 transition">
-
-                    <div
-                        class="w-12 h-12 rounded-full bg-amber-600/10 text-amber-600 flex items-center justify-center shrink-0">
-
-                        <i class="fa-solid fa-credit-card text-lg"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h4
-                            class="font-bold text-stone-800 dark:text-stone-100 text-sm">
-
-                            Flexible Payments
-
-                        </h4>
-
-                        <p
-                            class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-
-                            Multiple payment methods
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                class="relative z-10 max-w-xl p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl text-white animate-fade-in-up">
+                <span
+                    class="text-[10px] md:text-xs font-semibold tracking-widest uppercase text-[#F26522] bg-white/90 px-3 py-1 rounded-full shadow-sm">Special
+                    Collection</span>
+                <h2 class="font-['Playfair_Display'] text-xl md:text-3xl font-bold tracking-wide leading-snug mt-3">
+                    Experience the Luxury, <br>Enjoy the Comfort</h2>
+                <p class="text-[11px] md:text-xs text-neutral-200 font-light mt-2 max-w-md mx-auto">Discover our premium
+                    collection, crafted with the finest ingredients and French formula blending.</p>
             </div>
+        </div>
+    </section>
 
-        </section>
+    <!-- 6. SECTION 2: NEXT CATEGORY PRODUCT GRID -->
+    <section class="mt-8 px-4 md:px-8">
+        <div class="flex justify-between items-center mb-4 border-b border-neutral-200 pb-2">
+            <h3 class="text-[20px] font-bold text-neutral-800 tracking-wide">Signature parfume</h3>
+            <a href="products.html?category=signature-attar"
+                class="text-[15px] text-[#2596be] hover:underline flex items-center gap-1">View All <i
+                    class="fa-solid fa-chevron-right text-[10px]"></i></a>
+        </div>
 
+        <!-- ডাইনামিক প্রোডাক্ট লোড হওয়ার জন্য সঠিক আইডিযুক্ত গ্রিড কন্টেইনার -->
+        <div id="signature-attar-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 items-stretch">
+            <!-- জাভাস্ক্রিপ্ট থেকে এই অংশে স্বয়ংক্রিয়ভাবে অ্যাটার ও অয়েলের প্রোডাক্টগুলো লোড হবে -->
+        </div>
+    </section>
+
+    <!-- মাঝখানের নতুন সেকশন হেডার (ফাঁকা জায়গা দূর করার জন্য) -->
+    <section class="mt-10 px-4 md:px-8">
+        <div class="flex justify-between items-center mb-4 border-b border-neutral-200 pb-2">
+            <h3 class="text-[20px] font-bold text-neutral-800 tracking-wide">All Products</h3>
+            <a href="products.html" class="text-[15px] text-[#2596be] hover:underline flex items-center gap-1">View All
+                <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+        </div>
+
+        <!-- হোমপেজের প্রোডাক্ট গ্রিড ডিভটিতে id="product-grid" যুক্ত করতে হবে -->
+        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <!-- এখানে ডাইনামিক প্রোডাক্টগুলো চলে আসবে -->
+        </div>
+    </section>
+
+    <!-- Load More বাটন -->
+    <div class="text-center mt-8">
+        <button id="load-more-btn" onclick="loadMoreProducts()"
+            class="border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white px-8 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+            Load More
+        </button>
     </div>
 
+    <!-- 7. FEATURES / VALUE PROPOSITION SECTION WITH SOFT BACKGROUND -->
+    <section class="mt-14 mb-14 py-10 px-4 md:px-8 bg-[#F4F5F7]">
+        <div class="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- Box 1: Delivery -->
+            <div
+                class="bg-white border border-neutral-200/80 p-5 rounded-lg shadow-2xs flex items-center gap-4 hover:border-[#F26522] transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full border border-red-500 text-red-500 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-box text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-neutral-800 tracking-wide">1/2 Days Delivery</h4>
+                    <p class="text-[18px] text-neutral-500 mt-0.5">fastest delivery</p>
+                </div>
+            </div>
+
+            <!-- Box 2: Authorized Product -->
+            <div
+                class="bg-white border border-neutral-200/80 p-5 rounded-lg shadow-2xs flex items-center gap-4 hover:border-[#F26522] transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full border border-red-500 text-red-500 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-award text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-neutral-800 tracking-wide">Authorized Product</h4>
+                    <p class="text-[18px] text-neutral-500 mt-0.5">exchange within 30 days</p>
+                </div>
+            </div>
+
+            <!-- Box 3: Customer Support -->
+            <div
+                class="bg-white border border-neutral-200/80 p-5 rounded-lg shadow-2xs flex items-center gap-4 hover:border-[#F26522] transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full border border-red-500 text-red-500 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-headset text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-neutral-800 tracking-wide">Customer Support</h4>
+                    <p class="text-[18px] text-neutral-500 mt-0.5">8am to 10pm</p>
+                </div>
+            </div>
+
+            <!-- Box 4: Flexible Payments -->
+            <div
+                class="bg-white border border-neutral-200/80 p-5 rounded-lg shadow-2xs flex items-center gap-4 hover:border-[#F26522] transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full border border-red-500 text-red-500 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-credit-card text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-neutral-800 tracking-wide">Flexible Payments</h4>
+                    <p class="text-[18px] text-neutral-500 mt-0.5">pay with multiple cards</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
 
 
-    <!-- =============================================================
-         FOOTER
-    ============================================================== -->
-
-    <footer
-        class="bg-white dark:bg-slate-900 border-t border-stone-200 dark:border-slate-800 pt-12 pb-6 px-4 sm:px-6 mt-16 text-stone-800 dark:text-stone-200">
-
+    <!-- ================= 8. COMPACT MEGA FOOTER ================= -->
+    <footer class="bg-white border-t border-neutral-200 pt-8 pb-4 px-4 sm:px-6 mt-12">
         <div class="max-w-[1280px] mx-auto">
 
+            <!-- Top Row: Brand, Links Grid & Mobile Apps -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 pb-6 border-b border-neutral-100">
 
-            <!-- Top Row -->
-            <div
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 pb-8 border-b border-stone-100 dark:border-slate-800">
-
-
-                <!-- Brand -->
+                <!-- Brand Info -->
                 <div class="lg:col-span-2">
-
-                    <a
-                        href="#"
-                        class="font-serif text-[28px] font-bold tracking-wider text-stone-900 dark:text-white">
-
-                        SCENT<span class="text-amber-600">.</span>
-
-                    </a>
-
-
-                    <p
-                        class="text-sm text-justify text-stone-500 dark:text-stone-400 mt-3 mb-4 leading-relaxed max-w-sm">
-
-                        Scent Perfume Atelier is a premium e-commerce platform dedicated to safe, pure and authentic French luxury perfumes & premium Oud blends.
-
-                    </p>
-
-
-                    <div
-                        class="space-y-2 text-sm text-stone-600 dark:text-stone-300 mb-4">
-
-                        <p class="flex items-center gap-2">
-
-                            <i
-                                class="fa-solid fa-location-dot text-amber-600 w-3.5">
-                            </i>
-
-                            Nikunjo 2, Dhaka, Bangladesh
-
-                        </p>
-
-
-                        <p class="flex items-center gap-2">
-
-                            <i
-                                class="fa-solid fa-phone text-amber-600 w-3.5">
-                            </i>
-
-                            +8809642922922
-
-                        </p>
-
+                    <a href="#"
+                        class="font-['Playfair_Display'] text-[30px] font-bold tracking-wider text-neutral-900">SCENT<span
+                            class="text-[#F26522]">.</span></a>
+                    <p class="text-[16px] text-justify text-neutral-500 mt-2 mb-3 leading-relaxed max-w-sm">Scent
+                        Perfume Atelier is a premium e-commerce platform dedicated to safe, pure and authentic French
+                        luxury perfumes & premium Oud blends.</p>
+                    <div class="space-y-1.5 text-[16px] text-neutral-600 mb-3.5">
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-[#F26522] w-3.5"></i>
+                            Nikunjo 2, Dhaka, Bangladesh</p>
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-phone text-[#F26522] w-3.5"></i>
+                            +8809642922922</p>
                     </div>
-
-
-                    <!-- Social -->
-                    <div class="flex items-center gap-2.5">
-
-                        <a
-                            href="https://www.facebook.com/"
-                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
-                            target="_blank"
-                            rel="noopener noreferrer">
-
-                            <i class="fa-brands fa-facebook-f"></i>
-
-                        </a>
-
-
-                        <a
-                            href="https://www.instagram.com/"
-                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
-                            target="_blank"
-                            rel="noopener noreferrer">
-
-                            <i class="fa-brands fa-twitter"></i>
-
-                        </a>
-
-
-                        <a
-                            href="https://x.com/home"
-                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#F91F73] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
-                            target="_blank"
-                            rel="noopener noreferrer">
-
-                            <i class="fa-brands fa-instagram"></i>
-
-                        </a>
-
+                    <!-- Social Icons -->
+                    <div class="flex items-center gap-2">
+                        <a href="https://www.facebook.com/"
+                            class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-[18px] text-neutral-700 transition-all"
+                            target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/"
+                            class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-[18px] text-neutral-700 transition-all"
+                            target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="https://x.com/home"
+                            class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-[#F91F73] hover:text-white flex items-center justify-center text-[18px] text-neutral-700 transition-all"
+                            target="_blank"><i class="fa-brands fa-instagram"></i></a>
                     </div>
-
                 </div>
-
-
 
                 <!-- Information -->
-                <div class="pt-2">
-
-                    <h4
-                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
-
-                        Information
-
-                    </h4>
-
-
-                    <nav class="flex flex-col space-y-2 text-sm">
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            About us
-
-                        </a>
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Contact us
-
-                        </a>
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Terms & Conditions
-
-                        </a>
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Privacy Policy
-
-                        </a>
-
+                <div class="pt-4">
+                    <h4 class="text-[18px] font-bold uppercase tracking-wider text-neutral-800 mb-2.5">Information</h4>
+                    <nav class="flex flex-col space-y-1.5 text-[11px]">
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">About
+                            us</a>
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Contact
+                            us</a>
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Terms &
+                            Conditions</a>
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Privacy
+                            Policy</a>
                     </nav>
-
                 </div>
 
-
-
-                <!-- Shop By -->
-                <div class="pt-2">
-
-                    <h4
-                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
-
-                        Shop By
-
-                    </h4>
-
-
-                    <nav class="flex flex-col space-y-2 text-sm">
-
-                        <a
-                            href="oud.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            WOMEN
-
-                        </a>
-
-                        <a
-                            href="parfum.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            MEN
-
-                        </a>
-
-                        <a
-                            href="attar.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            KIDS
-
-                        </a>
-
-                        <a
-                            href="mens-luxury.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            UNISEX
-
-                        </a>
-
-                        <a
-                            href="gift-sets.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Gift Sets
-
-                        </a>
-
+                <!-- Shop By (5 items) -->
+                <div class="pt-4">
+                    <h4 class="text-[18px] font-bold uppercase tracking-wider text-neutral-800 mb-2.5">Shop By</h4>
+                    <nav class="flex flex-col space-y-1.5 text-[11px]">
+                        <a href="oud.html"
+                            class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">WOMEN</a>
+                        <a href="parfum.html"
+                            class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">MEN</a>
+                        <a href="attar.html"
+                            class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">KIDS</a>
+                        <a href="mens-luxury.html"
+                            class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">UNISEX</a>
+                        <a href="gift-sets.html"
+                            class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Gift Sets</a>
                     </nav>
-
                 </div>
-
-
 
                 <!-- Support -->
-                <div class="pt-2">
-
-                    <h4
-                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
-
-                        Support
-
-                    </h4>
-
-
-                    <nav class="flex flex-col space-y-2 text-sm">
-
-                        <a
-                            href="contact.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Support Center
-
-                        </a>
-
-                        <a
-                            href="track-order.html"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            How to Order
-
-                        </a>
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            Happy Return
-
-                        </a>
-
-                        <a
-                            href="#"
-                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
-
-                            FAQ
-
-                        </a>
-
+                <div class="pt-4">
+                    <h4 class="text-[18px] font-bold uppercase tracking-wider text-neutral-800 mb-2.5">Support</h4>
+                    <nav class="flex flex-col space-y-1.5 text-[11px]">
+                        <a href="contact.html" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Support
+                            Center</a>
+                        <a href="track-order.html" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">How to
+                            Order</a>
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">Happy
+                            Return</a>
+                        <a href="#" class="text-[15px] text-neutral-500 hover:text-[#F26522] transition-colors">FAQ</a>
                     </nav>
-
                 </div>
 
-
-
-                <!-- Mobile App -->
-                <div class="pt-2">
-
-                    <h4
-                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
-
-                        Get Mobile App
-
+                <!-- Mobile App Download Column -->
+                <div class="pt-4">
+                    <h4 class="text-[18px] font-bold uppercase tracking-wider text-neutral-800 mb-2.5">Get Mobile App
                     </h4>
-
-
-                    <div class="flex flex-col gap-2.5">
-
-                        <a
-                            href="https://play.google.com/store/games"
-                            class="bg-black text-white px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-stone-800 transition-all border border-stone-800 shadow-sm">
-
-                            <i
-                                class="fa-brands fa-google-play text-base text-amber-500">
-                            </i>
-
+                    <div class="flex flex-col gap-2">
+                        <a href="https://play.google.com/store/games"
+                            class="bg-black text-white px-2.5 py-1.5 rounded flex items-center gap-2 hover:bg-neutral-800 transition-all">
+                            <i class="fa-brands fa-google-play text-sm text-[#F26522]"></i>
                             <div class="text-left leading-tight">
-
-                                <span
-                                    class="text-[8px] uppercase block opacity-75">
-
-                                    Get It On
-
-                                </span>
-
-                                <span class="text-xs font-bold">
-
-                                    Google Play
-
-                                </span>
-
+                                <span class="text-[7px] uppercase block opacity-75">Get It On</span>
+                                <span class="text-[10px] font-bold">Google Play</span>
+                                
                             </div>
-
                         </a>
-
-
-                        <a
-                            href="https://apps.apple.com/us/iphone/apps"
-                            class="bg-black text-white px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-stone-800 transition-all border border-stone-800 shadow-sm">
-
-                            <i
-                                class="fa-brands fa-apple text-base text-white">
-                            </i>
-
+                        <a href="https://apps.apple.com/us/iphone/apps"
+                            class="bg-black text-white px-2.5 py-1.5 rounded flex items-center gap-2 hover:bg-neutral-800 transition-all">
+                            <i class="fa-brands fa-apple text-sm text-white"></i>
                             <div class="text-left leading-tight">
-
-                                <span
-                                    class="text-[8px] uppercase block opacity-75">
-
-                                    Download on
-
-                                </span>
-
-                                <span class="text-xs font-bold">
-
-                                    App Store
-
-                                </span>
-
+                                <span class="text-[7px] uppercase block opacity-75">Download on</span>
+                                <span class="text-[10px] font-bold">App Store</span>
                             </div>
-
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
 
+            <!-- Bottom Row: Payment Methods & SSLCommerz Badge -->
+            <div class="pt-4 pb-4 flex flex-col md:flex-row items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    <span class="text-[15px] font-semibold text-neutral-500 uppercase tracking-wider">Pay With:</span>
 
-
-            <!-- Payment -->
-            <div
-                class="pt-6 pb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-
-
-                <div
-                    class="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-
-                    <span
-                        class="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-
-                        Pay With:
-
-                    </span>
-
-
-                    <div class="flex flex-wrap items-center gap-2">
-
-
+                    <!-- Payment Badges with Icons -->
+                    <div class="flex flex-wrap items-center gap-1.5">
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/cash.jpg"
-                                alt="Cash">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-blue-800 bg-blue-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/cash.jpg" alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/Visa.svg"
-                                alt="Visa">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-red-600 bg-red-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/Visa.svg" alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/American.png"
-                                alt="Amex">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-sky-600 bg-sky-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/American.png" alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/Mastercard-logo.svg"
-                                alt="MasterCard">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-pink-700 bg-pink-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/Mastercard-logo.svg"
+                                alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/bkash.svg"
-                                alt="bKash">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-orange-700 bg-orange-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/bkash.svg" alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/Nagad.png"
-                                alt="Nagad">
-
-                        </span>
-
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-purple-700 bg-purple-50/60 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/Nagad.png" alt="jpg"></span>
                         <span
-                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
-
-                            <img
-                                style="height: 24px; width: 45px; object-fit: contain;"
-                                src="./images/pay/upay.png"
-                                alt="Upay">
-
-                        </span>
-
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-neutral-700 bg-neutral-100 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/44-84.png" alt="jpg"></span>
+                        <span
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-neutral-700 bg-neutral-100 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/4-84.png" alt="jpg"></span>
+                        <span
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-neutral-700 bg-neutral-100 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/upay.png" alt="jpg"></span>
+                        <span
+                            class="px-2 py-1 border border-neutral-200/85 rounded font-bold text-neutral-700 bg-neutral-100 flex items-center gap-1 shadow-2xs"><img
+                                style="height: 35px; width: 60px;" src="./images/pay/m-cash.jpeg" alt="jpg"></span>
                     </div>
-
                 </div>
 
+                <!-- SSLCommerz Verified Badge -->
 
-
-                <!-- SSL -->
                 <div
-                    class="bg-blue-900 text-white text-[11px] font-bold px-3 py-2 rounded-lg tracking-wide shadow-lg flex items-center gap-1.5">
-
-                    <span>
-                        Verified by
-                    </span>
-
-                    <span
-                        class="text-cyan-300 font-extrabold tracking-normal">
-
-                        SSLCOMMERZ
-
-                    </span>
-
+                    class="bg-blue-900 text-white text-[10px] font-bold px-2.5 py-1.5 rounded tracking-wide shadow-lg flex items-center gap-1">
+                    <span>Verified by</span>
+                    <span class="text-cyan-300 font-extrabold tracking-normal">SSLCOMMERZ</span>
                 </div>
 
             </div>
 
         </div>
-
-
-        <!-- Copyright -->
-        <div
-            class="h-16 flex justify-center items-center text-center border-t border-stone-200 dark:border-slate-800 text-xs text-stone-500 dark:text-stone-400">
-
-            <p>
-                © 2026 SCENT. All rights reserved. Crafted with precision for Nayan.
-            </p>
-
+        <div class=" h-16 flex justify-center items-center text-center border-solid border-t-2 border-indigo-500">
+            <p>© 2026 SCENT. All rights reserved.</p>
         </div>
-
     </footer>
 
-
-
-    <!-- =============================================================
-         THEME + LANGUAGE + HERO SLIDER
-    ============================================================== -->
-
-    <script>
-
-        /* =========================================================
-           THEME
-        ========================================================== */
-
-        const themeToggleBtn =
-            document.getElementById('themeToggleBtn');
-
-        const htmlElement =
-            document.documentElement;
-
-
-        function applyTheme(theme) {
-
-            if (theme === 'dark') {
-
-                htmlElement.classList.add('dark');
-
-                htmlElement.setAttribute(
-                    'data-theme',
-                    'dark'
-                );
-
-            } else {
-
-                htmlElement.classList.remove('dark');
-
-                htmlElement.setAttribute(
-                    'data-theme',
-                    'light'
-                );
-
-            }
-
-            localStorage.setItem(
-                'theme',
-                theme
-            );
-        }
-
-
-        themeToggleBtn.addEventListener(
-            'click',
-            () => {
-
-                const currentTheme =
-                    htmlElement.classList.contains('dark')
-                        ? 'dark'
-                        : 'light';
-
-                applyTheme(
-                    currentTheme === 'dark'
-                        ? 'light'
-                        : 'dark'
-                );
-
-            }
-        );
-
-
-        const savedTheme =
-            localStorage.getItem('theme');
-
-
-        if (savedTheme) {
-
-            applyTheme(savedTheme);
-
-        } else if (
-            window.matchMedia &&
-            window.matchMedia(
-                '(prefers-color-scheme: dark)'
-            ).matches
-        ) {
-
-            applyTheme('dark');
-
-        } else {
-
-            applyTheme('light');
-
-        }
-
-
-
-        /* =========================================================
-           LANGUAGE
-        ========================================================== */
-
-        const translations = {
-
-            en: {
-
-                home: 'Home',
-
-                allProducts: 'All Products',
-
-                about: 'About',
-
-                contact: 'Contact Us',
-
-                trackOrder: 'Track Order',
-
-                signIn: 'Sign In',
-
-                wishlist: 'Wishlist',
-
-                cart: 'Cart'
-
-            },
-
-
-            bn: {
-
-                home: 'হোম',
-
-                allProducts: 'সকল পণ্য',
-
-                about: 'আমাদের সম্পর্কে',
-
-                contact: 'যোগাযোগ করুন',
-
-                trackOrder: 'অর্ডার ট্র্যাক করুন',
-
-                signIn: 'সাইন ইন',
-
-                wishlist: 'উইশলিস্ট',
-
-                cart: 'কার্ট'
-
-            }
-
-        };
-
-
-        function changeLanguage(language) {
-
-            const selectedLanguage =
-                translations[language]
-                    ? language
-                    : 'en';
-
-
-            document
-                .querySelectorAll('[data-i18n]')
-                .forEach(element => {
-
-                    const key =
-                        element.getAttribute('data-i18n');
-
-                    if (
-                        translations[selectedLanguage][key]
-                    ) {
-
-                        element.textContent =
-                            translations[selectedLanguage][key];
-
-                    }
-
-                });
-
-
-            document.documentElement.lang =
-                selectedLanguage === 'bn'
-                    ? 'bn'
-                    : 'en';
-
-
-            localStorage.setItem(
-                'scent-language',
-                selectedLanguage
-            );
-
-        }
-
-
-        const languageSelect =
-            document.getElementById(
-                'languageSelect'
-            );
-
-
-        languageSelect.addEventListener(
-            'change',
-            function () {
-
-                changeLanguage(
-                    this.value
-                );
-
-            }
-        );
-
-
-        const savedLanguage =
-            localStorage.getItem(
-                'scent-language'
-            ) || 'en';
-
-
-        languageSelect.value =
-            savedLanguage;
-
-
-        changeLanguage(
-            savedLanguage
-        );
-
-
-
-        /* =========================================================
-           HERO SLIDER
-        ========================================================== */
-
-        let currentSlide = 1;
-
-
-        function showSlide(slideNum) {
-
-            const s1 =
-                document.getElementById(
-                    'slide-1'
-                );
-
-            const s2 =
-                document.getElementById(
-                    'slide-2'
-                );
-
-
-            if (slideNum === 1) {
-
-                s1.style.opacity = '1';
-                s1.style.zIndex = '10';
-                s1.style.pointerEvents = 'auto';
-
-                s2.style.opacity = '0';
-                s2.style.zIndex = '0';
-                s2.style.pointerEvents = 'none';
-
-                currentSlide = 1;
-
-            } else {
-
-                s2.style.opacity = '1';
-                s2.style.zIndex = '10';
-                s2.style.pointerEvents = 'auto';
-
-                s1.style.opacity = '0';
-                s1.style.zIndex = '0';
-                s1.style.pointerEvents = 'none';
-
-                currentSlide = 2;
-
-            }
-
-        }
-
-
-        function nextSlide() {
-
-            showSlide(
-                currentSlide === 1
-                    ? 2
-                    : 1
-            );
-
-        }
-
-
-        function prevSlide() {
-
-            showSlide(
-                currentSlide === 1
-                    ? 2
-                    : 1
-            );
-
-        }
-
-
-        setInterval(
-            () => {
-                nextSlide();
-            },
-            5000
-        );
-
-    </script>
-
-
-
-    <!-- =============================================================
-         FIREBASE SDK & CORE LOGIC
-    ============================================================== -->
-
+    <!-- ১. ফায়ারবেস মডিউল ও ফায়ারবেস লাইব্রেরি (Modular SDK) -->
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        import {
-            initializeApp
-        } from
-            "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-
-        import {
-            getFirestore,
-            collection,
-            getDocs
-        } from
-            "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-
+        // ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
-
-            apiKey:
-                "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
-
-            authDomain:
-                "nayan-bc068.firebaseapp.com",
-
-            projectId:
-                "nayan-bc068",
-
-            storageBucket:
-                "nayan-bc068.firebasestorage.app",
-
-            messagingSenderId:
-                "782323259018",
-
-            appId:
-                "1:782323259018:web:a428fe0d96897711223f73",
-
-            measurementId:
-                "G-8PJVBLSPZV"
-
+            apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
+            authDomain: "nayan-bc068.firebaseapp.com",
+            projectId: "nayan-bc068",
+            storageBucket: "nayan-bc068.firebasestorage.app",
+            messagingSenderId: "782323259018",
+            appId: "1:782323259018:web:a428fe0d96897711223f73",
+            measurementId: "G-8PJVBLSPZV"
         };
 
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        const app =
-            initializeApp(
-                firebaseConfig
-            );
-
-
-        const db =
-            getFirestore(app);
-
-
-
+        // ফায়ারবেস থেকে লাইভ প্রোডাক্ট এবং ব্যানার ফেচ করার ফাংশন
         async function fetchLiveWebsiteData() {
-
             try {
-
                 let firebaseProducts = [];
 
+                // Firestore থেকে products কালেকশন আনা
+                const querySnapshot = await getDocs(collection(db, "products"));
+                querySnapshot.forEach((doc) => {
+                    const productData = { id: doc.id, ...doc.data() };
+                    firebaseProducts.push(productData);
+                });
 
-                const querySnapshot =
-                    await getDocs(
-                        collection(
-                            db,
-                            "products"
-                        )
-                    );
+                // লুপের বাইরে এসে লেটেস্ট প্রোডাক্টগুলো আলাদা করে ফিল্টার করার লজিক
+                const slider1Product = firebaseProducts.slice().reverse().find(p => p.homeSection && p.homeSection.trim() === "slider-1");
+                const slider2Product = firebaseProducts.slice().reverse().find(p => p.homeSection && p.homeSection.trim() === "slider-2");
+                const sideBannerProduct = firebaseProducts.slice().reverse().find(p => p.homeSection && p.homeSection.trim() === "side-banner");
 
-
-                querySnapshot.forEach(
-                    (doc) => {
-
-                        firebaseProducts.push({
-
-                            id: doc.id,
-
-                            ...doc.data()
-
-                        });
-
-                    }
-                );
-
-
-                const slider1Product =
-                    firebaseProducts
-                        .slice()
-                        .reverse()
-                        .find(
-                            p =>
-                                p.homeSection &&
-                                p.homeSection.trim() ===
-                                "slider-1"
-                        );
-
-
-                const slider2Product =
-                    firebaseProducts
-                        .slice()
-                        .reverse()
-                        .find(
-                            p =>
-                                p.homeSection &&
-                                p.homeSection.trim() ===
-                                "slider-2"
-                        );
-
-
-                const sideBannerProduct =
-                    firebaseProducts
-                        .slice()
-                        .reverse()
-                        .find(
-                            p =>
-                                p.homeSection &&
-                                p.homeSection.trim() ===
-                                "side-banner"
-                        );
-
-
-
-                /* =================================================
-                   SLIDER 1
-                ================================================== */
-
+                // ১. স্লাইডার ১ আপডেট
                 if (slider1Product) {
-
-                    const imgEl =
-                        document.getElementById(
-                            'hero-img-1'
-                        );
-
-
-                    const titleEl =
-                        document.getElementById(
-                            'hero-title-1'
-                        );
-
-
-                    const imageUrl =
-                        slider1Product.image ||
-                        slider1Product.images?.[0] ||
-                        '';
-
-
-                    if (
-                        imgEl &&
-                        imageUrl
-                    ) {
-
-                        imgEl.src =
-                            imageUrl;
-
+                    const imgEl = document.getElementById('hero-img-1');
+                    const titleEl = document.getElementById('hero-title-1');
+                    const imageUrl = slider1Product.image || slider1Product.images?.[0] || '';
+                    if (imgEl && imageUrl) imgEl.src = imageUrl;
+                    if (titleEl && slider1Product.title) {
+                        titleEl.innerHTML = slider1Product.title.replace(/\s+/g, '<br>');
                     }
-
-
-                    if (
-                        titleEl &&
-                        slider1Product.title
-                    ) {
-
-                        titleEl.innerHTML =
-                            slider1Product.title
-                                .replace(
-                                    /\s+/g,
-                                    '<br>'
-                                );
-
-                    }
-
                 }
 
-
-
-                /* =================================================
-                   SLIDER 2
-                ================================================== */
-
+                // ২. স্লাইডার ২ আপডেট
                 if (slider2Product) {
-
-                    const imgEl =
-                        document.getElementById(
-                            'hero-img-2'
-                        );
-
-
-                    const titleEl =
-                        document.getElementById(
-                            'hero-title-2'
-                        );
-
-
-                    const imageUrl =
-                        slider2Product.image ||
-                        slider2Product.images?.[0] ||
-                        '';
-
-
-                    if (
-                        imgEl &&
-                        imageUrl
-                    ) {
-
-                        imgEl.src =
-                            imageUrl;
-
+                    const imgEl = document.getElementById('hero-img-2');
+                    const titleEl = document.getElementById('hero-title-2');
+                    const imageUrl = slider2Product.image || slider2Product.images?.[0] || '';
+                    if (imgEl && imageUrl) imgEl.src = imageUrl;
+                    if (titleEl && slider2Product.title) {
+                        titleEl.innerHTML = slider2Product.title.replace(/\s+/g, '<br>');
                     }
-
-
-                    if (
-                        titleEl &&
-                        slider2Product.title
-                    ) {
-
-                        titleEl.innerHTML =
-                            slider2Product.title
-                                .replace(
-                                    /\s+/g,
-                                    '<br>'
-                                );
-
-                    }
-
                 }
 
-
-
-                /* =================================================
-                   SIDE BANNER
-                ================================================== */
-
+                // ৩. সাইড ব্যানার আপডেট এবং ক্লিক করলে ডিটেইলস পেজে যাওয়ার ব্যবস্থা
                 if (sideBannerProduct) {
+                    const imgEl = document.getElementById('side-banner-img');
+                    const titleEl = document.getElementById('side-banner-title');
+                    const cardEl = document.getElementById('side-banner-card');
+                    const imageUrl = sideBannerProduct.image || sideBannerProduct.images?.[0] || '';
 
-                    const imgEl =
-                        document.getElementById(
-                            'side-banner-img'
-                        );
-
-
-                    const titleEl =
-                        document.getElementById(
-                            'side-banner-title'
-                        );
-
-
-                    const cardEl =
-                        document.getElementById(
-                            'side-banner-card'
-                        );
-
-
-                    const imageUrl =
-                        sideBannerProduct.image ||
-                        sideBannerProduct.images?.[0] ||
-                        '';
-
-
-                    if (
-                        imgEl &&
-                        imageUrl
-                    ) {
-
-                        imgEl.src =
-                            imageUrl;
-
+                    if (imgEl && imageUrl) imgEl.src = imageUrl;
+                    if (titleEl && sideBannerProduct.title) {
+                        titleEl.innerText = sideBannerProduct.title;
                     }
-
-
-                    if (
-                        titleEl &&
-                        sideBannerProduct.title
-                    ) {
-
-                        titleEl.innerText =
-                            sideBannerProduct.title;
-
+                    if (cardEl && sideBannerProduct.id) {
+                        cardEl.onclick = function () {
+                            window.location.href = `product-details.html?id=${sideBannerProduct.id}`;
+                        };
                     }
-
-
-                    if (
-                        cardEl &&
-                        sideBannerProduct.id
-                    ) {
-
-                        cardEl.onclick =
-                            function () {
-
-                                window.location.href =
-                                    `product-details.html?id=${sideBannerProduct.id}`;
-
-                            };
-
-                    }
-
                 }
 
+                // যদি ফায়ারবেসে প্রোডাক্ট থাকে, সেগুলোকে প্রাধান্য দেওয়া হবে, না থাকলে db.js এর স্ট্যাটিক ডাটা থাকবে
+                let finalProducts = firebaseProducts.length > 0 ? firebaseProducts : (typeof productsData !== 'undefined' ? Object.values(productsData) : []);
 
-
-                /* =================================================
-                   PRODUCT DATA
-                ================================================== */
-
-                let finalProducts =
-                    firebaseProducts.length > 0
-                        ? firebaseProducts
-                        : (
-                            typeof productsData !== 'undefined'
-                                ? Object.values(productsData)
-                                : []
-                        );
-
-
-                if (
-                    typeof window.initializeProducts ===
-                    'function'
-                ) {
-
-                    window.initializeProducts(
-                        finalProducts,
-                        db
-                    );
-
+                // script.js এর ফাংশনে ডাটা এবং ডাটাবেজ ইনস্ট্যান্স পাস করা
+                if (typeof window.initializeProducts === 'function') {
+                    window.initializeProducts(finalProducts, db);
                 }
-
             } catch (error) {
-
-                console.error(
-                    "Live data fetch error: ",
-                    error
-                );
-
-
-                if (
-                    typeof window.initializeProducts ===
-                    'function'
-                ) {
-
-                    let fallbackProducts =
-                        typeof productsData !== 'undefined'
-                            ? Object.values(productsData)
-                            : [];
-
-
-                    window.initializeProducts(
-                        fallbackProducts,
-                        db
-                    );
-
+                console.error("Live data fetch error: ", error);
+                // কোনো এরর হলে স্ট্যাটিক db.js ফাইল ফলব্যাক হিসেবে কাজ করবে
+                if (typeof window.initializeProducts === 'function') {
+                    let fallbackProducts = typeof productsData !== 'undefined' ? Object.values(productsData) : [];
+                    window.initializeProducts(fallbackProducts, db);
                 }
-
             }
-
         }
 
-
+        // পেজ লোড হওয়ার সাথে সাথে ফেচ কল করা
         fetchLiveWebsiteData();
-
     </script>
 
+    <!-- ফায়ারবেস কমপ্যাট সিডিএন -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-
-    <!-- =============================================================
-         FIREBASE COMPAT + EXISTING CORE LOGIC
-    ============================================================== -->
-
-    <script
-        src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js">
-    </script>
-
-    <script
-        src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js">
-    </script>
-
-    <script
-        src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js">
-    </script>
-
-
-    <!-- Existing Database Logic -->
+    <!-- ডেটাবেজ ও মূল লজিক ফাইল -->
     <script src="db.js"></script>
-
-    <!-- Existing Website Logic -->
     <script src="script.js"></script>
-
-
 </body>
 
 </html>
