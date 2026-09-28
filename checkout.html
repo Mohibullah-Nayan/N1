@@ -270,74 +270,95 @@
         if(grandTotalEl) grandTotalEl.innerText = '৳' + grandTotal.toLocaleString('en-IN');
     }
 
-    function handleOrderSubmit(event) {
-        event.preventDefault();
-        
-        let name = document.getElementById('customer-name').value;
-        let phone = document.getElementById('customer-phone').value;
-        let email = document.getElementById('customer-email').value;
-        let address = document.getElementById('customer-address').value;
-        let paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+    async function handleOrderSubmit(event) {
+    event.preventDefault();
+    
+    // ফর্মের ইনপুট ফিল্ডগুলো থেকে মানগুলো সঠিকভাবে নেওয়া হচ্ছে কিনা তা নিশ্চিত করা
+    let nameInput = document.getElementById('customer-name');
+    let phoneInput = document.getElementById('customer-phone');
+    let emailInput = document.getElementById('customer-email');
+    let addressInput = document.getElementById('customer-address');
+    
+    let name = nameInput ? nameInput.value.trim() : '';
+    let phone = phoneInput ? phoneInput.value.trim() : '';
+    let email = emailInput ? emailInput.value.trim() : '';
+    let address = addressInput ? addressInput.value.trim() : '';
+    
+    let paymentMethodEl = document.querySelector('input[name="payment-method"]:checked');
+    let paymentMethod = paymentMethodEl ? paymentMethodEl.value : 'cod';
 
-        let cartKey = getActiveCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        if (cart.length === 0) {
-            alert("Your cart is empty!");
-            return;
+    // ফোন নম্বর বা নাম মিসিং থাকলে অ্যালার্ট দেখাবে
+    if (!phone || !name) {
+        alert("দয়া করে আপনার নাম এবং মোবাইল নম্বরটি দিন!");
+        return;
+    }
+
+    let cartKey = getActiveCartKey();
+    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    let subtotal = 0;
+    cart.forEach(item => {
+        let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+        subtotal += cleanPrice * item.quantity;
+    });
+    let grandTotal = (subtotal - appliedDiscount) + 60;
+
+    let orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+    
+    // এখানে সরাসরি ফোন নম্বরসহ সব ডেটা গুছিয়ে নেওয়া হলো
+    let orderData = {
+        orderId: orderId,
+        name: name,
+        phone: phone,          // <--- মোবাইল নম্বর এখানে যুক্ত করা হলো
+        email: email,
+        address: address,
+        paymentMethod: paymentMethod,
+        items: cart,
+        couponUsed: appliedCouponCode ? appliedCouponCode : 'None',
+        discountAmount: '৳' + appliedDiscount.toLocaleString('en-IN'),
+        totalAmount: '৳' + grandTotal.toLocaleString('en-IN'),
+        status: 'Pending',
+        orderDate: new Date().toISOString()
+    };
+
+    let submitBtn = document.getElementById('order-btn');
+    if(submitBtn) {
+        submitBtn.innerText = "Processing Order...";
+        submitBtn.disabled = true;
+    }
+
+    try {
+        // সরাসরি ফায়ারবেসের ফায়ারস্টোরে সেভ করা
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+            const dbInstance = firebase.firestore();
+            await dbInstance.collection("orders").add(orderData);
+            console.log("Order saved to Firebase successfully with phone:", phone);
+        } else {
+            console.error("Firebase is not defined!");
         }
 
-        let subtotal = 0;
-        cart.forEach(item => {
-            let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
-            subtotal += cleanPrice * item.quantity;
-        });
-        let grandTotal = (subtotal - appliedDiscount) + 60;
+        // লোকালস্টোরেজেও ব্যাকআপ রাখা
+        let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+        allOrders.push(orderData);
+        localStorage.setItem('orders', JSON.stringify(allOrders));
+        localStorage.removeItem(cartKey);
 
-        let orderId = '#' + Math.floor(10000 + Math.random() * 90000);
-        
-        let orderData = {
-            orderId: orderId,
-            name: name,
-            phone: phone, // ফায়ারবেসের ট্র্যাক অর্ডারের জন্য মোবাইল নম্বর
-            email: email,
-            address: address,
-            paymentMethod: paymentMethod,
-            items: cart,
-            couponUsed: appliedCouponCode ? appliedCouponCode : 'None',
-            discountAmount: '৳' + appliedDiscount.toLocaleString('en-IN'),
-            totalAmount: '৳' + grandTotal.toLocaleString('en-IN'),
-            status: 'Processing',
-            date: new Date().toLocaleDateString(),
-            createdAt: Date.now()
-        };
+        alert(`অর্ডার সফলভাবে সম্পন্ন হয়েছে! আপনার অর্ডার আইডি: ${orderId}`);
+        window.location.href = 'track-order.html';
 
-        let submitBtn = document.getElementById('order-btn');
-        submitBtn.innerText = "Confirming Order and Sending Email...";
-        submitBtn.disabled = true;
-
-        // EmailJS এর জন্য প্রোডাক্টের বিবরণ তৈরি
-        let itemsListText = cart.map(item => `${item.title} (${item.quantity} pcs) - ${item.price}`).join(', ');
-
-        let templateParams = {
-            to_name: name,
-            to_email: email,
-            order_id: orderId,
-            order_details: itemsListText,
-            total_amount: '৳' + grandTotal.toLocaleString('en-IN'),
-            shipping_address: address,
-            phone_number: phone
-        };
-
-        emailjs.send('service_inuvwec', 'template_nbd15cc', templateParams)
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
-                executeFinalStep(paymentMethod, orderData, cartKey, orderId);
-            }, function(error) {
-                console.log('FAILED...', error);
-                alert('Failed to send email, but your order has been processed.');
-                executeFinalStep(paymentMethod, orderData, cartKey, orderId);
-            });
+    } catch (error) {
+        console.error("Error saving order: ", error);
+        alert("অর্ডার সেভ করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+        if(submitBtn) {
+            submitBtn.innerText = "Confirm Order";
+            submitBtn.disabled = false;
+        }
     }
+}
 
     // ফায়ারবেসে অর্ডার সেভ করার আপডেট করা ফাংশন
     async function executeFinalStep(paymentMethod, orderData, cartKey, orderId) {
