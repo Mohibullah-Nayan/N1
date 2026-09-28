@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Premium Perfume Shop</title>
+         <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+</head>
+
+<!-- External CSS Link -->
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Hind Siliguri', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: '#D97706',
+                        darkBg: '#090D16'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+        }
+
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+
+</head>
+<body class="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-stone-50 dark:bg-darkBg text-stone-800 dark:text-stone-100 font-sans transition-colors duration-300 flex flex-col justify-between selection:bg-amber-600 selection:text-white">
+   <div>
+
+        <!-- ==================== ULTRA-MODERN PROFESSIONAL NAVBAR ==================== -->
+        <div class="custom-navbar-wrapper w-full sticky top-0 z-50 glass-header border-b border-stone-200/60 dark:border-slate-800 shadow-sm transition-all">
+
+            <header class="top-header max-w-7xl mx-auto w-full flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
+
+                <!-- 1. Brand Logo with Glow Accent -->
+                <a href="index.html" class="nav-logo shrink-0 flex items-center gap-2.5 group">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-spray-can-sparkles text-sm"></i>
+                    </div>
+
+                    <span class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
+                        SCENT<span class="text-amber-600">.</span>
+                    </span>
+                </a>
+
+                <!-- 2. Sleek Realtime Search Bar -->
+                <div class="nav-search-wrapper hidden md:flex flex-1 max-w-md relative mx-4">
+                    <input
+                        type="text"
+                        id="productSearchInput"
+                        data-i18n-placeholder="search"
+                        placeholder="Search exclusive perfumes, ouds..."
+                        class="nav-search-input w-full bg-stone-100/90 dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700/80 rounded-full py-2 pl-11 pr-4 text-xs sm:text-sm focus:outline-none focus:border-amber-600 dark:focus:border-amber-500 transition shadow-inner"
+                    >
+
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-stone-400 text-xs"></i>
+                </div>
+
+                <!-- 3. Header Utilities & Actions -->
+                <div class="header-utls flex items-center gap-2 sm:gap-3 text-sm font-medium">
+
+                    <!-- Theme Toggle -->
+                    <button
+                        id="themeToggleBtn"
+                        class="w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition shadow-2xs"
+                        title="Toggle Theme"
+                    >
+                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
+                        <i class="fa-solid fa-sun hidden dark:inline text-xs text-amber-400"></i>
+                    </button>
+
+                    <!-- Language Selector -->
+                    <div class="hidden sm:flex items-center gap-1 border border-stone-200 dark:border-slate-700 rounded-full px-2.5 py-1.5 bg-stone-100 dark:bg-slate-800 text-xs">
+
+                        <i class="fa-solid fa-globe text-amber-600 text-[10px]"></i>
+
+                        <select
+                            id="languageSelect"
+                            class="bg-transparent outline-none cursor-pointer font-semibold text-stone-700 dark:text-stone-300"
+                        >
+                            <option value="en" class="dark:bg-slate-800">EN</option>
+                            <option value="bn" class="dark:bg-slate-800">বাংলা</option>
+                        </select>
+
+                    </div>
+
+                    <!-- Track Order Link -->
+                    <a
+                        href="track-order.html"
+                        class="utl-item hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
+                    >
+                        <i class="fa-regular fa-circle-question text-amber-600"></i>
+                        <span data-i18n="track">Track</span>
+                    </a>
+
+                    <!-- User Account / Sign In -->
+                    <a
+                        href="login.html"
+                        id="user-auth-link"
+                        class="utl-item flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
+                    >
+                        <i class="fa-regular fa-user text-amber-600"></i>
+                        <span class="hidden sm:inline" data-i18n="signIn">Sign In</span>
+                    </a>
+
+                    <!-- Wishlist -->
+                    <a
+                        href="wishlist.html"
+                        class="utl-item hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 transition text-stone-700 dark:text-stone-300 relative"
+                        title="Wishlist"
+                    >
+                        <i class="fa-regular fa-heart text-xs"></i>
+                    </a>
+
+                    <!-- Shopping Cart with Badge -->
+                    <a
+                        href="cart.html"
+                        class="utl-item relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3.5 py-2 rounded-full transition shadow-md font-semibold text-xs"
+                    >
+                        <i class="fa-solid fa-bag-shopping"></i>
+
+                        <span class="hidden sm:inline" data-i18n="cart">Cart</span>
+
+                        <span class="cart-count-badge bg-stone-900 text-amber-400 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow">
+                            1
+                        </span>
+                    </a>
+
+                </div>
+            </header>
+
+            <!-- Mobile Search Bar -->
+            <div class="md:hidden px-4 pb-2.5">
+                <div class="relative w-full">
+
+                    <input
+                        type="text"
+                        id="mobileSearchInput"
+                        data-i18n-placeholder="mobileSearch"
+                        placeholder="Search exclusive perfumes..."
+                        class="w-full bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-amber-600"
+                    >
+
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-stone-400 text-xs"></i>
+
+                </div>
+            </div>
+
+            <!-- Navigation Links Ribbon -->
+            <nav class="menu-ribbon w-full border-t border-stone-200/50 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 py-2">
+
+                <ul class="menu-container flex items-center justify-center gap-6 sm:gap-12 px-4 w-full overflow-x-auto text-xs sm:text-sm font-semibold tracking-wider uppercase">
+
+                    <li class="shrink-0">
+    <a
+        href="index.html"
+        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5"
+    >
+        <i class="fa-solid fa-house text-[11px]"></i>
+        <span data-i18n="home">Home</span>
+    </a>
+</li>
+
+<li class="shrink-0">
+    <a
+        href="products.html"
+        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
+        data-i18n="allProducts"
+    >
+        All Products
+    </a>
+</li>
+
+<li class="shrink-0">
+    <a
+        href="about.html"
+        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
+        data-i18n="about"
+    >
+        About 
+    </a>
+</li>
+
+<li class="shrink-0">
+    <a
+        href="contact.html"
+        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap"
+        data-i18n="contact"
+    >
+        Contact Us
+    </a>
+</li>
+ </ul>
+</nav>
+</div>
+    <main class="flex-1 w-full max-w-[100vw] overflow-x-hidden">
+
+        <!-- Registration Form Section -->
+        <div class="max-w-md mx-auto bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-8 shadow-sm my-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-['Playfair_Display'] font-bold text-neutral-900 dark:text-white">Create New Account</h2>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Provide your information to join us</p>
+            </div>
+
+            <form onsubmit="handleRegister(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Full Name</label>
+                    <input type="text" id="register-name" placeholder="Enter your full name" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Email Address</label>
+                    <input type="email" id="register-email" placeholder="example@gmail.com" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Phone Number</label>
+                    <input type="tel" id="register-phone" placeholder="01XXXXXXXXX" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522]">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Gender</label>
+                        <select id="register-gender" class="w-full px-3 py-2 text-xs border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522] bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Date of Birth (Optional)</label>
+                        <input type="date" id="register-dob" class="w-full px-3 py-2 text-xs border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522] bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-200">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Shipping Address</label>
+                    <textarea id="register-address" placeholder="House Number, Road, Area, Thana/City" rows="2" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522] resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Password</label>
+                    <input type="password" id="register-password" placeholder="At least 6 characters" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" placeholder="Re-enter your password" required class="w-full px-3 py-2 text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 rounded focus:outline-none focus:border-[#F26522]">
+                </div>
+
+                <!-- Terms and Conditions Checkbox -->
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="terms-check" required class="w-3.5 h-3.5 accent-[#F26522] cursor-pointer">
+                    <label for="terms-check" class="text-[11px] text-neutral-600 dark:text-neutral-400 cursor-pointer">
+                        I agree to the <a href="#" class="text-[#F26522] hover:underline">Terms and Conditions</a> and <a href="#" class="text-[#F26522] hover:underline">Privacy Policy</a>.
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-[#F26522] text-white text-xs font-semibold rounded hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors shadow-sm mt-2">
+                    Register
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-xs text-neutral-600 dark:text-neutral-400 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                Already have an account? <a href="login.html" class="text-[#F26522] font-semibold hover:underline">Sign in</a>
+            </div>
+        </div>
+    </main>
+
+   
+    <footer
+        class="bg-white dark:bg-slate-900 border-t border-stone-200 dark:border-slate-800 pt-12 pb-6 px-4 sm:px-6 mt-16 text-stone-800 dark:text-stone-200">
+
+        <div class="max-w-[1280px] mx-auto">
+
+
+            <!-- Top Row -->
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 pb-8 border-b border-stone-100 dark:border-slate-800">
+
+
+                <!-- Brand -->
+                <div class="lg:col-span-2">
+
+                    <a
+                        href="#"
+                        class="font-serif text-[28px] font-bold tracking-wider text-stone-900 dark:text-white">
+
+                        SCENT<span class="text-amber-600">.</span>
+
+                    </a>
+
+
+                    <p
+                        class="text-sm text-justify text-stone-500 dark:text-stone-400 mt-3 mb-4 leading-relaxed max-w-sm">
+
+                        Scent Perfume Atelier is a premium e-commerce platform dedicated to safe, pure and authentic French luxury perfumes & premium Oud blends.
+
+                    </p>
+
+
+                    <div
+                        class="space-y-2 text-sm text-stone-600 dark:text-stone-300 mb-4">
+
+                        <p class="flex items-center gap-2">
+
+                            <i
+                                class="fa-solid fa-location-dot text-amber-600 w-3.5">
+                            </i>
+
+                            Nikunjo 2, Dhaka, Bangladesh
+
+                        </p>
+
+
+                        <p class="flex items-center gap-2">
+
+                            <i
+                                class="fa-solid fa-phone text-amber-600 w-3.5">
+                            </i>
+
+                            +8809642922922
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- Social -->
+                    <div class="flex items-center gap-2.5">
+
+                        <a
+                            href="https://www.facebook.com/"
+                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
+                            target="_blank"
+                            rel="noopener noreferrer">
+
+                            <i class="fa-brands fa-facebook-f"></i>
+
+                        </a>
+
+
+                        <a
+                            href="https://www.instagram.com/"
+                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#0B57D0] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
+                            target="_blank"
+                            rel="noopener noreferrer">
+
+                            <i class="fa-brands fa-twitter"></i>
+
+                        </a>
+
+
+                        <a
+                            href="https://x.com/home"
+                            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-[#F91F73] hover:text-white flex items-center justify-center text-sm text-stone-700 dark:text-stone-300 transition-all"
+                            target="_blank"
+                            rel="noopener noreferrer">
+
+                            <i class="fa-brands fa-instagram"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Information -->
+                <div class="pt-2">
+
+                    <h4
+                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
+
+                        Information
+
+                    </h4>
+
+
+                    <nav class="flex flex-col space-y-2 text-sm">
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            About us
+
+                        </a>
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Contact us
+
+                        </a>
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Terms & Conditions
+
+                        </a>
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Privacy Policy
+
+                        </a>
+
+                    </nav>
+
+                </div>
+
+
+
+                <!-- Shop By -->
+                <div class="pt-2">
+
+                    <h4
+                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
+
+                        Shop By
+
+                    </h4>
+
+
+                    <nav class="flex flex-col space-y-2 text-sm">
+
+                        <a
+                            href="oud.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            WOMEN
+
+                        </a>
+
+                        <a
+                            href="parfum.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            MEN
+
+                        </a>
+
+                        <a
+                            href="attar.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            KIDS
+
+                        </a>
+
+                        <a
+                            href="mens-luxury.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            UNISEX
+
+                        </a>
+
+                        <a
+                            href="gift-sets.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Gift Sets
+
+                        </a>
+
+                    </nav>
+
+                </div>
+
+
+
+                <!-- Support -->
+                <div class="pt-2">
+
+                    <h4
+                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
+
+                        Support
+
+                    </h4>
+
+
+                    <nav class="flex flex-col space-y-2 text-sm">
+
+                        <a
+                            href="contact.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Support Center
+
+                        </a>
+
+                        <a
+                            href="track-order.html"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            How to Order
+
+                        </a>
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            Happy Return
+
+                        </a>
+
+                        <a
+                            href="#"
+                            class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
+
+                            FAQ
+
+                        </a>
+
+                    </nav>
+
+                </div>
+
+
+
+                <!-- Mobile App -->
+                <div class="pt-2">
+
+                    <h4
+                        class="text-sm font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 mb-3">
+
+                        Get Mobile App
+
+                    </h4>
+
+
+                    <div class="flex flex-col gap-2.5">
+
+                        <a
+                            href="https://play.google.com/store/games"
+                            class="bg-black text-white px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-stone-800 transition-all border border-stone-800 shadow-sm">
+
+                            <i
+                                class="fa-brands fa-google-play text-base text-amber-500">
+                            </i>
+
+                            <div class="text-left leading-tight">
+
+                                <span
+                                    class="text-[8px] uppercase block opacity-75">
+
+                                    Get It On
+
+                                </span>
+
+                                <span class="text-xs font-bold">
+
+                                    Google Play
+
+                                </span>
+
+                            </div>
+
+                        </a>
+
+
+                        <a
+                            href="https://apps.apple.com/us/iphone/apps"
+                            class="bg-black text-white px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-stone-800 transition-all border border-stone-800 shadow-sm">
+
+                            <i
+                                class="fa-brands fa-apple text-base text-white">
+                            </i>
+
+                            <div class="text-left leading-tight">
+
+                                <span
+                                    class="text-[8px] uppercase block opacity-75">
+
+                                    Download on
+
+                                </span>
+
+                                <span class="text-xs font-bold">
+
+                                    App Store
+
+                                </span>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Payment -->
+            <div
+                class="pt-6 pb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+
+
+                <div
+                    class="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+
+                    <span
+                        class="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+
+                        Pay With:
+
+                    </span>
+
+
+                    <div class="flex flex-wrap items-center gap-2">
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/cash.jpg"
+                                alt="Cash">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/Visa.svg"
+                                alt="Visa">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/American.png"
+                                alt="Amex">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/Mastercard-logo.svg"
+                                alt="MasterCard">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/bkash.svg"
+                                alt="bKash">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/Nagad.png"
+                                alt="Nagad">
+
+                        </span>
+
+
+                        <span
+                            class="px-1.5 py-1 border border-stone-200 dark:border-slate-700 rounded bg-stone-50 dark:bg-slate-800 flex items-center">
+
+                            <img
+                                style="height: 24px; width: 45px; object-fit: contain;"
+                                src="./images/pay/upay.png"
+                                alt="Upay">
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SSL -->
+                <div
+                    class="bg-blue-900 text-white text-[11px] font-bold px-3 py-2 rounded-lg tracking-wide shadow-lg flex items-center gap-1.5">
+
+                    <span>
+                        Verified by
+                    </span>
+
+                    <span
+                        class="text-cyan-300 font-extrabold tracking-normal">
+
+                        SSLCOMMERZ
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Copyright -->
+        <div
+            class="h-16 flex justify-center items-center text-center border-t border-stone-200 dark:border-slate-800 text-xs text-stone-500 dark:text-stone-400">
+
+            <p>
+                © 2026 SCENT. All rights reserved. Crafted with precision for Nayan.
+            </p>
+
+        </div>
+
+    </footer>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <!-- Custom Files -->
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+    <script src="register.js"></script>
+   <script src="nav.js"></script>
+
+</body>
+</html>
+
+</body>
+</html>

@@ -1,0 +1,268 @@
+/* Navbar responsive - single line */
+.top-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    width: 100%;
+}
+
+.nav-logo {
+    flex-shrink: 0;
+}
+
+.nav-search-wrapper {
+    flex: 1;
+    min-width: 120px;
+}
+
+.header-utls {
+    padding-right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.menu-ribbon {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.menu-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    min-width: max-content;
+    white-space: nowrap;
+}
+@media (max-width: 768px) {
+    .top-header {
+        gap: 8px;
+        padding: 8px 10px;
+    }
+
+    .nav-logo {
+        font-size: 20px;
+    }
+
+    .header-utls {
+        gap: 6px;
+    }
+
+    .header-utls .utl-item span {
+        display: none;
+    }
+
+    .nav-search-wrapper {
+        min-width: 100px;
+    }
+
+    .menu-container {
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 8px 15px;
+    }
+
+    .menu-link {
+        font-size: 16px !important;
+    }
+}
+/* Custom Scrollbar Hide */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Navbar & Global Styling */
+.custom-navbar-wrapper {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-logo span {
+    color: #F26522;
+}
+.nav-search-wrapper {
+    flex: 1;
+    max-width: 500px;
+    display: flex;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.nav-search-input {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 17px;
+    outline: none;
+    border: none;
+}
+.nav-search-btn {
+    background-color: #F26522;
+    color: #ffffff;
+    padding: 0 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.utl-item {
+    font-size: 14px;
+    color: #404040;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    transition: color 0.2s;
+}
+.utl-item:hover {
+    color: #F26522;
+}
+.cart-count-badge {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: #F26522;
+    color: white;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 1px 5px;
+    border-radius: 9999px;
+}
+.menu-ribbon {
+    background-color: #171717;
+}
+.menu-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    list-style: none;
+    padding: 0 16px;
+}
+.menu-link {
+    display: block;
+    padding: 5px 8px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+@media (min-width: 768px) {
+    .menu-link {
+        padding: 10px 16px;
+        font-size: 25px;
+    }
+}
+.menu-link:hover {
+    background-color: #F26522;
+    color: #ffff;
+}
+
+/* প্রমোশনাল ব্যানারের জন্য ইনফিনিট জুম এবং ফেইড-ইন অ্যানিমেশন */
+
+@keyframes infiniteZoom {
+    0% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.08); 
+    }
+    100% { 
+        transform: scale(1); 
+    }
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(15px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.animate-infinite-zoom { 
+    animation: infiniteZoom 8s ease-in-out infinite; 
+}
+
+.animate-fade-in-up { 
+    animation: fadeInUp 1s ease-out forwards; 
+}
+/* পেজ লোড হওয়ার আগে ব্যানার ইমেজ ও টেক্সট লুকিয়ে রাখা */
+#slide-1 img, #slide-2 img, #side-banner-img, #hero-title-1, #hero-title-2, #side-banner-title {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* ফায়ারবেস থেকে ডেটা আসার পর ক্লাস যুক্ত হলে ভেসে উঠবে */
+.banner-loaded {
+    opacity: 1 !important;
+}
+/* ইউজার ড্রপডাউন মেনু ফিক্স */
+.user-dropdown-menu, #user-auth-link + div, .header-utls .relative {
+    position: relative;
+}
+
+/* হেডার ইউটিলিটি সেকশন ঠিক করার জন্য */
+.header-utls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+}
+
+/* ইউজার ড্রপডাউন বক্সের পজিশন ঠিক করার জন্য */
+/* মেইন ইউজার কন্টেইনারকে রিলেটিভ করা হলো যাতে ড্রপডাউন এর সাপেক্ষে পজিশন হয় */
+#user-menu-container {
+    position: relative;
+}
+
+/* মেইন কন্টেইনার বা প্যারেন্ট এলিমেন্ট যার ভেতরে নেম এবং ড্রপডাউন আছে */
+.user-menu-container {
+    position: relative; /* ড্রপডাউনকে এর সাপেক্ষে পজিশন করার জন্য */
+    display: inline-block;
+}
+
+/* ইউজার প্রফাইল কন্টেইনার যেন ন্যাভবার ঠিক রেখে কাজ করে */
+.user-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* ড্রপডাউন মেনু যা নামের ঠিক নিচ থেকে হালকা গ্যাপে শুরু হবে */
+.custom-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 18px; /* ওপরের অংশ না কাটার জন্য মার্জিন প্রপারলি সেট করা হলো */
+    background-color: #ffffff;
+    min-width: 220px;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    z-index: 9999;
+    display: none; /* বাই ডিফল্ট বন্ধ থাকবে */
+}
+
+/* ড্রপডাউন যখন ওপেন হবে */
+.custom-dropdown-menu.show {
+    display: block;
+}
+/* Custom scrollbar hiding for menu ribbon */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

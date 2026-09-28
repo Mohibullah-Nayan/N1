@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - SCENT.</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+     <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS SDK CDN -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("Smx6HDQg53goy2cC6"); // আপনার ড্যাশবোর্ড থেকে পাওয়া পাবলিক কি
+       })();
+    </script>
+</head>
+<body class="bg-neutral-100 text-neutral-800 antialiased selection:bg-[#F26522] selection:text-white">
+
+    <!-- হেডার সেকশন -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-neutral-200/80 py-4 shadow-xs transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-black tracking-wider text-neutral-900 hover:opacity-90 transition">SCENT<span class="text-[#F26522]">.</span></a>
+            <a href="cart.html" class="text-xs sm:text-sm font-semibold text-neutral-600 hover:text-[#F26522] flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-arrow-left"></i> Return to Cart
+            </a>
+        </div>
+    </header>
+
+    <!-- মেইন কন্টেন্ট -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-6 sm:mb-8 tracking-tight">Checkout</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+            
+            <!-- শিপিং ও পেমেন্ট ফর্ম -->
+            <div class="lg:col-span-2 bg-white border border-neutral-200/80 rounded-2xl p-5 sm:p-8 shadow-sm">
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 mb-5 border-b border-neutral-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-shipping-fast text-[#F26522]"></i> Shipping Information
+                </h2>
+
+                <form id="checkout-form" onsubmit="handleOrderSubmit(event)" class="space-y-4 sm:space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5">Your Full Name *</label>
+                        <input type="text" id="customer-name" required class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all" placeholder="e.g., Mahibullah Nayan">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5">Phone Number *</label>
+                            <input type="tel" id="customer-phone" required class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all" placeholder="017xxxxxxxx">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5">Email (for confirmation) *</label>
+                            <input type="email" id="customer-email" required class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all" placeholder="example@gmail.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5">Full Address (Road, House, Area) *</label>
+                        <textarea id="customer-address" required rows="3" class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all resize-none" placeholder="House No, Road No, Thana, District"></textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <h2 class="text-base sm:text-lg font-bold text-neutral-800 mb-3 border-b border-neutral-100 pb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-[#F26522]"></i> Payment Method
+                        </h2>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3.5 p-4 border border-neutral-200 rounded-xl cursor-pointer hover:border-[#F26522] hover:bg-orange-50/25 transition-all group">
+                                <input type="radio" name="payment-method" value="cod" checked class="w-4 h-4 text-[#F26522] focus:ring-[#F26522]">
+                                <span class="text-sm font-semibold text-neutral-700 group-hover:text-neutral-900">Cash on Delivery</span>
+                            </label>
+                            <label class="flex items-center gap-3.5 p-4 border border-neutral-200 rounded-xl cursor-pointer hover:border-[#F26522] hover:bg-orange-50/25 transition-all group">
+                                <input type="radio" name="payment-method" value="online" class="w-4 h-4 text-[#F26522] focus:ring-[#F26522]">
+                                <span class="text-sm font-semibold text-neutral-700 group-hover:text-neutral-900">Online Payment (bKash / Nagad / Card)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="order-btn" class="w-full mt-6 py-3.5 bg-[#F26522] text-white text-sm font-bold rounded-xl hover:bg-neutral-900 active:scale-[0.99] transition-all shadow-md shadow-[#F26522]/20 cursor-pointer">
+                        Confirm Order
+                    </button>
+                </form>
+            </div>
+
+            <!-- অর্ডার সামারি ও কুপন সেকশন -->
+            <div class="bg-white border border-neutral-200/80 rounded-2xl p-5 sm:p-6 shadow-sm h-fit space-y-4 lg:sticky lg:top-24">
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 border-b border-neutral-100 pb-3">Your Order</h2>
+                
+                <div id="checkout-items-list" class="space-y-3 max-h-60 overflow-y-auto text-lg pr-1">
+                    <!-- কার্ট আইটেমগুলো এখানে জাভাস্ক্রিপ্ট দিয়ে লোড হবে -->
+                </div>
+
+                <!-- কুপন অ্যাপ্লাই বক্স -->
+                <div class="border-t border-neutral-100 pt-4">
+                    <label class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5">Coupon Code (if any)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input" placeholder="e.g., EID100" class="flex-1 px-3.5 py-2.5 bg-neutral-50/50 border border-neutral-200 rounded-xl text-xs uppercase font-semibold focus:outline-none focus:bg-white focus:border-[#F26522] transition">
+                        <button type="button" onclick="applyCoupon()" class="bg-neutral-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#F26522] transition cursor-pointer">Apply</button>
+                    </div>
+                    <p id="coupon-message" class="text-[11px] mt-1.5 font-medium"></p>
+                </div>
+                
+                <div class="space-y-2.5 border-t border-neutral-100 pt-4 text-sm">
+                    <div class="flex justify-between text-neutral-600 font-medium">
+                        <span>Subtotal</span>
+                        <span id="checkout-subtotal">৳0</span>
+                    </div>
+                    <div id="discount-row" class="flex justify-between text-emerald-600 font-medium hidden">
+                        <span>Discount</span>
+                        <span id="checkout-discount">-৳0</span>
+                    </div>
+                    <div class="flex justify-between text-neutral-600 font-medium">
+                        <span>Delivery Charge</span>
+                        <span class="text-[16px]">৳ 60</span>
+                    </div>
+                    <div class="flex justify-between font-extrabold text-base sm:text-lg text-neutral-900 border-t border-neutral-100 pt-3">
+                        <span>Grand Total</span>
+                        <span id="checkout-grand-total" class="text-[#F26522]">৳0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let appliedDiscount = 0;
+        let appliedCouponCode = "";
+
+        // ইউজারভিত্তিক কার্ট কি (Key) খুঁজে বের করার শক্তিশালী ফাংশন
+        function getActiveCartKey() {
+            let activeKey = 'nayan_cart_guest';
+            
+            let user = null;
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                user = firebase.auth().currentUser;
+            } else {
+                let localUser = localStorage.getItem('user');
+                if (localUser) {
+                    try { user = JSON.parse(localUser); } catch(e) {}
+                }
+            }
+
+            if (user && user.uid) {
+                activeKey = 'nayan_cart_' + user.uid;
+            } else if (user && user.email) {
+                activeKey = 'nayan_cart_' + user.email;
+            }
+
+            let cart = JSON.parse(localStorage.getItem(activeKey)) || [];
+            if (cart.length === 0) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    if (key && key.startsWith('nayan_cart_')) {
+                        let tempCart = JSON.parse(localStorage.getItem(key)) || [];
+                        if (tempCart.length > 0) {
+                            activeKey = key;
+                            break;
+                        }
+                    }
+                }
+            }
+            return activeKey;
+        }
+
+        // পেজ লোড হলে কার্টের ডেটা সামারি সেকশনে দেখানোর জন্য
+        function loadCheckoutSummary() {
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const itemsContainer = document.getElementById('checkout-items-list');
+            const subtotalEl = document.getElementById('checkout-subtotal');
+            const grandTotalEl = document.getElementById('checkout-grand-total');
+
+            itemsContainer.innerHTML = "";
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = "<p class='text-neutral-400 text-center py-4 text-xs font-medium'>Your cart is empty</p>";
+                if(subtotalEl) subtotalEl.innerText = '৳0';
+                if(grandTotalEl) grandTotalEl.innerText = '৳60';
+                return;
+            }
+
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                let itemTotal = cleanPrice * item.quantity;
+                subtotal += itemTotal;
+
+                itemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center gap-2 border-b border-neutral-50 pb-2.5">
+                        <div>
+                            <p class="font-semibold text-neutral-800 text-lg line-clamp-1">${item.title}</p>
+                            <p class="text-[14px] text-neutral-500 font-medium">পরিমাণ: ${item.quantity} পিস</p>
+                        </div>
+                        <span class="font-bold text-lg text-neutral-900 whitespace-nowrap">৳${itemTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                `;
+            });
+
+            calculateFinalTotals(subtotal);
+        }
+
+        // কুপন ভ্যালিডেট ও অ্যাপ্লাই করার ফাংশন
+        function applyCoupon() {
+            let codeInput = document.getElementById('coupon-input').value.trim().toUpperCase();
+            let msgEl = document.getElementById('coupon-message');
+            
+            if (!codeInput) {
+                msgEl.innerText = "Please enter a coupon code.";
+                msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+                return;
+            }
+
+            let adminCoupons = JSON.parse(localStorage.getItem('adminCoupons')) || [];
+            let foundCoupon = adminCoupons.find(c => c.code === codeInput);
+
+            if (!foundCoupon) {
+                msgEl.innerText = "Invalid or expired coupon code!";
+                msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+                appliedDiscount = 0;
+                appliedCouponCode = "";
+                loadCheckoutSummary();
+                document.getElementById('discount-row').classList.add('hidden');
+                return;
+            }
+
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            let subtotal = 0;
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                subtotal += cleanPrice * item.quantity;
+            });
+
+            if (foundCoupon.type === 'percent') {
+                appliedDiscount = Math.round((subtotal * foundCoupon.value) / 100);
+            } else {
+                appliedDiscount = foundCoupon.value;
+            }
+
+            if (appliedDiscount > subtotal) {
+                appliedDiscount = subtotal;
+            }
+
+            appliedCouponCode = foundCoupon.code;
+            msgEl.innerText = `Success! Coupon "${foundCoupon.code}" has been applied.`;
+            msgEl.className = "text-[11px] mt-1.5 text-emerald-600 font-semibold";
+            
+            document.getElementById('discount-row').classList.remove('hidden');
+            document.getElementById('checkout-discount').innerText = '-৳' + appliedDiscount.toLocaleString('en-IN');
+            
+            calculateFinalTotals(subtotal);
+        }
+
+        function calculateFinalTotals(subtotal) {
+            const subtotalEl = document.getElementById('checkout-subtotal');
+            const grandTotalEl = document.getElementById('checkout-grand-total');
+
+            let deliveryCharge = 60;
+            let grandTotal = (subtotal - appliedDiscount) + deliveryCharge;
+            if (grandTotal < deliveryCharge) grandTotal = deliveryCharge;
+
+            if(subtotalEl) subtotalEl.innerText = '৳' + subtotal.toLocaleString('en-IN');
+            if(grandTotalEl) grandTotalEl.innerText = '৳' + grandTotal.toLocaleString('en-IN');
+        }
+
+        function handleOrderSubmit(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById('customer-name').value;
+            let phone = document.getElementById('customer-phone').value;
+            let email = document.getElementById('customer-email').value;
+            let address = document.getElementById('customer-address').value;
+            let paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                subtotal += cleanPrice * item.quantity;
+            });
+            let grandTotal = (subtotal - appliedDiscount) + 60;
+
+            let orderId = '#' + Math.floor(10000 + Math.random() * 90000);
+            
+            let orderData = {
+                orderId: orderId,
+                name: name,
+                phone: phone,
+                email: email,
+                address: address,
+                paymentMethod: paymentMethod,
+                items: cart,
+                couponUsed: appliedCouponCode ? appliedCouponCode : 'None',
+                discountAmount: '৳' + appliedDiscount.toLocaleString('en-IN'),
+                totalAmount: '৳' + grandTotal.toLocaleString('en-IN'),
+                status: 'Processing',
+                date: new Date().toLocaleDateString()
+            };
+
+            let submitBtn = document.getElementById('order-btn');
+            submitBtn.innerText = "Confirming Order and Sending Email...";
+            submitBtn.disabled = true;
+
+            // EmailJS এর জন্য প্রোডাক্টের বিবরণ তৈরি
+            let itemsListText = cart.map(item => `${item.title} (${item.quantity} pcs) - ${item.price}`).join(', ');
+
+            let templateParams = {
+                to_name: name,
+                to_email: email,
+                order_id: orderId,
+                order_details: itemsListText,
+                total_amount: '৳' + grandTotal.toLocaleString('en-IN'),
+                shipping_address: address,
+                phone_number: phone
+            };
+
+            emailjs.send('service_inuvwec', 'template_nbd15cc', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    executeFinalStep(paymentMethod, orderData, cartKey, orderId);
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    alert('Failed to send email, but your order has been processed.');
+                    executeFinalStep(paymentMethod, orderData, cartKey, orderId);
+                });
+        }
+
+        function executeFinalStep(paymentMethod, orderData, cartKey, orderId) {
+            if (paymentMethod === 'online') {
+                localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                window.location.href = 'payment.html';
+            } else {
+                let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+                allOrders.push(orderData);
+                localStorage.setItem('orders', JSON.stringify(allOrders));
+                localStorage.removeItem(cartKey);
+
+                alert(`Congratulations! Your order has been successfully placed and a confirmation email has been sent to your email address. Order ID: ${orderId}`);
+                window.location.href = 'track-order.html';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadCheckoutSummary, 200);
+        });
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().onAuthStateChanged(() => {
+                loadCheckoutSummary();
+            });
+        }
+    </script>
+</body>
+</html>

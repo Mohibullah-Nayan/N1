@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders Panel - SCENT.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-neutral-100 font-['Inter'] text-neutral-800 antialiased selection:bg-[#F26522] selection:text-white">
+
+    <!-- হেডার -->
+    <header class="bg-white border-b border-neutral-200/80 py-4 shadow-2xs sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center">
+            <h1 class="text-lg sm:text-xl font-['Playfair_Display'] font-bold text-neutral-900 tracking-tight">SCENT<span class="text-[#F26522]">.</span> | <span class="text-xs sm:text-sm font-sans font-semibold text-neutral-600 uppercase tracking-wider">Admin Dashboard</span></h1>
+            <a href="index.html" class="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-neutral-600 hover:text-[#F26522] bg-neutral-50 hover:bg-orange-50/50 border border-neutral-200 px-3.5 py-2 rounded-xl transition-all">
+                <i class="fa-solid fa-arrow-left"></i> Return to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- মেইন কন্টেন্ট -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-['Playfair_Display'] font-bold text-neutral-900 tracking-tight">All Customer Orders and Details</h2>
+                <p class="text-xs sm:text-sm text-neutral-500 mt-1">Manage customer purchases, delivery updates, and product reviews in real-time.</p>
+            </div>
+        </div>
+
+        <div id="admin-orders-container" class="space-y-6">
+            <!-- অর্ডারগুলো এখানে ডাইনামিকালি লোড হবে -->
+        </div>
+    </main>
+
+    <!-- ফায়ারবেস এসডিকে এবং রিয়েল-টাইম সিঙ্ক লজিক -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ফায়ারবেস সঠিক কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
+            authDomain: "nayan-bc068.firebaseapp.com",
+            projectId: "nayan-bc068",
+            storageBucket: "nayan-bc068.firebasestorage.app",
+            messagingSenderId: "782323259018",
+            appId: "1:782323259018:web:a428fe0d96897711223f73"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // রিয়েল-টাইম অর্ডার এবং ইউজার ডেটা একসাথে সিঙ্ক করার ফাংশন
+        async function fetchAllData() {
+            try {
+                // ইউজার কালেকশন ক্যাশ করার জন্য আগে ফেচ করে নিচ্ছি
+                const usersSnapshot = await getDocs(collection(db, "users"));
+                let usersCache = new Map();
+                usersSnapshot.forEach(uDoc => {
+                    usersCache.set(uDoc.id, uDoc.data());
+                });
+
+                // অর্ডার কালেকশনে রিয়েল-টাইম লিসেনার চালু করা
+                onSnapshot(collection(db, "orders"), (snapshot) => {
+                    let orders = [];
+                    snapshot.forEach((doc) => {
+                        let data = doc.data();
+                        data.firebaseId = doc.id;
+
+                        // যদি অর্ডারে ইউজার আইডি থাকে কিন্তু নাম/ফোন না থাকে, তবে users কালেকশন থেকে এনে যুক্ত করা
+                        let orderUserId = data.userId;
+                        if (orderUserId && usersCache.has(orderUserId)) {
+                            let uData = usersCache.get(orderUserId);
+                            if (uData) {
+                                if (!data.name && !data.fullName) data.name = uData.fullName || uData.name;
+                                if (!data.phone) data.phone = uData.phone;
+                                if (!data.address && !data.shippingAddress) data.address = uData.shippingAddress || uData.address;
+                                if (!data.email) data.email = uData.email;
+                            }
+                        }
+
+                        orders.push(data);
+                    });
+
+                    // লোকালস্টোরেজ থেকে রিভিউ ডাটা নিয়ে আসা
+                    let allReviews = JSON.parse(localStorage.getItem('product_reviews')) || {}; 
+
+                    // রেন্ডারিং ফাংশন কল করা
+                    loadAdminOrdersFromFirebase(orders, allReviews);
+                }, (error) => {
+                    console.error("Error loading real-time orders from Firebase:", error);
+                });
+
+            } catch (err) {
+                console.error("Error pre-fetching users:", err);
+            }
+        }
+
+        fetchAllData();
+    </script>
+
+    <!-- মূল ডিজাইন ও ডিসপ্লে লজিক -->
+    <script>
+        function loadAdminOrdersFromFirebase(orders, allReviews) {
+            const container = document.getElementById('admin-orders-container');
+            container.innerHTML = "";
+
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white border border-neutral-200/85 rounded-2xl p-12 text-center shadow-xs max-w-xl mx-auto my-12">
+                        <div class="w-14 h-14 bg-orange-50 text-[#F26522] rounded-full flex items-center justify-center mx-auto mb-4 text-xl shadow-inner">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-neutral-800">No Orders Found</h3>
+                        <p class="text-xs text-neutral-500 mt-1">Currently, there are no new orders in Firebase system!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            orders.forEach((order) => {
+                let itemsHtml = '';
+                let orderItems = order.items || order.products || [];
+                
+                orderItems.forEach(item => {
+                    let itemId = item.id || item.productId;
+                    let productReviews = allReviews[itemId] || [];
+                    let reviewText = productReviews.length > 0 ? productReviews[productReviews.length - 1].review : 'No reviews available';
+                    let ratingVal = productReviews.length > 0 ? productReviews[productReviews.length - 1].rating : 0;
+
+                    let starsHtml = '';
+                    for(let i = 1; i <= 5; i++) {
+                        starsHtml += `<i class="fa-solid fa-star text-[11px] ${i <= ratingVal ? 'text-amber-400' : 'text-neutral-200'}"></i>`;
+                    }
+
+                    itemsHtml += `
+                        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-neutral-100 pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
+                            <div class="flex items-center gap-3.5">
+                                <img src="${item.image || 'https://via.placeholder.com/60'}" class="w-14 h-14 object-cover rounded-xl border border-neutral-200/80 shadow-2xs" alt="${item.title || item.name}">
+                                <div>
+                                    <h4 class="font-bold text-neutral-900 text-xs sm:text-sm line-clamp-1">${item.title || item.name}</h4>
+                                    <p class="text-xs text-neutral-500 font-medium mt-0.5">Price: <span class="text-neutral-800 font-semibold">${item.price}</span> | Quantity: <span class="text-neutral-800 font-semibold">${item.quantity || item.qty || 1} pcs</span></p>
+                                </div>
+                            </div>
+
+                            <!-- Customer Review Section -->
+                            <div class="bg-neutral-50/80 p-3.5 rounded-xl border border-neutral-200/80 w-full lg:w-80 shadow-2xs">
+                                <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Customer Review:</span>
+                                <div class="flex items-center gap-1 mb-1">${starsHtml}</div>
+                                <p class="text-xs text-neutral-700 italic leading-relaxed">"${reviewText}"</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const orderCard = document.createElement('div');
+                orderCard.className = "bg-white border border-neutral-200/85 rounded-2xl p-6 sm:p-7 shadow-xs space-y-5 transition-all hover:shadow-md";
+
+                let displayOrderId = order.orderId || order.firebaseId;
+                let displayDate = order.date || order.orderDate || order.createdAt || 'N/A';
+                let currentStatus = order.status || 'Processing';
+                
+                let statusColorClass = "bg-emerald-50 text-emerald-600 border-emerald-100/60";
+                let statusLower = currentStatus.toLowerCase();
+                if (statusLower.includes('cancel')) {
+                    statusColorClass = "bg-red-50 text-red-600 border-red-100/60";
+                } else if (statusLower.includes('process')) {
+                    statusColorClass = "bg-orange-50 text-[#F26522] border-orange-100/60";
+                }
+
+                orderCard.innerHTML = `
+                    <div class="flex flex-wrap justify-between items-center border-b border-neutral-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-[#F26522] bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100/60 shadow-2xs">Order ID: ${displayOrderId}</span>
+                            <span class="text-xs text-neutral-500 ml-2 font-medium">Date: ${displayDate}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold px-3.5 py-1.5 ${statusColorClass} rounded-full border shadow-2xs inline-flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span> Status: ${currentStatus}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs bg-neutral-50/60 p-4 sm:p-5 rounded-xl border border-neutral-200/80">
+                        <div>
+                            <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Customer Information:</p>
+                            <p class="font-semibold text-neutral-900 text-sm mb-1"><i class="fa-solid fa-user text-[#F26522] mr-2 w-4"></i> ${order.name || order.fullName || order.customerName || 'Guest'}</p>
+                            <p class="text-neutral-600 mb-1"><i class="fa-solid fa-phone text-[#F26522] mr-2 w-4"></i> ${order.phone || order.phoneNumber || order.customerPhone || 'N/A'}</p>
+                            <p class="text-neutral-600"><i class="fa-solid fa-envelope text-[#F26522] mr-2 w-4"></i> ${order.email || order.userEmail || 'Email not provided'}</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-neutral-200/60 pt-3 md:pt-0 md:pl-4">
+                            <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Shipping Location and Payment:</p>
+                            <p class="text-neutral-700 mb-1.5"><i class="fa-solid fa-location-dot text-[#F26522] mr-2 w-4"></i> <strong>Address:</strong> ${order.address || order.shippingAddress || order.deliveryAddress || 'N/A'}</p>
+                            <p class="text-neutral-700"><i class="fa-solid fa-wallet text-[#F26522] mr-2 w-4"></i> <strong>Payment Method:</strong> <span class="font-semibold">${order.paymentMethod === 'cod' || !order.paymentMethod ? 'Cash on Delivery (COD)' : order.paymentMethod}</span></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-3">Ordered Products:</p>
+                        <div class="bg-white rounded-xl border border-neutral-100 p-4">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(orderCard);
+            });
+        }
+    </script>
+</body>
+</html>
