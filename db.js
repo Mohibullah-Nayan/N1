@@ -16,12 +16,12 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 
 // ফায়ারবেস রিয়েল-টাইম লিসেনার ও ডেটা ফেচিং
 function setupFirebaseListener() {
-    console.log("Firebase listener function called!"); 
-    
+    console.log("Firebase listener function called!");
+
     if (typeof firebase !== 'undefined') {
         try {
             const dbInstance = firebase.firestore();
-            
+
             dbInstance.collection('products').onSnapshot((snapshot) => {
                 let fbProducts = [];
                 snapshot.forEach((doc) => {
@@ -30,14 +30,14 @@ function setupFirebaseListener() {
                         ...doc.data()
                     });
                 });
-                
-                console.log("Firebase products :", fbProducts); 
-                
+
+                console.log("Firebase products :", fbProducts);
+
                 // script.js ফাইলের initializeProducts ফাংশনে ডেটা এবং dbInstance পাঠানো হলো
                 if (typeof initializeProducts === 'function') {
                     initializeProducts(fbProducts, dbInstance);
                 }
-                
+
             }, (error) => {
                 console.error("Firestore snapshot error: ", error);
                 if (typeof initializeProducts === 'function') initializeProducts([], dbInstance);

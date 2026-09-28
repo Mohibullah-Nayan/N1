@@ -39,6 +39,7 @@
     min-width: max-content;
     white-space: nowrap;
 }
+
 @media (max-width: 768px) {
     .top-header {
         gap: 8px;
@@ -71,10 +72,12 @@
         font-size: 16px !important;
     }
 }
+
 /* Custom Scrollbar Hide */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -89,6 +92,7 @@
 .nav-logo span {
     color: #F26522;
 }
+
 .nav-search-wrapper {
     flex: 1;
     max-width: 500px;
@@ -97,6 +101,7 @@
     border-radius: 6px;
     overflow: hidden;
 }
+
 .nav-search-input {
     width: 100%;
     padding: 4px 8px;
@@ -104,6 +109,7 @@
     outline: none;
     border: none;
 }
+
 .nav-search-btn {
     background-color: #F26522;
     color: #ffffff;
@@ -122,9 +128,11 @@
     position: relative;
     transition: color 0.2s;
 }
+
 .utl-item:hover {
     color: #F26522;
 }
+
 .cart-count-badge {
     position: absolute;
     top: -8px;
@@ -136,9 +144,11 @@
     padding: 1px 5px;
     border-radius: 9999px;
 }
+
 .menu-ribbon {
     background-color: #171717;
 }
+
 .menu-container {
     max-width: 1280px;
     margin: 0 auto;
@@ -146,6 +156,7 @@
     list-style: none;
     padding: 0 16px;
 }
+
 .menu-link {
     display: block;
     padding: 5px 8px;
@@ -155,12 +166,14 @@
     text-decoration: none;
     transition: background-color 0.2s;
 }
+
 @media (min-width: 768px) {
     .menu-link {
         padding: 10px 16px;
         font-size: 25px;
     }
 }
+
 .menu-link:hover {
     background-color: #F26522;
     color: #ffff;
@@ -169,37 +182,46 @@
 /* প্রমোশনাল ব্যানারের জন্য ইনফিনিট জুম এবং ফেইড-ইন অ্যানিমেশন */
 
 @keyframes infiniteZoom {
-    0% { 
-        transform: scale(1); 
+    0% {
+        transform: scale(1);
     }
-    50% { 
-        transform: scale(1.08); 
+
+    50% {
+        transform: scale(1.08);
     }
-    100% { 
-        transform: scale(1); 
+
+    100% {
+        transform: scale(1);
     }
 }
 
 @keyframes fadeInUp {
-    from { 
-        opacity: 0; 
-        transform: translateY(15px); 
+    from {
+        opacity: 0;
+        transform: translateY(15px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.animate-infinite-zoom { 
-    animation: infiniteZoom 8s ease-in-out infinite; 
+.animate-infinite-zoom {
+    animation: infiniteZoom 8s ease-in-out infinite;
 }
 
-.animate-fade-in-up { 
-    animation: fadeInUp 1s ease-out forwards; 
+.animate-fade-in-up {
+    animation: fadeInUp 1s ease-out forwards;
 }
+
 /* পেজ লোড হওয়ার আগে ব্যানার ইমেজ ও টেক্সট লুকিয়ে রাখা */
-#slide-1 img, #slide-2 img, #side-banner-img, #hero-title-1, #hero-title-2, #side-banner-title {
+#slide-1 img,
+#slide-2 img,
+#side-banner-img,
+#hero-title-1,
+#hero-title-2,
+#side-banner-title {
     opacity: 0;
     transition: opacity 0.4s ease-in-out;
 }
@@ -208,8 +230,11 @@
 .banner-loaded {
     opacity: 1 !important;
 }
+
 /* ইউজার ড্রপডাউন মেনু ফিক্স */
-.user-dropdown-menu, #user-auth-link + div, .header-utls .relative {
+.user-dropdown-menu,
+#user-auth-link+div,
+.header-utls .relative {
     position: relative;
 }
 
@@ -229,7 +254,8 @@
 
 /* মেইন কন্টেইনার বা প্যারেন্ট এলিমেন্ট যার ভেতরে নেম এবং ড্রপডাউন আছে */
 .user-menu-container {
-    position: relative; /* ড্রপডাউনকে এর সাপেক্ষে পজিশন করার জন্য */
+    position: relative;
+    /* ড্রপডাউনকে এর সাপেক্ষে পজিশন করার জন্য */
     display: inline-block;
 }
 
@@ -244,24 +270,28 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 18px; /* ওপরের অংশ না কাটার জন্য মার্জিন প্রপারলি সেট করা হলো */
+    margin-top: 18px;
+    /* ওপরের অংশ না কাটার জন্য মার্জিন প্রপারলি সেট করা হলো */
     background-color: #ffffff;
     min-width: 220px;
     box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 8px 0;
     z-index: 9999;
-    display: none; /* বাই ডিফল্ট বন্ধ থাকবে */
+    display: none;
+    /* বাই ডিফল্ট বন্ধ থাকবে */
 }
 
 /* ড্রপডাউন যখন ওপেন হবে */
 .custom-dropdown-menu.show {
     display: block;
 }
+
 /* Custom scrollbar hiding for menu ribbon */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

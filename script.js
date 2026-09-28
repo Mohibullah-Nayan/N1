@@ -18,7 +18,7 @@ const productId = currentProduct ? currentProduct.id : rawProductId;
 // Product Details Page Binding Function
 function bindProductDetails(prod) {
     if (!prod) return;
-    
+
     const titleEl = document.getElementById('product-title');
     const breadcrumbEl = document.getElementById('breadcrumb-title');
     const brandEl = document.getElementById('product-brand');
@@ -28,10 +28,10 @@ function bindProductDetails(prod) {
     const thumb3El = document.getElementById('thumb-3-img');
     const descEl = document.getElementById('product-description');
 
-    if(titleEl) titleEl.innerText = prod.title || prod.name || '';
-    if(breadcrumbEl) breadcrumbEl.innerText = prod.title || prod.name || '';
-    if(brandEl) brandEl.innerText = prod.brand || '';
-    
+    if (titleEl) titleEl.innerText = prod.title || prod.name || '';
+    if (breadcrumbEl) breadcrumbEl.innerText = prod.title || prod.name || '';
+    if (brandEl) brandEl.innerText = prod.brand || '';
+
     // হেল্পার ফাংশন: ইমেজ স্ট্রিং নাকি অবজেক্ট তা চেক করে সঠিক ইউআরএল বের করবে (যাতে [object Object] না আসে)
     const getCleanImgUrl = (img) => {
         if (!img) return '';
@@ -42,7 +42,7 @@ function bindProductDetails(prod) {
     // মেইন ইমেজ এবং থাম্বনেইলগুলোর জন্য নিরাপদ এবং ডাইনামিক লজিক
     const rawMainImage = prod.image || (prod.images && prod.images[0]) || '';
     const mainImage = getCleanImgUrl(rawMainImage);
-    
+
     // যদি প্রডাক্টে একাধিক ছবির অ্যারে (images) থাকে, সেগুলো ব্যবহার করবে; না থাকলে মেইন ছবি দিয়ে ফিল করবে
     let variantImages = [];
     if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
@@ -51,13 +51,13 @@ function bindProductDetails(prod) {
         variantImages = [mainImage, mainImage, mainImage];
     }
 
-    if(mainImgEl) mainImgEl.src = variantImages[0] || mainImage;
-    if(thumb1El) thumb1El.src = variantImages[0] || mainImage;
+    if (mainImgEl) mainImgEl.src = variantImages[0] || mainImage;
+    if (thumb1El) thumb1El.src = variantImages[0] || mainImage;
     // দ্বিতীয় এবং তৃতীয় থাম্বনেইলে অ্যারের ২য় ও ৩য় ছবি বসবে, না থাকলে প্রথম ছবি বা ফাঁকা থাকবে
-    if(thumb2El) thumb2El.src = variantImages[1] || variantImages[0] || mainImage;
-    if(thumb3El) thumb3El.src = variantImages[2] || variantImages[0] || mainImage;
-    
-    if(descEl) descEl.innerText = prod.desc || prod.description || '';
+    if (thumb2El) thumb2El.src = variantImages[1] || variantImages[0] || mainImage;
+    if (thumb3El) thumb3El.src = variantImages[2] || variantImages[0] || mainImage;
+
+    if (descEl) descEl.innerText = prod.desc || prod.description || '';
 
     // দাম এবং ডিসকাউন্ট ব্যাজ ডাইনামিকলি আপডেট করার জন্য প্রাইস ফাংশন কল করা হলো
     if (typeof updateProductPrice === 'function') {
@@ -87,7 +87,7 @@ function loadRelatedProducts(currentId, currentCategory, productsArray) {
 
     // বর্তমান প্রডাক্ট বাদে একই ক্যাটেগরির প্রডাক্ট ফিল্টার করা
     let related = productsArray.filter(p => String(p.id) !== String(currentId) && p.category === currentCategory);
-    
+
     // পর্যাপ্ত না থাকলে অন্য ক্যাটেগরি থেকে নেওয়া
     if (related.length < 4) {
         const others = productsArray.filter(p => String(p.id) !== String(currentId) && p.category !== currentCategory);
@@ -108,7 +108,7 @@ function loadRelatedProducts(currentId, currentCategory, productsArray) {
         const card = document.createElement('div');
         card.className = "cursor-pointer bg-white border border-neutral-200 rounded overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative product-card";
         card.setAttribute('onclick', `window.location.href='product-details.html?id=${product.id}'`);
-        
+
         card.innerHTML = `
             <div class="product-hover-popup absolute top-2 right-2 bg-neutral-900/90 text-white text-[10px] px-2.5 py-1 rounded shadow-md z-20 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1.5 backdrop-blur-sm">
                 <i class="fa-solid fa-eye text-[#F26522]"></i> Quick View
@@ -122,7 +122,7 @@ function loadRelatedProducts(currentId, currentCategory, productsArray) {
                 <div class="mt-2 flex items-center justify-between mt-auto pt-2 border-t border-neutral-100 max-sm:flex-col max-sm:items-start max-sm:gap-2">
                     <div class="flex flex-col">
                     <span class="text-lg font-bold text-[#F26522]">৳ ${product.price || ''}</span>
-                   ${Number(product.oldPrice) > Number(product.price)? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>`: ''}
+                   ${Number(product.oldPrice) > Number(product.price) ? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>` : ''}
                    </div>
                     <button onclick="event.stopPropagation(); addProductToCartDirect('${product.id}');" class="bg-white border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white text-[15px] max-sm:text-[11px] px-3 max-sm:px-2 py-1 rounded transition-colors flex items-center gap-1 shadow-sm">
                         <i class="fa-solid fa-cart-shopping"></i> Add To Cart
@@ -135,7 +135,7 @@ function loadRelatedProducts(currentId, currentCategory, productsArray) {
 }
 
 // ইনিশিয়াল বাইন্ডিং
-if(currentProduct) {
+if (currentProduct) {
     bindProductDetails(currentProduct);
 }
 
@@ -168,8 +168,8 @@ if (!resolvedCategory) {
 }
 
 function renderProducts(filterCategory) {
-    if (!gridContainer) return; 
-    
+    if (!gridContainer) return;
+
     gridContainer.innerHTML = "";
     let matchedProducts = allProducts;
 
@@ -184,7 +184,7 @@ function renderProducts(filterCategory) {
         if (titleElement) {
             titleElement.innerText = `Search Results for: "${searchQuery}"`;
         }
-        
+
         // প্রোডাক্টের নাম (title) বা ব্র্যান্ড (brand) বা ক্যাটাগরি দিয়ে ফিল্টার করা
         matchedProducts = matchedProducts.filter(p => {
             const titleMatch = p.title && p.title.toLowerCase().includes(cleanQuery);
@@ -192,7 +192,7 @@ function renderProducts(filterCategory) {
             const categoryMatch = p.category && p.category.toLowerCase().includes(cleanQuery);
             return titleMatch || brandMatch || categoryMatch;
         });
-    } 
+    }
     // ২. সার্চ না থাকলে আগের মতো ক্যাটাগরি ফিল্টার কাজ করবে
     else if (filterCategory) {
         if (titleElement) {
@@ -212,14 +212,14 @@ function renderProducts(filterCategory) {
 
     if (matchedProducts.length > 0) {
         if (noProductMsg) noProductMsg.classList.add('hidden');
-        
+
         const currentProducts = matchedProducts.slice(0, itemsToShow);
 
         currentProducts.forEach(product => {
             const productCard = document.createElement('div');
             productCard.className = "cursor-pointer bg-white border border-neutral-200 rounded overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative product-card";
             productCard.setAttribute('onclick', `window.location.href='product-details.html?id=${product.id}'`);
-            
+
             const prodImg = product.images && product.images[0] ? product.images[0] : (product.image || '');
 
             productCard.innerHTML = ` 
@@ -238,7 +238,7 @@ function renderProducts(filterCategory) {
                     <div class="flex flex-col"> 
                     <span class="text-lg font-bold text-[#F26522]">৳ ${product.price || ''}</span> 
                    
-                   ${Number(product.oldPrice) > Number(product.price)? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>`: ''} 
+                   ${Number(product.oldPrice) > Number(product.price) ? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>` : ''} 
                    
                    </div> 
                    
@@ -254,9 +254,9 @@ function renderProducts(filterCategory) {
 
         if (loadMoreBtn) {
             if (itemsToShow < matchedProducts.length) {
-                loadMoreBtn.style.display = 'inline-block'; 
+                loadMoreBtn.style.display = 'inline-block';
             } else {
-                loadMoreBtn.style.display = 'none'; 
+                loadMoreBtn.style.display = 'none';
             }
         }
 
@@ -291,7 +291,7 @@ function getProductReviews(prodId) {
 function saveProductReview(prodId, reviewObj) {
     let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
     let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId)) || prodId;
-    
+
     if (!allReviews[targetKey]) {
         allReviews[targetKey] = [];
     }
@@ -302,12 +302,12 @@ function saveProductReview(prodId, reviewObj) {
 // অ্যাডমিন চেক করার ফাংশন (আপনার নির্দিষ্ট অ্যাডমিন ইমেল সেট করা হয়েছে)
 function checkIsAdmin() {
     const user = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
-    const adminEmail = "mohibullahnayan.cse@gmail.com"; 
-    
+    const adminEmail = "mohibullahnayan.cse@gmail.com";
+
     // লোকালস্টোরেজ থেকে অ্যাডমিন লগইন স্ট্যাটাস বা ইমেল চেক করা
-    const isLocalStorageAdmin = localStorage.getItem('isAdminLoggedIn') === 'true' || 
-                               localStorage.getItem('adminEmail') === adminEmail || 
-                               localStorage.getItem('adminLoged') === 'true';
+    const isLocalStorageAdmin = localStorage.getItem('isAdminLoggedIn') === 'true' ||
+        localStorage.getItem('adminEmail') === adminEmail ||
+        localStorage.getItem('adminLoged') === 'true';
 
     if (user && user.email && user.email.toLowerCase() === adminEmail.toLowerCase()) {
         return true;
@@ -320,7 +320,7 @@ function checkIsAdmin() {
 function deleteProductReview(prodId, reviewIndex) {
     let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
     let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId));
-    
+
     if (!targetKey || !allReviews[targetKey][reviewIndex]) {
         return;
     }
@@ -342,11 +342,11 @@ function deleteProductReview(prodId, reviewIndex) {
         const revEmail = reviewToDelete.userEmail ? reviewToDelete.userEmail.toLowerCase().trim() : "";
         const revUid = reviewToDelete.userId ? String(reviewToDelete.userId).trim() : "";
 
-        isOwner = (revEmail && revEmail === currentEmail) || 
-                  (revUid && revUid === currentUid) || 
-                  (revName === currentDisplayName) || 
-                  (revName === currentEmailPrefix) || 
-                  (revName === currentUserNameField);
+        isOwner = (revEmail && revEmail === currentEmail) ||
+            (revUid && revUid === currentUid) ||
+            (revName === currentDisplayName) ||
+            (revName === currentEmailPrefix) ||
+            (revName === currentUserNameField);
     }
 
     if (!isAdmin && !isOwner) {
@@ -433,14 +433,14 @@ function submitProductReview(prodId, event) {
     };
 
     saveProductReview(targetProdId, newReview);
-    
+
     if (commentInput) commentInput.value = "";
     setReviewRating(5);
 
     if (typeof showPopupNotification === 'function') {
         showPopupNotification("Your review has been submitted successfully! 🎉");
     }
-    
+
     renderProductReviews(targetProdId);
     return false; // যাতে কোনোভাবেই পেজ রিলোড না হয়
 }
@@ -456,7 +456,7 @@ function renderProductReviews(prodId) {
     const targetProdId = prodId || (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
     const reviews = getProductReviews(targetProdId);
     const container = document.getElementById('customer-reviews-container');
-    
+
     // আপনার এইচটিএমএল আইডির সাথে মিল রেখে সকল এলিমেন্ট সিলেক্ট করা হলো
     const avgRatingElem = document.getElementById('avg-rating');
     const avgStarsContainer = document.getElementById('rating-stars-container');
@@ -537,10 +537,10 @@ function renderProductReviews(prodId) {
     for (let i = 1; i <= 5; i++) {
         let count = ratingCounts[i];
         let percentage = Math.round((count / reviews.length) * 100);
-        
+
         const bar = document.getElementById(`bar-star-${i}`) || document.getElementById(`rating-bar-${i}`);
         const percent = document.getElementById(`percent-star-${i}`) || document.getElementById(`rating-percent-${i}`);
-        
+
         if (bar) bar.style.width = percentage + '%';
         if (percent) percent.innerText = percentage + '%';
     }
@@ -575,11 +575,11 @@ function renderProductReviews(prodId) {
                 const revEmail = rev.userEmail ? rev.userEmail.toLowerCase().trim() : "";
                 const revUid = rev.userId ? String(rev.userId).trim() : "";
 
-                isOwner = (revEmail && revEmail === currentEmail) || 
-                          (revUid && revUid === currentUid) || 
-                          (revName === currentDisplayName) || 
-                          (revName === currentEmailPrefix) || 
-                          (revName === currentUserNameField);
+                isOwner = (revEmail && revEmail === currentEmail) ||
+                    (revUid && revUid === currentUid) ||
+                    (revName === currentDisplayName) ||
+                    (revName === currentEmailPrefix) ||
+                    (revName === currentUserNameField);
             }
 
             let deleteButtonHtml = "";
@@ -615,17 +615,17 @@ function renderHomeSectionProducts(sectionName, containerId) {
     if (!container) return;
 
     container.innerHTML = "";
-    
+
     // ব্যানার আইটেমগুলোকে মূল প্রোডাক্ট সেকশন থেকে ফিল্টার করে বাদ দেওয়া হয়েছে
     const matched = allProducts.filter(p => {
         const pSection = p.homeSection ? p.homeSection.trim().toLowerCase() : "";
         const targetSection = sectionName.trim().toLowerCase();
-        
+
         // যদি আইটেমটি 'slider-1' বা ব্যানার হয় এবং বর্তমান সেকশনটি স্লাইডার না হয়, তবে বাদ যাবে
         if (pSection === "slider-1" && targetSection !== "slider-1") {
             return false;
         }
-        
+
         return pSection === targetSection;
     });
 
@@ -638,7 +638,7 @@ function renderHomeSectionProducts(sectionName, containerId) {
         const productCard = document.createElement('div');
         productCard.className = "cursor-pointer bg-white border border-neutral-200 rounded overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative product-card";
         productCard.setAttribute('onclick', `window.location.href='product-details.html?id=${product.id}'`);
-        
+
         const prodImg = product.images && product.images[0] ? product.images[0] : (product.image || '');
 
         productCard.innerHTML = `
@@ -654,7 +654,7 @@ function renderHomeSectionProducts(sectionName, containerId) {
                  <div class="mt-2 flex items-center justify-between mt-auto pt-2 border-t border-neutral-100 max-sm:flex-col max-sm:items-start max-sm:gap-2"> 
                     <div class="flex flex-col">
                     <span class="text-lg font-bold text-[#F26522]">৳ ${product.price || ''}</span>
-                   ${Number(product.oldPrice) > Number(product.price)? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>`: ''}
+                   ${Number(product.oldPrice) > Number(product.price) ? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>` : ''}
                    </div>
                     <button onclick="event.stopPropagation(); addProductToCartDirect('${product.id}');" class="bg-white border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white text-[15px] max-sm:text-[11px] px-3 max-sm:px-2 py-1 rounded transition-colors flex items-center gap-1 shadow-sm">
                         <i class="fa-solid fa-cart-shopping"></i> Add To Cart
@@ -672,10 +672,10 @@ let bannerInterval = null;
 async function loadDynamicBanners(db) {
     try {
         const { collection, onSnapshot, query } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-        
+
         // ক্যাশ সমস্যা এড়াতে সরাসরি সার্ভার থেকে লাইভ ডেটা নেওয়ার জন্য কোয়েরি তৈরি
         const q = query(collection(db, "products"));
-        
+
         onSnapshot(q, { includeMetadataChanges: true }, (querySnapshot) => {
             let firebaseSlideImages = [];
             window.firebaseSlideProductIds = [];
@@ -683,10 +683,10 @@ async function loadDynamicBanners(db) {
             let allDocs = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                allDocs.push({ 
-                    id: doc.id, 
+                allDocs.push({
+                    id: doc.id,
                     createdAt: data.createdAt || data.timestamp || data.date || 0, // সর্টিংয়ের জন্য টাইমস্ট্যাম্প বা ব্যাকআপ
-                    ...data 
+                    ...data
                 });
             });
 
@@ -717,20 +717,20 @@ async function loadDynamicBanners(db) {
             // স্লাইডার ইনিশিয়োলাইজ ও রানিং লজিক (স্লাইডার অ্যারে রিয়েল-টাইমে আপডেট নিশ্চিতকরণ)
             if (firebaseSlideImages.length > 0) {
                 const isArrayChanged = JSON.stringify(bannerImages) !== JSON.stringify(firebaseSlideImages);
-                
-                bannerImages = [...firebaseSlideImages]; 
-                
+
+                bannerImages = [...firebaseSlideImages];
+
                 if (isArrayChanged) {
                     currentImageIndex = 0; // নতুন প্রোডাক্ট আসলে একদম প্রথম স্লাইড থেকে রিসেট হবে
                 }
-                
+
                 showSlideImage(currentImageIndex);
-                
+
                 const slideContainer = document.querySelector('#slide-1');
                 if (slideContainer) {
                     // ব্যানার হওয়ায় এতে কোনো ক্লিক বা ডিটেইলস পেজে যাওয়ার লিংক কাজ করবে না
                     slideContainer.style.cursor = 'default';
-                    slideContainer.onclick = function(e) {
+                    slideContainer.onclick = function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         return false;
@@ -744,14 +744,14 @@ async function loadDynamicBanners(db) {
                 const imgUrl = firstProd.images && firstProd.images[0] ? firstProd.images[0] : firstProd.image;
                 const img = document.getElementById("hero-img-1");
                 const title = document.getElementById("hero-title-1");
-                
+
                 if (img) {
                     img.src = imgUrl + "?t=" + new Date().getTime();
                     img.style.cursor = "default";
                     img.className = "absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500";
-                    
+
                     // ইমেজে ক্লিক করলে প্রোডাক্ট ডিটেইলসে যাবে না
-                    img.onclick = function(e) {
+                    img.onclick = function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         return false;
@@ -769,17 +769,17 @@ async function loadDynamicBanners(db) {
             if (!bannerInterval && bannerImages.length > 1) {
                 bannerInterval = setInterval(() => {
                     currentImageIndex = (currentImageIndex + 1) % bannerImages.length;
-                    
+
                     // স্লাইড ইমেজ আপডেট
                     showSlideImage(currentImageIndex);
-                    
+
                     // হিরো ইমেজ ও টাইটেল আপডেট
                     const currentProd = finalHeroProducts[currentImageIndex] || finalHeroProducts[0];
                     if (currentProd) {
                         const imgUrl = currentProd.images && currentProd.images[0] ? currentProd.images[0] : currentProd.image;
                         const img = document.getElementById("hero-img-1");
                         const title = document.getElementById("hero-title-1");
-                        
+
                         if (img && imgUrl) {
                             img.src = imgUrl + "?t=" + new Date().getTime();
                         }
@@ -795,7 +795,7 @@ async function loadDynamicBanners(db) {
         console.error("Dynamic Banner load error: ", error);
     }
 }
-window.initializeProducts = function(fbProducts, dbInstance) {
+window.initializeProducts = function (fbProducts, dbInstance) {
     if (fbProducts && fbProducts.length > 0) {
         // ফায়ারবেসের ডাটার সাথে নরমালাইজড ক্যাটাগরি ফিল্ড নিশ্চিত করা
         allProducts = fbProducts.map(p => ({
@@ -803,7 +803,7 @@ window.initializeProducts = function(fbProducts, dbInstance) {
             category: p.category || p.productCategory || p.cat || "general"
         }));
     }
-    
+
     if (gridContainer) {
         renderProducts(resolvedCategory);
     }
@@ -870,7 +870,7 @@ function loadMoreProducts() {
     }) : allProducts;
 
     if (itemsToShow < matchedProducts.length) {
-        itemsToShow += 4; 
+        itemsToShow += 4;
         renderProducts(resolvedCategory);
         if (typeof showPopupNotification === 'function') showPopupNotification("More new products loaded! 🚀");
     } else {
@@ -882,7 +882,7 @@ function loadMoreProducts() {
 }
 function updateProductPrice(qty) {
     if (!currentProduct) return;
-    
+
     function convertToEnglishNumber(str) {
         const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
         const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -939,7 +939,7 @@ function updateProductPrice(qty) {
 
 function increaseQty() {
     const input = document.getElementById('quantity-input');
-    if(input) {
+    if (input) {
         let val = parseInt(input.value) || 1;
         let newQty = val + 1;
         input.value = newQty;
@@ -949,7 +949,7 @@ function increaseQty() {
 
 function decreaseQty() {
     const input = document.getElementById('quantity-input');
-    if(input) {
+    if (input) {
         let val = parseInt(input.value) || 1;
         if (val > 1) {
             let newQty = val - 1;
@@ -982,7 +982,7 @@ function saveProductToCart(productObj, quantity) {
     let cartKey = getCartStorageKey();
     let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
     let existingIndex = cart.findIndex(item => item.id == productObj.id);
-    
+
     if (existingIndex > -1) {
         cart[existingIndex].quantity += parseInt(quantity);
     } else {
@@ -995,14 +995,14 @@ function saveProductToCart(productObj, quantity) {
         });
     }
     localStorage.setItem(cartKey, JSON.stringify(cart));
-    
+
     // ব্যাকগ্রাউন্ডে ফায়ারবেস ডেটাবেসে সিঙ্ক করার জন্য অতিরিক্ত কল
     syncCartToFirebaseDatabase(cart);
 }
 
 function handleProtectedAction(actionType) {
     const user = checkUserLoggedIn();
-    
+
     if (!user) {
         showPopupNotification("Please sign in to perform this action!");
         setTimeout(() => {
@@ -1010,7 +1010,7 @@ function handleProtectedAction(actionType) {
         }, 1500);
         return false;
     }
-    
+
     const input = document.getElementById('quantity-input');
     const qty = input ? parseInt(input.value) || 1 : 1;
     const prodName = typeof currentProduct !== 'undefined' && currentProduct ? currentProduct.title : 'Product';
@@ -1027,7 +1027,7 @@ function handleProtectedAction(actionType) {
         }
         // ফায়ারবেসে অর্ডার প্লেস করার ব্যাকগ্রাউন্ড ট্রিগার
         syncOrderToFirebaseDatabase();
-        
+
         showPopupNotification(`"${prodName}" (${qty} pieces) is being checked out!`);
         setTimeout(() => {
             window.location.href = "cart.html";
@@ -1061,7 +1061,7 @@ function removeFromCart(prodId) {
     let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
     cart = cart.filter(item => item.id != prodId);
     localStorage.setItem(cartKey, JSON.stringify(cart));
-    
+
     // ব্যাকগ্রাউন্ডে ফায়ারবেস কার্ট আপডেট করা
     syncCartToFirebaseDatabase(cart);
 
@@ -1136,7 +1136,7 @@ function renderCartPageItems() {
     if (cartTotalEl) {
         cartTotalEl.innerText = '৳' + totalPrice.toLocaleString('en-IN');
     }
-    
+
     if (cartGrandTotalEl) {
         cartGrandTotalEl.innerText = '৳' + grandTotal.toLocaleString('en-IN');
     }
@@ -1147,11 +1147,11 @@ function updateCartBadgeCount() {
     let cartKey = getCartStorageKey();
     let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
     let totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     const badges = document.querySelectorAll('.cart-count-badge');
     badges.forEach(badge => {
         badge.innerText = totalCount;
-        if(totalCount > 0) {
+        if (totalCount > 0) {
             badge.classList.remove('hidden');
         } else {
             badge.classList.add('hidden');
@@ -1182,7 +1182,7 @@ function callForOrder() {
 function changeMainImage(element, imgId) {
     const imgElement = document.getElementById(imgId);
     const mainImg = document.getElementById('main-product-img');
-    if(imgElement && mainImg) {
+    if (imgElement && mainImg) {
         mainImg.src = imgElement.src;
     }
 
@@ -1192,7 +1192,7 @@ function changeMainImage(element, imgId) {
         box.classList.add('border', 'border-neutral-200');
     });
 
-    if(element) {
+    if (element) {
         element.classList.remove('border', 'border-neutral-200');
         element.classList.add('border-2', 'border-[#F26522]');
     }
@@ -1239,7 +1239,7 @@ function syncOrderToFirebaseDatabase() {
     const user = checkUserLoggedIn();
     let cartKey = getCartStorageKey();
     let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-    
+
     if (!dbInst || cart.length === 0) return;
 
     dbInst.collection('orders').add({
@@ -1254,7 +1254,7 @@ function syncOrderToFirebaseDatabase() {
 }
 
 // ================= HERO BANNER SLIDER & MANUAL CHANGE SYSTEM =================
-let bannerImages = []; 
+let bannerImages = [];
 let currentImageIndex = 0;
 let sliderInterval = null;
 
@@ -1263,7 +1263,7 @@ function showSlideImage(index) {
     if (slideImage && bannerImages.length > 0) {
         if (index >= bannerImages.length) currentImageIndex = 0;
         if (index < 0) currentImageIndex = bannerImages.length - 1;
-        
+
         slideImage.style.opacity = '0';
         setTimeout(() => {
             slideImage.src = bannerImages[currentImageIndex];
@@ -1295,12 +1295,12 @@ function startSliderTimer() {
 // ফায়ারবেস বা ডেটাবেজ থেকে হিরো স্লাইড লোড করে অ্যারেতে সেট করার ফাংশন
 function initHeroSliders(productsArray) {
     if (!productsArray || !Array.isArray(productsArray)) return;
-    
+
     const sliderProducts = productsArray.filter(p => p.homeSection && (p.homeSection === 'slider-1' || p.homeSection === 'slider-2' || p.homeSection.startsWith('slider-')));
-    
+
     if (sliderProducts.length > 0) {
         bannerImages = sliderProducts.map(p => p.image || (p.images && p.images[0]) || '').filter(url => url !== '');
-        
+
         if (bannerImages.length > 0) {
             showSlideImage(0);
             startSliderTimer();
@@ -1358,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-   // ==========================================
+    // ==========================================
     // হোম পেজ এবং অন্যান্য পেজের গ্লোবাল সার্চ অপশন সচল করার কোড
     // ==========================================
     const searchInput = document.querySelector('.nav-search-input');
@@ -1399,7 +1399,7 @@ function showPopupNotification(message) {
         <i class="fa-solid fa-circle-check text-[#F26522] text-sm"></i>
         <span>${message}</span>
     `;
-    
+
     document.body.appendChild(toast);
 
     setTimeout(() => {
@@ -1423,7 +1423,7 @@ function promptClearDatabase() {
 
     if (enteredPass === adminPassword) {
         if (confirm("Are you sure? This will permanently delete all Firebase cloud data and local cache!")) {
-            
+
             // ১. ব্রাউজার লোকালস্টোরেজ থেকে কার্ট ও অর্ডার ক্যাশ মুছে ফেলা
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
@@ -1435,8 +1435,8 @@ function promptClearDatabase() {
             // ২. ফায়ারবেস ক্লাউড ডাটাবেজ থেকে ডেটা পার্মানেন্টলি ডিলিট করার কোড
             if (typeof db !== 'undefined') {
                 // আপনার প্রজেক্টে যে কালেকশনগুলোতে অর্ডার বা কার্ট ডেটা সেভ হয় সেগুলোর নাম এখানে দেওয়া হলো
-                const collectionsToClean = ['orders', 'carts', 'admin_orders']; 
-                
+                const collectionsToClean = ['orders', 'carts', 'admin_orders'];
+
                 let deletePromises = collectionsToClean.map(colName => {
                     return db.collection(colName).get().then(snapshot => {
                         let batch = db.batch();

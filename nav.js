@@ -59,7 +59,7 @@ const translations = {
 function changeLanguage(language) {
     const selectedLanguage = translations[language] ? language : 'en';
 
-   
+
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[selectedLanguage][key]) {
