@@ -727,7 +727,7 @@
     <script src="script.js"></script>
 
     <!-- অর্ডারের ডেটা ট্র্যাক ও দেখানোর ডায়নামিক স্ক্রিপ্ট -->
-   <script>
+<script>
     async function searchOrders() {
         let inputVal = document.getElementById('track-input').value.trim();
         const resultsContainer = document.getElementById('tracking-results');
@@ -738,8 +738,8 @@
         }
 
         resultsContainer.innerHTML = `
-            <div class="bg-white border border-neutral-200 rounded-2xl p-8 text-center shadow-sm">
-                <p class="text-sm text-neutral-600 font-semibold">Searching your order...</p>
+            <div class="bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl p-8 text-center shadow-sm">
+                <p class="text-sm text-neutral-600 dark:text-slate-300 font-semibold">Searching your order...</p>
             </div>
         `;
 
@@ -748,6 +748,7 @@
                 throw new Error("Firebase SDK is not loaded.");
             }
 
+            // যদি ফায়ারবেস আগে থেকে ইনিশিয়ালাইজ করা না থাকে
             if (!firebase.apps.length) {
                 firebase.initializeApp({
                     apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
@@ -762,50 +763,44 @@
 
             const dbInstance = firebase.firestore();
             let matchedOrdersMap = new Map();
-            let cleanQueryDigits = inputVal.replace(/\D/g, '');
+            let cleanQueryDigits = inputVal.replace(/\D/g, ''); // ইনপুট থেকে শুধু সংখ্যাগুলো আলাদা করা (ফোন নম্বরের জন্য)
             let queryLower = inputVal.toLowerCase();
 
+            // ফায়ারবেসের 'orders' কালেকশন থেকে সব অর্ডার ফেচ করা
             let allSnapshot = await dbInstance.collection("orders").get();
-            let usersSnapshot = await dbInstance.collection("users").get();
-            
-            let usersCache = new Map();
-            usersSnapshot.forEach(uDoc => {
-                usersCache.set(uDoc.id, uDoc.data());
-            });
 
             for (let docSnap of allSnapshot.docs) {
                 let data = docSnap.data();
                 data.firebaseId = docSnap.id;
 
-                let orderId = String(data.orderId || data.id || '').toLowerCase();
+                let orderId = String(data.orderId || '').toLowerCase();
                 let firebaseId = String(docSnap.id).toLowerCase();
                 
-                let orderUserId = data.userId;
-                let userPhoneFromDb = '';
-                let userNameFromDb = '';
-                let userAddressFromDb = '';
+                // চেকআউট থেকে সেভ হওয়া ফোন নম্বর রিকভার করা
+                let orderPhone = String(data.phone || data.phoneNumber || data.customerPhone || '').replace(/\D/g, '');
 
-                if (orderUserId && usersCache.has(orderUserId)) {
-                    let uData = usersCache.get(orderUserId);
-                    if (uData) {
-                        if (uData.phone) userPhoneFromDb = String(uData.phone).replace(/\D/g, '');
-                        if (uData.fullName || uData.name) userNameFromDb = uData.fullName || uData.name;
-                        if (uData.shippingAddress || uData.address) userAddressFromDb = uData.shippingAddress || uData.address;
+                // ১. অর্ডার আইডি ম্যাচ চেক
+                let matchId = false;
+                if (queryLower.length > 0) {
+                    if ((orderId && (orderId === queryLower || orderId.includes(queryLower))) || 
+                        (firebaseId && (firebaseId === queryLower || firebaseId.includes(queryLower)))) {
+                        matchId = true;
                     }
                 }
 
-                // অর্ডারের ভেতর থাকতে পারে এমন সব সম্ভাব্য ফোন ফিল্ড চেক করা
-                let directPhone = String(data.phone || data.phoneNumber || data.customerPhone || data.mobile || data.shippingPhone || '').replace(/\D/g, '');
-                let phone = directPhone || userPhoneFromDb;
+                // ২. মোবাইল নম্বর ম্যাচ চেক (শেষ অংশ বা হুবহু মিললে)
+                let matchPhone = false;
+                if (cleanQueryDigits.length >= 4 && orderPhone.length >= 4) {
+                    if (orderPhone === cleanQueryDigits || orderPhone.endsWith(cleanQueryDigits) || cleanQueryDigits.endsWith(orderPhone)) {
+                        matchPhone = true;
+                    }
+                }
 
-                let matchId = (orderId && orderId === queryLower) || (firebaseId && firebaseId === queryLower) || (orderId.includes(queryLower) && queryLower.length > 3);
-                let matchPhone = cleanQueryDigits.length >= 5 && phone === cleanQueryDigits;
-
-                // যদি আইডি বা ফোন নম্বর পারফেক্টলি মিলে যায়, তবেই কেবল এটি লিস্টে যুক্ত হবে
+                // যদি আইডি অথবা ফোন নম্বর মিলে যায়
                 if (matchId || matchPhone) {
-                    data.resolvedName = data.name || data.customerName || data.fullName || data.userName || userNameFromDb || 'N/A';
-                    data.resolvedPhone = data.phone || data.phoneNumber || data.customerPhone || data.mobile || userPhoneFromDb || 'N/A';
-                    data.resolvedAddress = data.address || data.shippingAddress || data.deliveryAddress || data.location || userAddressFromDb || 'N/A';
+                    data.resolvedName = data.name || data.customerName || 'N/A';
+                    data.resolvedPhone = data.phone || data.phoneNumber || 'N/A';
+                    data.resolvedAddress = data.address || data.shippingAddress || 'N/A';
                     
                     matchedOrdersMap.set(docSnap.id, data);
                 }
@@ -816,12 +811,12 @@
 
             if (matchedOrders.length === 0) {
                 resultsContainer.innerHTML = `
-                    <div class="bg-white border border-neutral-200 rounded-2xl p-8 text-center shadow-sm">
-                        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-lg">
+                    <div class="bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl p-8 text-center shadow-sm">
+                        <div class="w-12 h-12 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-lg">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <p class="text-sm text-neutral-600 font-semibold">No orders found with this information!</p>
-                        <p class="text-xs text-neutral-400 mt-1">Please double-check your Order ID or phone number and try again.</p>
+                        <p class="text-sm text-neutral-600 dark:text-slate-300 font-semibold">No orders found with this information!</p>
+                        <p class="text-xs text-neutral-400 dark:text-slate-400 mt-1">Please double-check your Order ID or phone number and try again.</p>
                     </div>
                 `;
                 return;
@@ -839,24 +834,24 @@
                     subtotal += itemTotal;
 
                     itemsHtml += `
-                        <div class="flex items-center justify-between border-b border-neutral-100 pb-3 mb-3">
+                        <div class="flex items-center justify-between border-b border-neutral-100 dark:border-slate-800 pb-3 mb-3">
                             <div class="flex items-center gap-3">
-                                <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-cover rounded-xl border border-neutral-200" alt="${item.title || item.name}">
+                                <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-cover rounded-xl border border-neutral-200 dark:border-slate-700" alt="${item.title || item.name}">
                                 <div>
-                                    <h4 class="font-semibold text-neutral-900 text-xs line-clamp-1">${item.title || item.name}</h4>
-                                    <p class="text-[11px] text-neutral-500 font-medium">Quantity: ${quantity} pcs | Price: ${item.price}</p>
+                                    <h4 class="font-semibold text-neutral-900 dark:text-white text-xs line-clamp-1">${item.title || item.name}</h4>
+                                    <p class="text-[11px] text-neutral-500 dark:text-slate-400 font-medium">Quantity: ${quantity} pcs | Price: ${item.price}</p>
                                 </div>
                             </div>
-                            <span class="font-bold text-xs text-neutral-900 whitespace-nowrap">৳${itemTotal.toLocaleString('en-IN')}</span>
+                            <span class="font-bold text-xs text-neutral-900 dark:text-white whitespace-nowrap">৳${itemTotal.toLocaleString('en-IN')}</span>
                         </div>
                     `;
                 });
 
-                let grandTotal = subtotal + 60;
-                let statusClass = "bg-orange-50 text-[#F26522]";
+                let grandTotal = order.totalAmount ? order.totalAmount : ('৳' + (subtotal + 60).toLocaleString('en-IN'));
+                let statusClass = "bg-orange-50 text-[#F26522] dark:bg-orange-950/40 dark:text-orange-400";
                 let step1 = "bg-[#F26522] text-white shadow-xs";
-                let step2 = "bg-neutral-100 text-neutral-400";
-                let step3 = "bg-neutral-100 text-neutral-400";
+                let step2 = "bg-neutral-100 text-neutral-400 dark:bg-slate-800 dark:text-slate-500";
+                let step3 = "bg-neutral-100 text-neutral-400 dark:bg-slate-800 dark:text-slate-500";
 
                 let currentStatus = order.status || 'Processing';
                 let statusLower = currentStatus.toLowerCase();
@@ -867,28 +862,24 @@
                     step1 = "bg-emerald-500 text-white shadow-xs";
                     step2 = "bg-emerald-500 text-white shadow-xs";
                     step3 = "bg-emerald-500 text-white shadow-xs";
-                    statusClass = "bg-emerald-50 text-emerald-600 font-bold";
+                    statusClass = "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold";
                 } else if (statusLower.includes('cancel')) {
-                    statusClass = "bg-red-50 text-red-600 font-bold";
-                    step1 = "bg-red-100 text-red-500";
+                    statusClass = "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 font-bold";
+                    step1 = "bg-red-100 text-red-500 dark:bg-red-900/40 dark:text-red-400";
                 }
 
-                let orderDate = order.date || order.orderDate || order.createdAt || 'N/A';
+                let orderDate = order.date || 'N/A';
                 let displayOrderId = order.orderId || order.firebaseId;
                 let paymentText = order.paymentMethod === 'cod' || !order.paymentMethod ? 'Cash on Delivery (COD)' : order.paymentMethod;
 
-                let customerName = order.resolvedName;
-                let customerPhone = order.resolvedPhone;
-                let customerAddress = order.resolvedAddress;
-
                 const orderCard = document.createElement('div');
-                orderCard.className = "bg-white border border-neutral-200 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 text-xs transition-all";
+                orderCard.className = "bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 text-xs transition-all mb-4";
 
                 orderCard.innerHTML = `
-                    <div class="flex flex-wrap justify-between items-center border-b border-neutral-100 pb-4 gap-2">
+                    <div class="flex flex-wrap justify-between items-center border-b border-neutral-100 dark:border-slate-800 pb-4 gap-2">
                         <div>
-                            <span class="font-bold text-[#F26522] bg-orange-50 px-3 py-1.5 rounded-lg">Order ID: ${displayOrderId}</span>
-                            <span class="text-neutral-500 ml-2 font-medium">Date: ${orderDate}</span>
+                            <span class="font-bold text-[#F26522] bg-orange-50 dark:bg-orange-950/40 px-3 py-1.5 rounded-lg">Order ID: ${displayOrderId}</span>
+                            <span class="text-neutral-500 dark:text-slate-400 ml-2 font-medium">Date: ${orderDate}</span>
                         </div>
                         <div>
                             <span class="font-bold px-3.5 py-1.5 rounded-full ${statusClass}">Status: ${currentStatus}</span>
@@ -896,7 +887,7 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <p class="font-bold text-neutral-400 uppercase tracking-wider text-[10px]">Order's Live Process:</p>
+                        <p class="font-bold text-neutral-400 dark:text-slate-500 uppercase tracking-wider text-[10px]">Order's Live Process:</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center font-semibold text-xs">
                             <div class="p-3 rounded-xl ${step1} flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-box-open"></i> 1. Order Received
@@ -910,22 +901,22 @@
                         </div>
                     </div>
 
-                    <div class="bg-neutral-50/70 p-4 sm:p-5 rounded-xl border border-neutral-200/80 space-y-2">
-                        <p class="font-bold text-neutral-700 uppercase tracking-wider text-[10px] mb-2 flex items-center gap-1.5">
+                    <div class="bg-neutral-50/70 dark:bg-slate-800/50 p-4 sm:p-5 rounded-xl border border-neutral-200/80 dark:border-slate-700/60 space-y-2">
+                        <p class="font-bold text-neutral-700 dark:text-slate-200 uppercase tracking-wider text-[10px] mb-2 flex items-center gap-1.5">
                             <i class="fa-solid fa-location-dot text-[#F26522]"></i> Customer & Shipping Location:
                         </p>
-                        <p class="text-neutral-600"><strong class="text-neutral-800">Name:</strong> ${customerName}</p>
-                        <p class="text-neutral-600"><strong class="text-neutral-800">Phone:</strong> ${customerPhone}</p>
-                        <p class="text-neutral-600"><strong class="text-neutral-800">Delivery Address:</strong> ${customerAddress}</p>
-                        <p class="text-neutral-600"><strong class="text-neutral-800">Payment Method:</strong> ${paymentText}</p>
+                        <p class="text-neutral-600 dark:text-slate-300"><strong class="text-neutral-800 dark:text-white">Name:</strong> ${order.resolvedName}</p>
+                        <p class="text-neutral-600 dark:text-slate-300"><strong class="text-neutral-800 dark:text-white">Phone:</strong> ${order.resolvedPhone}</p>
+                        <p class="text-neutral-600 dark:text-slate-300"><strong class="text-neutral-800 dark:text-white">Delivery Address:</strong> ${order.resolvedAddress}</p>
+                        <p class="text-neutral-600 dark:text-slate-300"><strong class="text-neutral-800 dark:text-white">Payment Method:</strong> ${paymentText}</p>
                     </div>
 
                     <div>
-                        <p class="font-bold text-neutral-400 uppercase tracking-wider text-[10px] mb-3">Ordered Products:</p>
+                        <p class="font-bold text-neutral-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mb-3">Ordered Products:</p>
                         <div class="space-y-1">${itemsHtml}</div>
-                        <div class="flex justify-between items-center pt-3 border-t border-neutral-100 font-bold text-xs sm:text-sm">
-                            <span class="text-neutral-700">Grand Total (including delivery charge):</span>
-                            <span class="text-[#F26522] text-sm sm:text-base">৳${grandTotal.toLocaleString('en-IN')}</span>
+                        <div class="flex justify-between items-center pt-3 border-t border-neutral-100 dark:border-slate-800 font-bold text-xs sm:text-sm">
+                            <span class="text-neutral-700 dark:text-slate-300">Grand Total (including delivery charge):</span>
+                            <span class="text-[#F26522] text-sm sm:text-base">${typeof grandTotal === 'number' ? '৳' + grandTotal.toLocaleString('en-IN') : grandTotal}</span>
                         </div>
                     </div>
                 `;
@@ -936,8 +927,8 @@
         } catch (error) {
             console.error("Error fetching orders from Firebase:", error);
             resultsContainer.innerHTML = `
-                <div class="bg-white border border-neutral-200 rounded-2xl p-8 text-center shadow-sm">
-                    <p class="text-sm text-red-500 font-semibold">Failed to load orders. Please check your connection or Firebase console.</p>
+                <div class="bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-800 rounded-2xl p-8 text-center shadow-sm">
+                    <p class="text-sm text-red-500 dark:text-red-400 font-semibold">Failed to load orders. Please check your connection or Firebase console.</p>
                 </div>
             `;
         }
