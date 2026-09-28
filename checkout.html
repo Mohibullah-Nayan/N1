@@ -1,3 +1,7 @@
+<<<<<<< Updated upstream
+
+=======
+>>>>>>> Stashed changes
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -127,274 +131,239 @@
         </div>
     </main>
 
-<script>
-    let appliedDiscount = 0;
-    let appliedCouponCode = "";
+    <script>
+        let appliedDiscount = 0;
+        let appliedCouponCode = "";
 
-    // ইউজারভিত্তিক কার্ট কি (Key) খুঁজে বের করার শক্তিশালী ফাংশন
-    function getActiveCartKey() {
-        let activeKey = 'nayan_cart_guest';
-        
-        let user = null;
-        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-            user = firebase.auth().currentUser;
-        } else {
-            let localUser = localStorage.getItem('user');
-            if (localUser) {
-                try { user = JSON.parse(localUser); } catch(e) {}
+        // ইউজারভিত্তিক কার্ট কি (Key) খুঁজে বের করার শক্তিশালী ফাংশন
+        function getActiveCartKey() {
+            let activeKey = 'nayan_cart_guest';
+            
+            let user = null;
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                user = firebase.auth().currentUser;
+            } else {
+                let localUser = localStorage.getItem('user');
+                if (localUser) {
+                    try { user = JSON.parse(localUser); } catch(e) {}
+                }
             }
-        }
 
-        if (user && user.uid) {
-            activeKey = 'nayan_cart_' + user.uid;
-        } else if (user && user.email) {
-            activeKey = 'nayan_cart_' + user.email;
-        }
+            if (user && user.uid) {
+                activeKey = 'nayan_cart_' + user.uid;
+            } else if (user && user.email) {
+                activeKey = 'nayan_cart_' + user.email;
+            }
 
-        let cart = JSON.parse(localStorage.getItem(activeKey)) || [];
-        if (cart.length === 0) {
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key && key.startsWith('nayan_cart_')) {
-                    let tempCart = JSON.parse(localStorage.getItem(key)) || [];
-                    if (tempCart.length > 0) {
-                        activeKey = key;
-                        break;
+            let cart = JSON.parse(localStorage.getItem(activeKey)) || [];
+            if (cart.length === 0) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    if (key && key.startsWith('nayan_cart_')) {
+                        let tempCart = JSON.parse(localStorage.getItem(key)) || [];
+                        if (tempCart.length > 0) {
+                            activeKey = key;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        return activeKey;
-    }
-
-    // পেজ লোড হলে কার্টের ডেটা সামারি সেকশনে দেখানোর জন্য
-    function loadCheckoutSummary() {
-        let cartKey = getActiveCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const itemsContainer = document.getElementById('checkout-items-list');
-        const subtotalEl = document.getElementById('checkout-subtotal');
-        const grandTotalEl = document.getElementById('checkout-grand-total');
-
-        if (!itemsContainer) return;
-
-        itemsContainer.innerHTML = "";
-        let subtotal = 0;
-
-        if (cart.length === 0) {
-            itemsContainer.innerHTML = "<p class='text-neutral-400 text-center py-4 text-xs font-medium'>Your cart is empty</p>";
-            if(subtotalEl) subtotalEl.innerText = '৳0';
-            if(grandTotalEl) grandTotalEl.innerText = '৳60';
-            return;
+            return activeKey;
         }
 
-        cart.forEach(item => {
-            let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
-            let itemTotal = cleanPrice * item.quantity;
-            subtotal += itemTotal;
+        // পেজ লোড হলে কার্টের ডেটা সামারি সেকশনে দেখানোর জন্য
+        function loadCheckoutSummary() {
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            const itemsContainer = document.getElementById('checkout-items-list');
+            const subtotalEl = document.getElementById('checkout-subtotal');
+            const grandTotalEl = document.getElementById('checkout-grand-total');
 
-            itemsContainer.innerHTML += `
-                <div class="flex justify-between items-center gap-2 border-b border-neutral-50 pb-2.5">
-                    <div>
-                        <p class="font-semibold text-neutral-800 text-lg line-clamp-1">${item.title}</p>
-                        <p class="text-[14px] text-neutral-500 font-medium">পরিমাণ: ${item.quantity} পিস</p>
-                    </div>
-                    <span class="font-bold text-lg text-neutral-900 whitespace-nowrap">৳${itemTotal.toLocaleString('en-IN')}</span>
-                </div>
-            `;
-        });
+            itemsContainer.innerHTML = "";
+            let subtotal = 0;
 
-        calculateFinalTotals(subtotal);
-    }
-
-    // কুপন ভ্যালিডেট ও অ্যাপ্লাই করার ফাংশন
-    function applyCoupon() {
-        let codeInput = document.getElementById('coupon-input').value.trim().toUpperCase();
-        let msgEl = document.getElementById('coupon-message');
-        
-        if (!codeInput) {
-            msgEl.innerText = "Please enter a coupon code.";
-            msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
-            return;
-        }
-
-        let adminCoupons = JSON.parse(localStorage.getItem('adminCoupons')) || [];
-        let foundCoupon = adminCoupons.find(c => c.code === codeInput);
-
-        if (!foundCoupon) {
-            msgEl.innerText = "Invalid or expired coupon code!";
-            msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
-            appliedDiscount = 0;
-            appliedCouponCode = "";
-            loadCheckoutSummary();
-            document.getElementById('discount-row').classList.add('hidden');
-            return;
-        }
-
-        let cartKey = getActiveCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        let subtotal = 0;
-        cart.forEach(item => {
-            let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
-            subtotal += cleanPrice * item.quantity;
-        });
-
-        if (foundCoupon.type === 'percent') {
-            appliedDiscount = Math.round((subtotal * foundCoupon.value) / 100);
-        } else {
-            appliedDiscount = foundCoupon.value;
-        }
-
-        if (appliedDiscount > subtotal) {
-            appliedDiscount = subtotal;
-        }
-
-        appliedCouponCode = foundCoupon.code;
-        msgEl.innerText = `Success! Coupon "${foundCoupon.code}" has been applied.`;
-        msgEl.className = "text-[11px] mt-1.5 text-emerald-600 font-semibold";
-        
-        document.getElementById('discount-row').classList.remove('hidden');
-        document.getElementById('checkout-discount').innerText = '-৳' + appliedDiscount.toLocaleString('en-IN');
-        
-        calculateFinalTotals(subtotal);
-    }
-
-    function calculateFinalTotals(subtotal) {
-        const subtotalEl = document.getElementById('checkout-subtotal');
-        const grandTotalEl = document.getElementById('checkout-grand-total');
-
-        let deliveryCharge = 60;
-        let grandTotal = (subtotal - appliedDiscount) + deliveryCharge;
-        if (grandTotal < deliveryCharge) grandTotal = deliveryCharge;
-
-        if(subtotalEl) subtotalEl.innerText = '৳' + subtotal.toLocaleString('en-IN');
-        if(grandTotalEl) grandTotalEl.innerText = '৳' + grandTotal.toLocaleString('en-IN');
-    }
-
-    async function handleOrderSubmit(event) {
-    event.preventDefault();
-    
-    // ফর্মের ইনপুট ফিল্ডগুলো থেকে মানগুলো সঠিকভাবে নেওয়া হচ্ছে কিনা তা নিশ্চিত করা
-    let nameInput = document.getElementById('customer-name');
-    let phoneInput = document.getElementById('customer-phone');
-    let emailInput = document.getElementById('customer-email');
-    let addressInput = document.getElementById('customer-address');
-    
-    let name = nameInput ? nameInput.value.trim() : '';
-    let phone = phoneInput ? phoneInput.value.trim() : '';
-    let email = emailInput ? emailInput.value.trim() : '';
-    let address = addressInput ? addressInput.value.trim() : '';
-    
-    let paymentMethodEl = document.querySelector('input[name="payment-method"]:checked');
-    let paymentMethod = paymentMethodEl ? paymentMethodEl.value : 'cod';
-
-    // ফোন নম্বর বা নাম মিসিং থাকলে অ্যালার্ট দেখাবে
-    if (!phone || !name) {
-        alert("দয়া করে আপনার নাম এবং মোবাইল নম্বরটি দিন!");
-        return;
-    }
-
-    let cartKey = getActiveCartKey();
-    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-    if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-    }
-
-    let subtotal = 0;
-    cart.forEach(item => {
-        let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
-        subtotal += cleanPrice * item.quantity;
-    });
-    let grandTotal = (subtotal - appliedDiscount) + 60;
-
-    let orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-    
-    // এখানে সরাসরি ফোন নম্বরসহ সব ডেটা গুছিয়ে নেওয়া হলো
-    let orderData = {
-        orderId: orderId,
-        name: name,
-        phone: phone,          // <--- মোবাইল নম্বর এখানে যুক্ত করা হলো
-        email: email,
-        address: address,
-        paymentMethod: paymentMethod,
-        items: cart,
-        couponUsed: appliedCouponCode ? appliedCouponCode : 'None',
-        discountAmount: '৳' + appliedDiscount.toLocaleString('en-IN'),
-        totalAmount: '৳' + grandTotal.toLocaleString('en-IN'),
-        status: 'Pending',
-        orderDate: new Date().toISOString()
-    };
-
-    let submitBtn = document.getElementById('order-btn');
-    if(submitBtn) {
-        submitBtn.innerText = "Processing Order...";
-        submitBtn.disabled = true;
-    }
-
-    try {
-        // সরাসরি ফায়ারবেসের ফায়ারস্টোরে সেভ করা
-        if (typeof firebase !== 'undefined' && firebase.firestore) {
-            const dbInstance = firebase.firestore();
-            await dbInstance.collection("orders").add(orderData);
-            console.log("Order saved to Firebase successfully with phone:", phone);
-        } else {
-            console.error("Firebase is not defined!");
-        }
-
-        // লোকালস্টোরেজেও ব্যাকআপ রাখা
-        let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
-        allOrders.push(orderData);
-        localStorage.setItem('orders', JSON.stringify(allOrders));
-        localStorage.removeItem(cartKey);
-
-        alert(`অর্ডার সফলভাবে সম্পন্ন হয়েছে! আপনার অর্ডার আইডি: ${orderId}`);
-        window.location.href = 'track-order.html';
-
-    } catch (error) {
-        console.error("Error saving order: ", error);
-        alert("অর্ডার সেভ করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
-        if(submitBtn) {
-            submitBtn.innerText = "Confirm Order";
-            submitBtn.disabled = false;
-        }
-    }
-}
-
-    // ফায়ারবেসে অর্ডার সেভ করার আপডেট করা ফাংশন
-    async function executeFinalStep(paymentMethod, orderData, cartKey, orderId) {
-        try {
-            // ফায়ারবেস ফায়ারস্টোর ডাটাবেসে অর্ডার সেভ করা
-            if (typeof firebase !== 'undefined' && firebase.firestore) {
-                const dbInstance = firebase.firestore();
-                await dbInstance.collection("orders").add(orderData);
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = "<p class='text-neutral-400 text-center py-4 text-xs font-medium'>Your cart is empty</p>";
+                if(subtotalEl) subtotalEl.innerText = '৳0';
+                if(grandTotalEl) grandTotalEl.innerText = '৳60';
+                return;
             }
-        } catch (err) {
-            console.error("Firebase save error: ", err);
+
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                let itemTotal = cleanPrice * item.quantity;
+                subtotal += itemTotal;
+
+                itemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center gap-2 border-b border-neutral-50 pb-2.5">
+                        <div>
+                            <p class="font-semibold text-neutral-800 text-lg line-clamp-1">${item.title}</p>
+                            <p class="text-[14px] text-neutral-500 font-medium">পরিমাণ: ${item.quantity} পিস</p>
+                        </div>
+                        <span class="font-bold text-lg text-neutral-900 whitespace-nowrap">৳${itemTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                `;
+            });
+
+            calculateFinalTotals(subtotal);
         }
 
-        if (paymentMethod === 'online') {
-            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-            window.location.href = 'payment.html';
-        } else {
-            let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
-            allOrders.push(orderData);
-            localStorage.setItem('orders', JSON.stringify(allOrders));
-            localStorage.removeItem(cartKey);
+        // কুপন ভ্যালিডেট ও অ্যাপ্লাই করার ফাংশন
+        function applyCoupon() {
+            let codeInput = document.getElementById('coupon-input').value.trim().toUpperCase();
+            let msgEl = document.getElementById('coupon-message');
+            
+            if (!codeInput) {
+                msgEl.innerText = "Please enter a coupon code.";
+                msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+                return;
+            }
 
-            alert(`Congratulations! Your order has been successfully placed and a confirmation email has been sent to your email address. Order ID: ${orderId}`);
-            window.location.href = 'track-order.html';
+            let adminCoupons = JSON.parse(localStorage.getItem('adminCoupons')) || [];
+            let foundCoupon = adminCoupons.find(c => c.code === codeInput);
+
+            if (!foundCoupon) {
+                msgEl.innerText = "Invalid or expired coupon code!";
+                msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+                appliedDiscount = 0;
+                appliedCouponCode = "";
+                loadCheckoutSummary();
+                document.getElementById('discount-row').classList.add('hidden');
+                return;
+            }
+
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            let subtotal = 0;
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                subtotal += cleanPrice * item.quantity;
+            });
+
+            if (foundCoupon.type === 'percent') {
+                appliedDiscount = Math.round((subtotal * foundCoupon.value) / 100);
+            } else {
+                appliedDiscount = foundCoupon.value;
+            }
+
+            if (appliedDiscount > subtotal) {
+                appliedDiscount = subtotal;
+            }
+
+            appliedCouponCode = foundCoupon.code;
+            msgEl.innerText = `Success! Coupon "${foundCoupon.code}" has been applied.`;
+            msgEl.className = "text-[11px] mt-1.5 text-emerald-600 font-semibold";
+            
+            document.getElementById('discount-row').classList.remove('hidden');
+            document.getElementById('checkout-discount').innerText = '-৳' + appliedDiscount.toLocaleString('en-IN');
+            
+            calculateFinalTotals(subtotal);
         }
-    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(loadCheckoutSummary, 200);
-    });
+        function calculateFinalTotals(subtotal) {
+            const subtotalEl = document.getElementById('checkout-subtotal');
+            const grandTotalEl = document.getElementById('checkout-grand-total');
 
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged(() => {
-            loadCheckoutSummary();
+            let deliveryCharge = 60;
+            let grandTotal = (subtotal - appliedDiscount) + deliveryCharge;
+            if (grandTotal < deliveryCharge) grandTotal = deliveryCharge;
+
+            if(subtotalEl) subtotalEl.innerText = '৳' + subtotal.toLocaleString('en-IN');
+            if(grandTotalEl) grandTotalEl.innerText = '৳' + grandTotal.toLocaleString('en-IN');
+        }
+
+        function handleOrderSubmit(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById('customer-name').value;
+            let phone = document.getElementById('customer-phone').value;
+            let email = document.getElementById('customer-email').value;
+            let address = document.getElementById('customer-address').value;
+            let paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            let cartKey = getActiveCartKey();
+            let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
+                subtotal += cleanPrice * item.quantity;
+            });
+            let grandTotal = (subtotal - appliedDiscount) + 60;
+
+            let orderId = '#' + Math.floor(10000 + Math.random() * 90000);
+            
+            let orderData = {
+                orderId: orderId,
+                name: name,
+                phone: phone,
+                email: email,
+                address: address,
+                paymentMethod: paymentMethod,
+                items: cart,
+                couponUsed: appliedCouponCode ? appliedCouponCode : 'None',
+                discountAmount: '৳' + appliedDiscount.toLocaleString('en-IN'),
+                totalAmount: '৳' + grandTotal.toLocaleString('en-IN'),
+                status: 'Processing',
+                date: new Date().toLocaleDateString()
+            };
+
+            let submitBtn = document.getElementById('order-btn');
+            submitBtn.innerText = "Confirming Order and Sending Email...";
+            submitBtn.disabled = true;
+
+            // EmailJS এর জন্য প্রোডাক্টের বিবরণ তৈরি
+            let itemsListText = cart.map(item => `${item.title} (${item.quantity} pcs) - ${item.price}`).join(', ');
+
+            let templateParams = {
+                to_name: name,
+                to_email: email,
+                order_id: orderId,
+                order_details: itemsListText,
+                total_amount: '৳' + grandTotal.toLocaleString('en-IN'),
+                shipping_address: address,
+                phone_number: phone
+            };
+
+            emailjs.send('service_inuvwec', 'template_nbd15cc', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    executeFinalStep(paymentMethod, orderData, cartKey, orderId);
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    alert('Failed to send email, but your order has been processed.');
+                    executeFinalStep(paymentMethod, orderData, cartKey, orderId);
+                });
+        }
+
+        function executeFinalStep(paymentMethod, orderData, cartKey, orderId) {
+            if (paymentMethod === 'online') {
+                localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                window.location.href = 'payment.html';
+            } else {
+                let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+                allOrders.push(orderData);
+                localStorage.setItem('orders', JSON.stringify(allOrders));
+                localStorage.removeItem(cartKey);
+
+                alert(`Congratulations! Your order has been successfully placed and a confirmation email has been sent to your email address. Order ID: ${orderId}`);
+                window.location.href = 'track-order.html';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadCheckoutSummary, 200);
         });
-    }
-</script>
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().onAuthStateChanged(() => {
+                loadCheckoutSummary();
+            });
+        }
+    </script>
 </body>
 </html>
