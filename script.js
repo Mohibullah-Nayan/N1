@@ -174,7 +174,7 @@ function renderProducts(filterCategory) {
     let matchedProducts = allProducts;
 
     // ==========================================
-    // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
+    // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get('search');
@@ -185,7 +185,7 @@ function renderProducts(filterCategory) {
             titleElement.innerText = `Search Results for: "${searchQuery}"`;
         }
 
-        // প্রোডাক্টের নাম (title) বা ব্র্যান্ড (brand) বা ক্যাটাগরি দিয়ে ফিল্টার করা
+        // প্রোডাক্টের নাম (title) বা ব্র্যান্ড (brand) বা ক্যাটাগরি দিয়ে ফিল্টার করা
         matchedProducts = matchedProducts.filter(p => {
             const titleMatch = p.title && p.title.toLowerCase().includes(cleanQuery);
             const brandMatch = p.brand && p.brand.toLowerCase().includes(cleanQuery);
@@ -193,11 +193,26 @@ function renderProducts(filterCategory) {
             return titleMatch || brandMatch || categoryMatch;
         });
     }
-    // ২. সার্চ না থাকলে আগের মতো ক্যাটাগরি ফিল্টার কাজ করবে
+    // ২. সার্চ না থাকলে ক্যাটাগরি অনুযায়ী নির্দিষ্ট নাম শো করবে
     else if (filterCategory) {
         if (titleElement) {
-            titleElement.innerText = filterCategory.replace(/[-_]/g, ' ').toUpperCase();
+            const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+
+            if (cleanFilter.includes("parfum")) {
+                titleElement.innerText = "MEN";
+            } else if (cleanFilter.includes("oud")) {
+                titleElement.innerText = "WOMEN";
+            } else if (cleanFilter.includes("attar")) {
+                titleElement.innerText = "KIDS";
+            } else if (cleanFilter.includes("giftsets") || cleanFilter.includes("gift-sets")) {
+                titleElement.innerText = "UNISEX";
+            } else if (cleanFilter.includes("mensluxury") || cleanFilter.includes("mens-luxury")) {
+                titleElement.innerText = "GIFT SETS";
+            } else {
+                titleElement.innerText = filterCategory.replace(/[-_]/g, ' ').toUpperCase();
+            }
         }
+
         const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
         matchedProducts = matchedProducts.filter(p => {
             if (!p.category) return false;
@@ -209,6 +224,7 @@ function renderProducts(filterCategory) {
             titleElement.innerText = "All Products";
         }
     }
+
 
     if (matchedProducts.length > 0) {
         if (noProductMsg) noProductMsg.classList.add('hidden');

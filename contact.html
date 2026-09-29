@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
 </head>
 
 <!-- External CSS Link -->
@@ -55,17 +54,27 @@
 
             <header class="top-header max-w-7xl mx-auto w-full flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
 
-                <!-- 1. Brand Logo with Glow Accent -->
-                <a href="index.html" class="nav-logo shrink-0 flex items-center gap-2.5 group">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-                        <i class="fa-solid fa-spray-can-sparkles text-sm"></i>
-                    </div>
+                 <!-- 1. Brand Logo with Photo/Image -->
+          <a
+            href="index.html"
+            class="nav-logo shrink-0 flex items-center gap-2.5 group"
+          >
+            <div
+              class="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform flex items-center justify-center bg-white dark:bg-slate-900"
+            >
+              <!-- এখানে আপনার লোগো ছবির পাথ (path) বসিয়ে দেবেন -->
+              <img
+                src="./images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg"
+                class="w-full h-full object-cover"
+              />
+            </div>
 
-                    <span class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
-                        SCENT<span class="text-amber-600">.</span>
-                    </span>
-                </a>
-
+            <span
+              class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent"
+            >
+              SCENT<span class="text-amber-600">.</span>
+            </span>
+          </a>
                 <!-- 2. Sleek Realtime Search Bar -->
                 <div class="nav-search-wrapper hidden md:flex flex-1 max-w-md relative mx-4">
                     <input
@@ -223,11 +232,9 @@
         Contact Us
     </a>
 </li>
-
-                </ul>
-            </nav>
-
-        </div>
+</ul>
+</nav>
+</div>
     <!-- Main Contact Section -->
    <div class="max-w-6xl mx-auto px-4 pb-12">
     <img class="justify-center items-center flex h-72 w-full rounded-xl object-cover" src="./images/banner/360_F.jpg" alt="jpg">
@@ -259,16 +266,16 @@
         <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Send Us a Message</h2>
             
-            <!-- ফর্মের মধ্যে onsubmit যোগ করা হয়েছে -->
-            <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+            <!-- ফর্মের আইডি এবং onsubmit অপরিবর্তিত রাখা হয়েছে -->
+            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
                 <div>
-                    <input type="text" placeholder="Your Name" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]">
+                    <input type="text" id="contact-name" placeholder="Your Name" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]">
                 </div>
                 <div>
-                    <input type="email" placeholder="Your Email" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]">
+                    <input type="email" id="contact-email" placeholder="Your Email" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]">
                 </div>
                 <div>
-                    <textarea placeholder="Your Message..." rows="4" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]"></textarea>
+                    <textarea id="contact-message" placeholder="Your Message..." rows="4" required class="w-full px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl text-[17px] focus:outline-none focus:border-[#F26522]"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-[#F26522] hover:bg-orange-600 text-white font-bold py-2 rounded-xl transition text-lg cursor-pointer shadow-sm">
                     Submit
@@ -753,18 +760,26 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="nav.js"></script>
+    <script src="nav.js"></script>
     <!-- ৩. আপনার ডেটাবেজ ফাইল -->
     <script src="db.js"></script>
 
     <!-- ৪. আপনার মূল লজিক ও কন্টাক্ট ফর্ম সাবমিট হ্যান্ডেলার ফাইল -->
     <script src="script.js"></script>
 
-    <!-- কন্টাক্ট ফর্ম ডাটা ফায়ারবেসে সেভ করার স্ক্রিপ্ট -->
+    <!-- কন্টাক্ট ফর্ম ডাটা ফায়ারবেসে সেভ করার স্ক্রিপ্ট -->
     <script>
-        // যদি আপনার মূল logic কোড (script.js)-এ এই ফাংশনটি আগে থেকেই না থাকে, তবে এটি ব্যবহার করতে পারেন:
         window.handleContactSubmit = async function(e) {
             e.preventDefault();
+
+            // ১. ফায়ারবেস কমপ্যাট ভার্সন দিয়ে চেক করা ইউজার লগইন করা আছে কিনা
+            const currentUser = firebase.auth().currentUser;
+
+            if (!currentUser) {
+                alert('⚠️ মেসেজ পাঠানোর জন্য আপনাকে প্রথমে লগইন করতে হবে!');
+                window.location.href = "login.html"; // লগইন পেজের লিংক
+                return;
+            }
 
             const nameInput = e.target.querySelector('input[type="text"]');
             const emailInput = e.target.querySelector('input[type="email"]');
@@ -786,11 +801,12 @@
             }
 
             try {
-                // ফায়ারবেস কমপ্যাট ভার্সন ব্যবহার করে ডাটা সেভ করা
+                // ফায়ারবেস কমপ্যাট ভার্সন ব্যবহার করে ডাটা ও ইউজারের UID সেভ করা
                 await firebase.firestore().collection("messages").add({
                     name: name,
                     email: email,
                     message: message,
+                    userId: currentUser.uid, // কার আইডি থেকে মেসেজ গেছে তা সেভ থাকবে
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
