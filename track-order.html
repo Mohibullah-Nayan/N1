@@ -726,7 +726,7 @@
 
     </footer>
 
-    <!-- ১. ফায়ারবেস সিডিএন লাইব্রেরি -->
+<!-- ১. ফায়ারবেস সিডিএন লাইব্রেরি -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script> <!-- ফায়ারবেস অথ লাইব্রেরি যুক্ত করা হয়েছে -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -737,12 +737,21 @@
     <!-- ৪. আপনার মূল লজিক ফাইল -->
     <script src="script.js"></script>
 
-   <!-- অর্ডারের ডেটা ট্র্যাক ও দেখানোর ডায়নামিক স্ক্রিপ্ট (ফায়ারবেজ রিয়েল-টাইম রেন্ডারিং সহ) -->
+   <!-- অর্ডারের ডেটা ট্র্যাক ও দেখানোর ডায়নামিক স্ক্রিপ্ট (ফায়ারবেজ রিয়েল-টাইম রেন্ডারিং সহ) -->
     <script>
-        // রিয়েল-টাইম লিসেনার আনসাবস্ক্রাইব করার জন্য গ্লোবাল ভ্যারিয়েবল
+        // রিয়েল-টাইম লিসেনার আনসাবস্ক্রাইব করার জন্য গ্লোবাল ভ্যারিয়েবল
         let activeListener = null;
 
         function searchOrders() {
+            // নতুন চেক: ইউজার লগইন করা আছে কিনা যাচাই করা
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser) {
+                alert("Please login first!");
+                
+                // window.location.href = "login.html";
+                return;
+            }
+
             let inputVal = document.getElementById('track-input').value.trim();
             const resultsContainer = document.getElementById('tracking-results');
 
@@ -751,7 +760,7 @@
                 return;
             }
 
-            // যদি আগে থেকে কোনো রিয়েল-টাইম লিসেনার চালু থাকে, তবে তা বন্ধ করে দেওয়া
+            // যদি আগে থেকে কোনো রিয়েল-টাইম লিসেনার চালু থাকে, তবে তা বন্ধ করে দেওয়া
             if (activeListener) {
                 activeListener();
             }
@@ -764,8 +773,8 @@
 
             const db = firebase.firestore();
 
-            // ফায়ারবেজ থেকে রিয়েল-টাইমে ডেটা আনার জন্য onSnapshot ব্যবহার করা হলো
-            // অর্ডার আইডি (যেমন #12345) অথবা ফোন নম্বর দিয়ে কুয়েরি করা হচ্ছে
+            // ফায়ারবেজ থেকে রিয়েল-টাইমে ডেটা আনার জন্য onSnapshot ব্যবহার করা হলো
+            // অর্ডার আইডি (যেমন #12345) অথবা ফোন নম্বর দিয়ে কুয়েরি করা হচ্ছে
             activeListener = db.collection("orders")
                 .onSnapshot((snapshot) => {
                     let matchedOrders = [];
