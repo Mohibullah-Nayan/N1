@@ -315,7 +315,7 @@ function saveProductReview(prodId, reviewObj) {
     localStorage.setItem('nayan_product_reviews', JSON.stringify(allReviews));
 }
 
-// অ্যাডমিন চেক করার ফাংশন (আপনার নির্দিষ্ট অ্যাডমিন ইমেল সেট করা হয়েছে)
+// অ্যাডমিন চেক করার ফাংশন (আপনার নির্দিষ্ট অ্যাডমিন ইমেল সেট করা হয়েছে)
 function checkIsAdmin() {
     const user = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
     const adminEmail = "mohibullahnayan.cse@gmail.com";
@@ -332,7 +332,7 @@ function checkIsAdmin() {
     return isLocalStorageAdmin || (user && user.isAdmin === true);
 }
 
-// রিভিউ ডিলিট করার ফাংশন (কাস্টমার শুধু নিজেরটা এবং অ্যাডমিন সবারটা ডিলিট করতে পারবে)
+// রিভিউ ডিলিট করার ফাংশন (লোকালস্টোরেজ থেকে এবং ফায়ারবেস থেকে একসাথে হ্যান্ডেল করার জন্য)
 function deleteProductReview(prodId, reviewIndex) {
     let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
     let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId));
@@ -345,7 +345,7 @@ function deleteProductReview(prodId, reviewIndex) {
     const currentUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
     const isAdmin = checkIsAdmin();
 
-    // শক্তিশালী ও ফ্লেক্সিবল পারমিশন চেক (নাম ও ইমেলের ছোট-বড় হাতের অক্ষরের অমিল দূর করতেtoLowerCase() ব্যবহার করা হয়েছে)
+    // শক্তিশালী ও ফ্লেক্সিবল পারমিশন চেক (নাম ও ইমেলের ছোট-বড় হাতের অক্ষরের অমিল দূর করতে toLowerCase() ব্যবহার করা হয়েছে)
     let isOwner = false;
     if (currentUser) {
         const currentEmail = currentUser.email ? currentUser.email.toLowerCase().trim() : "";
@@ -374,7 +374,7 @@ function deleteProductReview(prodId, reviewIndex) {
         return;
     }
 
-    // রিভিউ ডিলিট সম্পন্ন করা
+    // লোকালস্টোরেজ থেকে রিমুভ করা
     allReviews[targetKey].splice(reviewIndex, 1);
     localStorage.setItem('nayan_product_reviews', JSON.stringify(allReviews));
 
@@ -384,6 +384,118 @@ function deleteProductReview(prodId, reviewIndex) {
 
     // ইনস্ট্যান্ট পেজ বা গ্রাফ আপডেট করা
     renderProductReviews(targetKey);
+}
+
+
+// ================= ফায়ারবেস রিয়েল-টাইম রেন্ডারিং এবং ডিলিট লজিক =================
+
+// ১. ফায়ারবেস থেকে রিয়েল-টাইমে সবার জন্য রিভিউ দেখানোর ফাংশন (সবাই দেখতে পাবে, ডিলিট শুধু নিজেরটা বা অ্যাডমিন)
+function renderProductReviews(prodId) {
+    const reviewsContainer = document.getElementById('reviews-container');
+    if (!reviewsContainer) return;
+
+    // ফায়ারবেস ফায়ারস্টোর থেকে রিয়েল-টাইম ডেটা আনা
+    db.collection("reviews")
+        .where("productId", "==", String(prodId))
+        .orderBy("createdAt", "desc")
+        .onSnapshot((snapshot) => {
+            reviewsContainer.innerHTML = "";
+
+            if (snapshot.empty) {
+                reviewsContainer.innerHTML = `<p class="text-stone-500 text-sm italic">Please be the first to review this product!</p>`;
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const review = doc.data();
+                const docId = doc.id; // ফায়ারবেস ডকুমেন্ট আইডি
+                const currentUser = firebase.auth().currentUser;
+                const isAdmin = checkIsAdmin(); // তোমার দেওয়া অ্যাডমিন চেক ফাংশন
+
+                // শর্ত: শুধু অ্যাডমিন অথবা যে রিভিউ করেছে (userId মিলে গেলে) সে ডিলিট বাটন দেখতে পাবে
+                let deleteBtnHtml = '';
+                if (currentUser && (isAdmin || currentUser.uid === review.userId)) {
+                    deleteBtnHtml = `
+                        <button onclick="deleteFirebaseReview('${docId}', '${prodId}')" class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    `;
+                }
+
+                // স্টার রেটিং লজিক
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += i <= review.rating
+                        ? '<i class="fa-solid fa-star text-amber-500 text-xs"></i>'
+                        : '<i class="fa-regular fa-star text-stone-300 text-xs"></i>';
+                }
+
+                const reviewCard = `
+                    <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-stone-200 dark:border-slate-700 shadow-xs mb-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-sm text-stone-800 dark:text-stone-200">${review.userName || 'Unknown User'}</h4>
+                            <span class="text-xs text-stone-400">${review.createdAt ? new Date(review.createdAt.toDate()).toLocaleDateString() : ''}</span>
+                        </div>
+                        <div class="flex items-center gap-1 mb-2">${stars}</div>
+                        <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mb-3">${review.comment}</p>
+                        <div class="flex justify-end">
+                            ${deleteBtnHtml}
+                        </div>
+                    </div>
+                `;
+                reviewsContainer.innerHTML += reviewCard;
+            });
+        }, (error) => {
+            console.error("Review loading error: ", error);
+        });
+}
+
+// ২. ফায়ারবেস ডেটাবেজে নতুন রিভিউ সেভ করার ফাংশন
+function saveReviewToFirebase(prodId, rating, comment) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("Please login to submit a review!");
+        return;
+    }
+
+    const reviewObj = {
+        productId: String(prodId),
+        userId: user.uid,
+        userName: user.displayName || user.email.split('@')[0],
+        rating: Number(rating),
+        comment: comment,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    db.collection("reviews").add(reviewObj)
+        .then(() => {
+            console.log("Review saved successfully to Firebase!");
+            // Optionally save a local backup as well
+            if (typeof saveProductReview === 'function') {
+                saveProductReview(prodId, reviewObj);
+            }
+        })
+        .catch((error) => {
+            console.error("Error saving review: ", error);
+        });
+}
+
+// ৩. ফায়ারবেস থেকে রিভিউ ডিলিট করার ফাংশন
+function deleteFirebaseReview(docId, prodId) {
+    if (confirm("You are about to delete this review. Are you sure?")) {
+        db.collection("reviews").doc(docId).delete()
+            .then(() => {
+                console.log("Review deleted successfully.");
+                if (typeof showPopupNotification === 'function') {
+                    showPopupNotification("Review deleted successfully! 🗑️");
+                }
+                renderProductReviews(prodId);
+            })
+            .catch((error) => {
+                console.error("Error deleting review: ", error);
+                alert("There was an error deleting the review. Please try again.");
+            });
+    }
 }
 
 let selectedReviewRating = 5;
@@ -803,7 +915,7 @@ async function loadDynamicBanners(db) {
                             title.innerHTML = currentProd.title;
                         }
                     }
-                }, 3000); // ৩০০০ মিলিভসেকেন্ড = ৩ সেকেন্ড
+                }, 3500); // ৩০০০ মিলিভসেকেন্ড = ৩ সেকেন্ড
             }
         });
 
@@ -1128,17 +1240,17 @@ function renderCartPageItems() {
                 <img src="${item.image}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-neutral-200 shrink-0" alt="${item.title}">
                 <div class="space-y-1">
                     <h4 class="font-semibold text-neutral-900 text-sm sm:text-base">${item.title}</h4>
-                    <p class="text-xs text-neutral-500">মূল্য: <span class="font-medium text-neutral-700">${item.price}</span></p>
-                    <p class="text-xs text-neutral-500">পরিমাণ: <span class="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">${item.quantity} পিস</span></p>
+                    <p class="text-xs text-neutral-500">Price: <span class="font-medium text-neutral-700">${item.price}</span></p>
+                    <p class="text-xs text-neutral-500">Quantity: <span class="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">${item.quantity} quantity</span></p>
                 </div>
             </div>
             
             <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 border-t sm:border-t-0 pt-3 sm:pt-0 border-neutral-100">
                 <div class="text-left sm:text-right">
-                    <span class="text-[10px] uppercase tracking-wider text-neutral-400 block">মোট দাম</span>
+                    <span class="text-[10px] uppercase tracking-wider text-neutral-400 block">Total</span>
                     <span class="font-bold text-[#F26522] text-sm sm:text-base">৳${itemTotal.toLocaleString('en-IN')}</span>
                 </div>
-                <button onclick="event.stopPropagation(); removeFromCart('${item.id}')" class="w-9 h-9 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-xs" title="ডিলিট করুন">
+                <button onclick="event.stopPropagation(); removeFromCart('${item.id}')" class="w-9 h-9 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-xs" title="Delete">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
             </div>

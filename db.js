@@ -94,11 +94,11 @@ function setupAuthHeaderListener() {
                         dropdownMenu.id = 'user-dropdown-menu';
                         dropdownMenu.className = 'absolute right-0 mt-40 w-48 bg-white border border-neutral-200 rounded-md shadow-lg py-1 hidden z-50 text-xs';
                         dropdownMenu.innerHTML = `
-                            <a href="profile.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-id-card mr-2 text-[#F26522]"></i> ড্যাশবোর্ড / প্রোফাইল</a>
-                            <a href="track-order.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-solid fa-box-archive mr-2 text-[#F26522]"></i> আমার অর্ডারসমূহ</a>
-                            <a href="wishlist.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-heart mr-2 text-[#F26522]"></i> উইশলিস্ট</a>
+                            <a href="profile.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-id-card mr-2 text-[#F26522]"></i> Profile</a>
+                            <a href="track-order.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-solid fa-box-archive mr-2 text-[#F26522]"></i> My Orders</a>
+                            <a href="wishlist.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-heart mr-2 text-[#F26522]"></i> Wishlist</a>
                             <div class="border-t border-neutral-100 my-1"></div>
-                            <a href="javascript:void(0);" class="logout-btn-trigger block px-4 py-2 text-red-600 hover:bg-red-50"><i class="fa-solid fa-right-from-bracket mr-2"></i> লগআউট</a>
+                            <a href="javascript:void(0);" class="logout-btn-trigger block px-4 py-2 text-red-600 hover:bg-red-50"><i class="fa-solid fa-right-from-bracket mr-2"></i> Logout</a>
                         `;
 
                         parentWrapper.appendChild(dropdownMenu);

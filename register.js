@@ -13,7 +13,7 @@ function handleRegister(event) {
 
     // পাসওয়ার্ড মিলছে কিনা চেক করা
     if (password !== confirmPassword) {
-        alert("পাসওয়ার্ড দুটি মিল নেই! অনুগ্রহ করে পুনরায় চেক করুন।");
+        alert("Password and Confirm Password do not match.");
         return;
     }
 
