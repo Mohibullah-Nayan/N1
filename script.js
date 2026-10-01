@@ -295,32 +295,104 @@ if (loadMoreBtn) {
     });
 }
 
+// ================= ফায়ারবেস ইনিশিয়ালাইজেশন ও কানেকশন চেক =================
+// যদি আপনার প্রজেক্টের অন্য কোনো ফাইলে `db` বা `firebase` অলরেডি সেটআপ করা থাকে, 
+// তবুও নিচের কোডটি নিশ্চিত করবে যেন `db` ভেরিয়েবলটি সঠিকভাবে কাজ করে।
+const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+
 // ================= রিয়েল-টাইম রিভিউ এবং রেটিং সিস্টেম লজিক =================
 
-function getProductReviews(prodId) {
-    let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
-    // আইডি স্ট্রিং বা নাম্বার যাই হোক না কেন তা খুঁজে বের করার জন্য ফ্লেক্সিবল চেক
-    let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId));
-    return targetKey ? allReviews[targetKey] : (allReviews[prodId] || []);
-}
-
-function saveProductReview(prodId, reviewObj) {
-    let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
-    let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId)) || prodId;
-
-    if (!allReviews[targetKey]) {
-        allReviews[targetKey] = [];
+// ১. ফায়ারবেস থেকে রিয়েল-টাইম ডেটা ফেচ করার জন্য হেল্পার
+function getProductReviews(prodId, callback) {
+    if (!db) {
+        console.error("Firestore (db) is not initialized!");
+        alert("Firebase connection error! Please make sure Firebase scripts are loaded properly.");
+        return;
     }
-    allReviews[targetKey].unshift(reviewObj);
-    localStorage.setItem('nayan_product_reviews', JSON.stringify(allReviews));
+
+    db.collection("reviews")
+        .where("productId", "==", String(prodId))
+        .onSnapshot((snapshot) => {
+            let reviewsList = [];
+            snapshot.forEach((doc) => {
+                let data = doc.data();
+                data.docId = doc.id; // ফায়ারবেস ডকুমেন্ট আইডি সংরক্ষণ
+                reviewsList.push(data);
+            });
+
+            // নতুন রিভিউগুলো উপরে দেখানোর জন্য সর্টিং
+            reviewsList.sort((a, b) => {
+                let timeA = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
+                let timeB = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
+                return timeB - timeA;
+            });
+
+            if (typeof callback === 'function') {
+                callback(reviewsList);
+            }
+        }, (error) => {
+            console.error("Review loading error: ", error);
+        });
 }
 
-// অ্যাডমিন চেক করার ফাংশন (আপনার নির্দিষ্ট অ্যাডমিন ইমেল সেট করা হয়েছে)
+// ২. ফায়ারবেসে রিভিউ সেভ করার ফাংশন
+function saveProductReview(prodId, reviewObj) {
+    if (!db) {
+        alert("Database connection error! Firebase Firestore (db) is missing.");
+        return;
+    }
+
+    // ফায়ারবেস অথেনটিকেশন বা লোকাল ইউজার চেক
+    const firebaseUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const customUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const user = firebaseUser || customUser;
+
+    if (!user) {
+        if (typeof showPopupNotification === 'function') {
+            showPopupNotification("Please sign in to submit a review!");
+        } else {
+            alert("Please sign in to submit a review!");
+        }
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1500);
+        return;
+    }
+
+    const firestoreReviewObj = {
+        productId: String(prodId),
+        userId: user.uid || customUser?.uid || "",
+        userEmail: user.email || customUser?.email || "",
+        name: reviewObj.name || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "Valued Customer"),
+        role: reviewObj.role || "Verified Buyer",
+        rating: Number(reviewObj.rating),
+        comment: reviewObj.comment,
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    db.collection("reviews").add(firestoreReviewObj)
+        .then(() => {
+            console.log("Review saved successfully to Firebase!");
+            if (typeof showPopupNotification === 'function') {
+                showPopupNotification("Your review has been submitted successfully! 🎉");
+            }
+        })
+        .catch((error) => {
+            console.error("Error saving review to Firestore: ", error);
+            if (typeof showPopupNotification === 'function') {
+                showPopupNotification("Failed to submit review. Try again!");
+            } else {
+                alert("Failed to submit review. Try again!");
+            }
+        });
+}
+
+// অ্যাডমিন চেক করার ফাংশন
 function checkIsAdmin() {
-    const user = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const user = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null);
     const adminEmail = "mohibullahnayan.cse@gmail.com";
 
-    // লোকালস্টোরেজ থেকে অ্যাডমিন লগইন স্ট্যাটাস বা ইমেল চেক করা
     const isLocalStorageAdmin = localStorage.getItem('isAdminLoggedIn') === 'true' ||
         localStorage.getItem('adminEmail') === adminEmail ||
         localStorage.getItem('adminLoged') === 'true';
@@ -332,170 +404,69 @@ function checkIsAdmin() {
     return isLocalStorageAdmin || (user && user.isAdmin === true);
 }
 
-// রিভিউ ডিলিট করার ফাংশন (লোকালস্টোরেজ থেকে এবং ফায়ারবেস থেকে একসাথে হ্যান্ডেল করার জন্য)
-function deleteProductReview(prodId, reviewIndex) {
-    let allReviews = JSON.parse(localStorage.getItem('nayan_product_reviews')) || {};
-    let targetKey = Object.keys(allReviews).find(k => String(k) === String(prodId));
+// রিভিউ ডিলিট করার ফাংশন
+function deleteProductReview(prodId, docId) {
+    if (!db) return;
 
-    if (!targetKey || !allReviews[targetKey][reviewIndex]) {
-        return;
-    }
-
-    const reviewToDelete = allReviews[targetKey][reviewIndex];
-    const currentUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const firebaseUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const customUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const currentUser = firebaseUser || customUser;
     const isAdmin = checkIsAdmin();
 
-    // শক্তিশালী ও ফ্লেক্সিবল পারমিশন চেক (নাম ও ইমেলের ছোট-বড় হাতের অক্ষরের অমিল দূর করতে toLowerCase() ব্যবহার করা হয়েছে)
-    let isOwner = false;
-    if (currentUser) {
-        const currentEmail = currentUser.email ? currentUser.email.toLowerCase().trim() : "";
-        const currentEmailPrefix = currentUser.email ? currentUser.email.split('@')[0].toLowerCase().trim() : "";
-        const currentDisplayName = currentUser.displayName ? currentUser.displayName.toLowerCase().trim() : "";
-        const currentUserNameField = currentUser.name ? currentUser.name.toLowerCase().trim() : "";
-        const currentUid = currentUser.uid ? String(currentUser.uid).trim() : "";
-
-        const revName = reviewToDelete.name ? reviewToDelete.name.toLowerCase().trim() : "";
-        const revEmail = reviewToDelete.userEmail ? reviewToDelete.userEmail.toLowerCase().trim() : "";
-        const revUid = reviewToDelete.userId ? String(reviewToDelete.userId).trim() : "";
-
-        isOwner = (revEmail && revEmail === currentEmail) ||
-            (revUid && revUid === currentUid) ||
-            (revName === currentDisplayName) ||
-            (revName === currentEmailPrefix) ||
-            (revName === currentUserNameField);
-    }
-
-    if (!isAdmin && !isOwner) {
-        if (typeof showPopupNotification === 'function') {
-            showPopupNotification("Sorry, you can only delete your own reviews!");
-        } else {
-            alert("Sorry, you can only delete your own reviews!");
+    db.collection("reviews").doc(docId).get().then((doc) => {
+        if (!doc.exists) {
+            if (typeof showPopupNotification === 'function') {
+                showPopupNotification("Review not found!");
+            }
+            return;
         }
-        return;
-    }
 
-    // লোকালস্টোরেজ থেকে রিমুভ করা
-    allReviews[targetKey].splice(reviewIndex, 1);
-    localStorage.setItem('nayan_product_reviews', JSON.stringify(allReviews));
+        const reviewToDelete = doc.data();
 
-    if (typeof showPopupNotification === 'function') {
-        showPopupNotification("Review deleted successfully! 🗑️");
-    }
+        let isOwner = false;
+        if (currentUser) {
+            const currentEmail = currentUser.email ? currentUser.email.toLowerCase().trim() : "";
+            const currentEmailPrefix = currentUser.email ? currentUser.email.split('@')[0].toLowerCase().trim() : "";
+            const currentDisplayName = currentUser.displayName ? currentUser.displayName.toLowerCase().trim() : "";
+            const currentUserNameField = currentUser.name ? currentUser.name.toLowerCase().trim() : "";
+            const currentUid = currentUser.uid ? String(currentUser.uid).trim() : "";
 
-    // ইনস্ট্যান্ট পেজ বা গ্রাফ আপডেট করা
-    renderProductReviews(targetKey);
-}
+            const revName = reviewToDelete.name ? reviewToDelete.name.toLowerCase().trim() : "";
+            const revEmail = reviewToDelete.userEmail ? reviewToDelete.userEmail.toLowerCase().trim() : "";
+            const revUid = reviewToDelete.userId ? String(reviewToDelete.userId).trim() : "";
 
+            isOwner = (revEmail && revEmail === currentEmail) ||
+                (revUid && revUid === currentUid) ||
+                (revName === currentDisplayName) ||
+                (revName === currentEmailPrefix) ||
+                (revName === currentUserNameField);
+        }
 
-// ================= ফায়ারবেস রিয়েল-টাইম রেন্ডারিং এবং ডিলিট লজিক =================
-
-// ১. ফায়ারবেস থেকে রিয়েল-টাইমে সবার জন্য রিভিউ দেখানোর ফাংশন (সবাই দেখতে পাবে, ডিলিট শুধু নিজেরটা বা অ্যাডমিন)
-function renderProductReviews(prodId) {
-    const reviewsContainer = document.getElementById('reviews-container');
-    if (!reviewsContainer) return;
-
-    // ফায়ারবেস ফায়ারস্টোর থেকে রিয়েল-টাইম ডেটা আনা
-    db.collection("reviews")
-        .where("productId", "==", String(prodId))
-        .orderBy("createdAt", "desc")
-        .onSnapshot((snapshot) => {
-            reviewsContainer.innerHTML = "";
-
-            if (snapshot.empty) {
-                reviewsContainer.innerHTML = `<p class="text-stone-500 text-sm italic">Please be the first to review this product!</p>`;
-                return;
+        if (!isAdmin && !isOwner) {
+            if (typeof showPopupNotification === 'function') {
+                showPopupNotification("Sorry, you can only delete your own reviews!");
+            } else {
+                alert("Sorry, you can only delete your own reviews!");
             }
+            return;
+        }
 
-            snapshot.forEach((doc) => {
-                const review = doc.data();
-                const docId = doc.id; // ফায়ারবেস ডকুমেন্ট আইডি
-                const currentUser = firebase.auth().currentUser;
-                const isAdmin = checkIsAdmin(); // তোমার দেওয়া অ্যাডমিন চেক ফাংশন
-
-                // শর্ত: শুধু অ্যাডমিন অথবা যে রিভিউ করেছে (userId মিলে গেলে) সে ডিলিট বাটন দেখতে পাবে
-                let deleteBtnHtml = '';
-                if (currentUser && (isAdmin || currentUser.uid === review.userId)) {
-                    deleteBtnHtml = `
-                        <button onclick="deleteFirebaseReview('${docId}', '${prodId}')" class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 cursor-pointer">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-                    `;
-                }
-
-                // স্টার রেটিং লজিক
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    stars += i <= review.rating
-                        ? '<i class="fa-solid fa-star text-amber-500 text-xs"></i>'
-                        : '<i class="fa-regular fa-star text-stone-300 text-xs"></i>';
-                }
-
-                const reviewCard = `
-                    <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-stone-200 dark:border-slate-700 shadow-xs mb-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="font-semibold text-sm text-stone-800 dark:text-stone-200">${review.userName || 'Unknown User'}</h4>
-                            <span class="text-xs text-stone-400">${review.createdAt ? new Date(review.createdAt.toDate()).toLocaleDateString() : ''}</span>
-                        </div>
-                        <div class="flex items-center gap-1 mb-2">${stars}</div>
-                        <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mb-3">${review.comment}</p>
-                        <div class="flex justify-end">
-                            ${deleteBtnHtml}
-                        </div>
-                    </div>
-                `;
-                reviewsContainer.innerHTML += reviewCard;
-            });
-        }, (error) => {
-            console.error("Review loading error: ", error);
-        });
-}
-
-// ২. ফায়ারবেস ডেটাবেজে নতুন রিভিউ সেভ করার ফাংশন
-function saveReviewToFirebase(prodId, rating, comment) {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-        alert("Please login to submit a review!");
-        return;
-    }
-
-    const reviewObj = {
-        productId: String(prodId),
-        userId: user.uid,
-        userName: user.displayName || user.email.split('@')[0],
-        rating: Number(rating),
-        comment: comment,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    db.collection("reviews").add(reviewObj)
-        .then(() => {
-            console.log("Review saved successfully to Firebase!");
-            // Optionally save a local backup as well
-            if (typeof saveProductReview === 'function') {
-                saveProductReview(prodId, reviewObj);
-            }
-        })
-        .catch((error) => {
-            console.error("Error saving review: ", error);
-        });
-}
-
-// ৩. ফায়ারবেস থেকে রিভিউ ডিলিট করার ফাংশন
-function deleteFirebaseReview(docId, prodId) {
-    if (confirm("You are about to delete this review. Are you sure?")) {
-        db.collection("reviews").doc(docId).delete()
-            .then(() => {
-                console.log("Review deleted successfully.");
-                if (typeof showPopupNotification === 'function') {
-                    showPopupNotification("Review deleted successfully! 🗑️");
-                }
-                renderProductReviews(prodId);
-            })
-            .catch((error) => {
-                console.error("Error deleting review: ", error);
-                alert("There was an error deleting the review. Please try again.");
-            });
-    }
+        if (confirm("You are about to delete this review. Are you sure?")) {
+            db.collection("reviews").doc(docId).delete()
+                .then(() => {
+                    console.log("Review deleted successfully from Firebase.");
+                    if (typeof showPopupNotification === 'function') {
+                        showPopupNotification("Review deleted successfully! 🗑️");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error deleting review: ", error);
+                    alert("There was an error deleting the review. Please try again.");
+                });
+        }
+    }).catch((error) => {
+        console.error("Error fetching review for deletion: ", error);
+    });
 }
 
 let selectedReviewRating = 5;
@@ -514,16 +485,17 @@ function setReviewRating(rating) {
 }
 
 function submitProductReview(prodId, event) {
-    // পেজ রিলোড হওয়া আটকাতে ফিক্সড প্রিভেন্ট ডিফল্ট
     if (event) {
         event.preventDefault();
         event.stopPropagation();
     }
 
-    // যদি প্রডাক্ট আইডি প্যারামিটার থেকে না পাওয়া যায়, তবে URL থেকে বা গ্লোবাল আইডি থেকে নেওয়া হবে
     const targetProdId = prodId || (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
 
-    const user = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const firebaseUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const customUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+    const user = firebaseUser || customUser;
+
     if (!user) {
         if (typeof showPopupNotification === 'function') {
             showPopupNotification("Please sign in to submit a review!");
@@ -552,12 +524,11 @@ function submitProductReview(prodId, event) {
 
     const newReview = {
         name: userName,
-        userEmail: user.email || "", // ইউজার চেনার জন্য ইমেল সেভ রাখা হলো
-        userId: user.uid || "",     // ইউজার আইডি থাকলে তা সেভ রাখা হলো
+        userEmail: user.email || "",
+        userId: user.uid || "",
         role: "Verified Buyer",
         rating: selectedReviewRating,
-        comment: comment,
-        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        comment: comment
     };
 
     saveProductReview(targetProdId, newReview);
@@ -565,174 +536,165 @@ function submitProductReview(prodId, event) {
     if (commentInput) commentInput.value = "";
     setReviewRating(5);
 
-    if (typeof showPopupNotification === 'function') {
-        showPopupNotification("Your review has been submitted successfully! 🎉");
-    }
-
-    renderProductReviews(targetProdId);
-    return false; // যাতে কোনোভাবেই পেজ রিলোড না হয়
+    return false;
 }
 
-// পেজ লোড হওয়ার সাথে সাথে বর্তমান প্রডাক্টের আইডি নিয়ে রেটিং সামারি আপডেট করবে
+// পেজ লোড হওয়ার সাথে সাথে রিয়েল-টাইম লিসেনার চালু করা
 document.addEventListener("DOMContentLoaded", () => {
     const activeProdId = (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
     renderProductReviews(activeProdId);
 });
 
-// ================= রেটিং সামারি এবং রেন্ডারিং লজিক (একীভূত ও সম্পূর্ণ) =================
+// ================= রেটিং সামারি এবং রেন্ডারিং লজিক =================
 function renderProductReviews(prodId) {
     const targetProdId = prodId || (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
-    const reviews = getProductReviews(targetProdId);
-    const container = document.getElementById('customer-reviews-container');
 
-    // আপনার এইচটিএমএল আইডির সাথে মিল রেখে সকল এলিমেন্ট সিলেক্ট করা হলো
-    const avgRatingElem = document.getElementById('avg-rating');
-    const avgStarsContainer = document.getElementById('rating-stars-container');
-    const totalReviewsElem = document.getElementById('total-reviews-count');
-    const tabReviewCount = document.getElementById('tab-review-count');
-    const recTextElem = document.getElementById('recommendation-text');
-    const reviewCountDisplays = document.querySelectorAll('.review-count-display');
+    getProductReviews(targetProdId, (reviews) => {
+        const container = document.getElementById('customer-reviews-container');
 
-    // ট্যাবের হেডারে থাকা রিভিউ কাউন্ট আপডেট
-    if (tabReviewCount) {
-        tabReviewCount.innerText = `(${reviews.length})`;
-    }
+        const avgRatingElem = document.getElementById('avg-rating');
+        const avgStarsContainer = document.getElementById('rating-stars-container');
+        const totalReviewsElem = document.getElementById('total-reviews-count');
+        const tabReviewCount = document.getElementById('tab-review-count');
+        const recTextElem = document.getElementById('recommendation-text');
+        const reviewCountDisplays = document.querySelectorAll('.review-count-display');
 
-    reviewCountDisplays.forEach(el => {
-        el.innerText = `(${reviews.length} Reviews)`;
-    });
-
-    if (totalReviewsElem) {
-        totalReviewsElem.innerText = `(${reviews.length} Reviews)`;
-    }
-
-    if (reviews.length === 0) {
-        if (avgRatingElem) avgRatingElem.innerText = "0.0";
-        if (avgStarsContainer) {
-            avgStarsContainer.innerHTML = '<i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+        if (tabReviewCount) {
+            tabReviewCount.innerText = `(${reviews.length})`;
         }
-        if (recTextElem) {
-            recTextElem.innerText = `0.00% Recommended (0 of 0)`;
-        }
-        for (let i = 1; i <= 5; i++) {
-            const bar = document.getElementById(`bar-star-${i}`) || document.getElementById(`rating-bar-${i}`);
-            const percent = document.getElementById(`percent-star-${i}`) || document.getElementById(`rating-percent-${i}`);
-            if (bar) bar.style.width = '0%';
-            if (percent) percent.innerText = '0%';
-        }
-        if (container) {
-            container.innerHTML = '<p class="text-xs text-neutral-400 text-center py-4">No reviews yet. Be the first to review!</p>';
-        }
-        return;
-    }
 
-    let totalScore = 0;
-    let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        reviewCountDisplays.forEach(el => {
+            el.innerText = `(${reviews.length} Reviews)`;
+        });
 
-    reviews.forEach(rev => {
-        let r = parseInt(rev.rating) || 5;
-        totalScore += r;
-        if (ratingCounts[r] !== undefined) {
-            ratingCounts[r]++;
+        if (totalReviewsElem) {
+            totalReviewsElem.innerText = `(${reviews.length} Reviews)`;
         }
-    });
 
-    let avgRating = (totalScore / reviews.length).toFixed(1);
-    if (avgRatingElem) avgRatingElem.innerText = avgRating;
-
-    // গড় রেটিং অনুযায়ী উপরের স্টার আইকন কালার আপডেট
-    if (avgStarsContainer) {
-        let starsHtml = '';
-        let fullStars = Math.floor(parseFloat(avgRating));
-        for (let i = 1; i <= 5; i++) {
-            if (i <= fullStars) {
-                starsHtml += '<i class="fa-solid fa-star"></i>';
-            } else {
-                starsHtml += '<i class="fa-regular fa-star"></i>';
+        if (reviews.length === 0) {
+            if (avgRatingElem) avgRatingElem.innerText = "0.0";
+            if (avgStarsContainer) {
+                avgStarsContainer.innerHTML = '<i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
             }
-        }
-        avgStarsContainer.innerHTML = starsHtml;
-    }
-
-    // রেকমেন্ডেশন পার্সেন্টেজ হিসাব (ধরে নেওয়া হলো ৪ বা ৫ স্টার হলে রিকমেন্ডেড)
-    const recommendedCount = ratingCounts[4] + ratingCounts[5];
-    const recPercent = ((recommendedCount / reviews.length) * 100).toFixed(2);
-    if (recTextElem) {
-        recTextElem.innerText = `${recPercent}% Recommended (${recommendedCount} of ${reviews.length})`;
-    }
-
-    // ৫ থেকে ১ স্টার বার এবং পার্সেন্টেজ আপডেট (উভয় আইডি ফরম্যাট সাপোর্ট করবে)
-    for (let i = 1; i <= 5; i++) {
-        let count = ratingCounts[i];
-        let percentage = Math.round((count / reviews.length) * 100);
-
-        const bar = document.getElementById(`bar-star-${i}`) || document.getElementById(`rating-bar-${i}`);
-        const percent = document.getElementById(`percent-star-${i}`) || document.getElementById(`rating-percent-${i}`);
-
-        if (bar) bar.style.width = percentage + '%';
-        if (percent) percent.innerText = percentage + '%';
-    }
-
-    // লগইন করা ইউজার এবং অ্যাডমিন স্ট্যাটাস চেক করা
-    const currentUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
-    const isAdmin = checkIsAdmin();
-
-    // কাস্টমার রিভিউ কার্ড রেন্ডার করা
-    if (container) {
-        container.innerHTML = "";
-        reviews.forEach((rev, index) => {
-            let starHtml = '';
+            if (recTextElem) {
+                recTextElem.innerText = `0.00% Recommended (0 of 0)`;
+            }
             for (let i = 1; i <= 5; i++) {
-                if (i <= rev.rating) {
-                    starHtml += '<i class="fa-solid fa-star"></i>';
+                const bar = document.getElementById(`bar-star-${i}`) || document.getElementById(`rating-bar-${i}`);
+                const percent = document.getElementById(`percent-star-${i}`) || document.getElementById(`rating-percent-${i}`);
+                if (bar) bar.style.width = '0%';
+                if (percent) percent.innerText = '0%';
+            }
+            if (container) {
+                container.innerHTML = '<p class="text-xs text-neutral-400 text-center py-4">No reviews yet. Be the first to review!</p>';
+            }
+            return;
+        }
+
+        let totalScore = 0;
+        let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+        reviews.forEach(rev => {
+            let r = parseInt(rev.rating) || 5;
+            totalScore += r;
+            if (ratingCounts[r] !== undefined) {
+                ratingCounts[r]++;
+            }
+        });
+
+        let avgRating = (totalScore / reviews.length).toFixed(1);
+        if (avgRatingElem) avgRatingElem.innerText = avgRating;
+
+        if (avgStarsContainer) {
+            let starsHtml = '';
+            let fullStars = Math.floor(parseFloat(avgRating));
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    starsHtml += '<i class="fa-solid fa-star"></i>';
                 } else {
-                    starHtml += '<i class="fa-regular fa-star"></i>';
+                    starsHtml += '<i class="fa-regular fa-star"></i>';
                 }
             }
+            avgStarsContainer.innerHTML = starsHtml;
+        }
 
-            // শক্তিশালী ও ফ্লেক্সিবল ওনারশিপ ম্যাচিং লজিক
-            let isOwner = false;
-            if (currentUser) {
-                const currentEmail = currentUser.email ? currentUser.email.toLowerCase().trim() : "";
-                const currentEmailPrefix = currentUser.email ? currentUser.email.split('@')[0].toLowerCase().trim() : "";
-                const currentDisplayName = currentUser.displayName ? currentUser.displayName.toLowerCase().trim() : "";
-                const currentUserNameField = currentUser.name ? currentUser.name.toLowerCase().trim() : "";
-                const currentUid = currentUser.uid ? String(currentUser.uid).trim() : "";
+        const recommendedCount = ratingCounts[4] + ratingCounts[5];
+        const recPercent = ((recommendedCount / reviews.length) * 100).toFixed(2);
+        if (recTextElem) {
+            recTextElem.innerText = `${recPercent}% Recommended (${recommendedCount} of ${reviews.length})`;
+        }
 
-                const revName = rev.name ? rev.name.toLowerCase().trim() : "";
-                const revEmail = rev.userEmail ? rev.userEmail.toLowerCase().trim() : "";
-                const revUid = rev.userId ? String(rev.userId).trim() : "";
+        for (let i = 1; i <= 5; i++) {
+            let count = ratingCounts[i];
+            let percentage = Math.round((count / reviews.length) * 100);
 
-                isOwner = (revEmail && revEmail === currentEmail) ||
-                    (revUid && revUid === currentUid) ||
-                    (revName === currentDisplayName) ||
-                    (revName === currentEmailPrefix) ||
-                    (revName === currentUserNameField);
-            }
+            const bar = document.getElementById(`bar-star-${i}`) || document.getElementById(`rating-bar-${i}`);
+            const percent = document.getElementById(`percent-star-${i}`) || document.getElementById(`rating-percent-${i}`);
 
-            let deleteButtonHtml = "";
-            if (isAdmin || isOwner) {
-                deleteButtonHtml = `
-                    <button onclick="deleteProductReview('${targetProdId}', ${index})" class="absolute top-3 right-3 text-red-500 hover:text-red-700 text-[11px] font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition-all flex items-center gap-1 cursor-pointer border border-red-200 shadow-sm z-10" title="Delete Review">
-                        <i class="fa-solid fa-trash-can"></i> Delete
-                    </button>
+            if (bar) bar.style.width = percentage + '%';
+            if (percent) percent.innerText = percentage + '%';
+        }
+
+        const firebaseUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+        const customUser = typeof checkUserLoggedIn === 'function' ? checkUserLoggedIn() : null;
+        const currentUser = firebaseUser || customUser;
+        const isAdmin = checkIsAdmin();
+
+        if (container) {
+            container.innerHTML = "";
+            reviews.forEach((rev) => {
+                let starHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rev.rating) {
+                        starHtml += '<i class="fa-solid fa-star"></i>';
+                    } else {
+                        starHtml += '<i class="fa-regular fa-star"></i>';
+                    }
+                }
+
+                let isOwner = false;
+                if (currentUser) {
+                    const currentEmail = currentUser.email ? currentUser.email.toLowerCase().trim() : "";
+                    const currentEmailPrefix = currentUser.email ? currentUser.email.split('@')[0].toLowerCase().trim() : "";
+                    const currentDisplayName = currentUser.displayName ? currentUser.displayName.toLowerCase().trim() : "";
+                    const currentUserNameField = currentUser.name ? currentUser.name.toLowerCase().trim() : "";
+                    const currentUid = currentUser.uid ? String(currentUser.uid).trim() : "";
+
+                    const revName = rev.name ? rev.name.toLowerCase().trim() : "";
+                    const revEmail = rev.userEmail ? rev.userEmail.toLowerCase().trim() : "";
+                    const revUid = rev.userId ? String(rev.userId).trim() : "";
+
+                    isOwner = (revEmail && revEmail === currentEmail) ||
+                        (revUid && revUid === currentUid) ||
+                        (revName === currentDisplayName) ||
+                        (revName === currentEmailPrefix) ||
+                        (revName === currentUserNameField);
+                }
+
+                let deleteButtonHtml = "";
+                if (isAdmin || isOwner) {
+                    deleteButtonHtml = `
+                        <button onclick="deleteProductReview('${targetProdId}', '${rev.docId}')" class="absolute top-3 right-3 text-red-500 hover:text-red-700 text-[11px] font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition-all flex items-center gap-1 cursor-pointer border border-red-200 shadow-sm z-10" title="Delete Review">
+                            <i class="fa-solid fa-trash-can"></i> Delete
+                        </button>
+                    `;
+                }
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = "bg-neutral-50 border border-neutral-200 p-4 rounded-lg space-y-2 relative min-h-[85px]";
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between pr-20">
+                        <h5 class="text-xs font-bold text-neutral-800">${rev.name} <span class="text-[10px] font-normal text-neutral-400 ml-1">(${rev.date || ''})</span></h5>
+                        <div class="text-amber-400 text-xs flex gap-0.5">${starHtml}</div>
+                    </div>
+                    <p class="text-xs text-neutral-600 leading-relaxed pr-16">${rev.comment}</p>
+                    <span class="inline-block text-[10px] bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded">${rev.role}</span>
+                    ${deleteButtonHtml}
                 `;
-            }
-
-            const reviewCard = document.createElement('div');
-            reviewCard.className = "bg-neutral-50 border border-neutral-200 p-4 rounded-lg space-y-2 relative min-h-[85px]";
-            reviewCard.innerHTML = `
-                <div class="flex items-center justify-between pr-20">
-                    <h5 class="text-xs font-bold text-neutral-800">${rev.name} <span class="text-[10px] font-normal text-neutral-400 ml-1">(${rev.date})</span></h5>
-                    <div class="text-amber-400 text-xs flex gap-0.5">${starHtml}</div>
-                </div>
-                <p class="text-xs text-neutral-600 leading-relaxed pr-16">${rev.comment}</p>
-                <span class="inline-block text-[10px] bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded">${rev.role}</span>
-                ${deleteButtonHtml}
-            `;
-            container.appendChild(reviewCard);
-        });
-    }
+                container.appendChild(reviewCard);
+            });
+        }
+    });
 }
 // পেজ লোড হওয়ার সাথে সাথে যেন প্রোডাক্টগুলো রেন্ডার হয়, সেজন্য ফাংশনটি কল করা হলো
 renderProducts(resolvedCategory);
