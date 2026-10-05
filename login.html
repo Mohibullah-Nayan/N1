@@ -92,16 +92,6 @@
                 <!-- 3. Header Utilities & Actions -->
                 <div class="header-utls flex items-center gap-2 sm:gap-3 text-sm font-medium">
 
-                    <!-- Theme Toggle -->
-                    <button
-                        id="themeToggleBtn"
-                        class="w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition shadow-2xs"
-                        title="Toggle Theme"
-                    >
-                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
-                        <i class="fa-solid fa-sun hidden dark:inline text-xs text-amber-400"></i>
-                    </button>
-
                     <!-- Language Selector -->
                     <div class="hidden sm:flex items-center gap-1 border border-stone-200 dark:border-slate-700 rounded-full px-2.5 py-1.5 bg-stone-100 dark:bg-slate-800 text-xs">
 
@@ -252,7 +242,7 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400 text-xs">
                             <i class="fa-regular fa-envelope"></i>
                         </span>
-                        <input type="email" id="admin-email" placeholder="admin@scent.com" required class="w-full pl-9 pr-3 py-2.5 text-xs bg-neutral-50/50 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all font-medium">
+                        <input type="email" id="admin-email" placeholder="user@gmail.com" required class="w-full pl-9 pr-3 py-2.5 text-xs bg-neutral-50/50 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all font-medium">
                     </div>
                 </div>
 
@@ -304,85 +294,259 @@
 
   <!-- Firebase Auth Integration Script -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
-            authDomain: "nayan-bc068.firebaseapp.com",
-            projectId: "nayan-bc068",
-            storageBucket: "nayan-bc068.firebasestorage.app",
-            messagingSenderId: "782323259018",
-            appId: "1:782323259018:web:a428fe0d96897711223f73",
-            measurementId: "G-8PJVBLSPZV"
-        };
+    import { initializeApp } from
+        "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const googleProvider = new GoogleAuthProvider();
-        const facebookProvider = new FacebookAuthProvider();
+    import {
+        getAuth,
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+        FacebookAuthProvider,
+        signInWithPopup
+    } from
+        "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const myRealAdminEmail = "mohibullahnayan.cse@gmail.com";
+    import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc
+    } from
+        "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ইমেইল পাসওয়ার্ড লগইন
-        window.handleAdminLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                if (email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Login failed! Please check your email or password.');
-                console.error(error);
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
+
+        authDomain: "nayan-bc068.firebaseapp.com",
+
+        projectId: "nayan-bc068",
+
+        storageBucket: "nayan-bc068.firebasestorage.app",
+
+        messagingSenderId: "782323259018",
+
+        appId: "1:782323259018:web:a428fe0d96897711223f73",
+
+        measurementId: "G-8PJVBLSPZV"
+
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getFirestore(app);
+
+
+    const googleProvider = new GoogleAuthProvider();
+
+    const facebookProvider = new FacebookAuthProvider();
+
+
+    // =========================
+    // Check User Role
+    // =========================
+
+    async function redirectUser(user) {
+
+        try {
+
+            const userRef = doc(
+                db,
+                "users",
+                user.uid
+            );
+
+            const userDoc = await getDoc(userRef);
+
+
+            // User document না থাকলে
+            if (!userDoc.exists()) {
+
+                await setDoc(userRef, {
+
+                    fullName: user.displayName || "User",
+
+                    email: user.email || "",
+
+                    role: "user",
+
+                    createdAt: new Date()
+
+                });
+
+                alert("Login successful! 🎉");
+
+                window.location.href = "index.html";
+
+                return;
             }
+
+
+            // User data
+            const userData = userDoc.data();
+
+            const role = userData.role || "user";
+
+
+            // Admin
+            if (role === "admin") {
+
+                alert("Welcome, Admin! 🎉");
+
+                window.location.href = "admin.html";
+
+            }
+
+            // Normal User
+            else {
+
+                alert("Login successful! 🎉");
+
+                window.location.href = "index.html";
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Role checking error:",
+                error
+            );
+
+            alert(
+                "Something went wrong while checking your account."
+            );
+
         }
 
-        // গুগল দিয়ে লগইন
-        window.handleGoogleLogin = async function() {
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
-                
-                if (user.email && user.email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Google Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Google Login failed: ' + error.message);
-                console.error(error);
-            }
+    }
+
+
+    // =========================
+    // Email + Password Login
+    // =========================
+
+    window.handleAdminLogin = async function(e) {
+
+        e.preventDefault();
+
+        const email =
+            document
+                .getElementById("admin-email")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("admin-password")
+                .value;
+
+
+        try {
+
+            const userCredential =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+            const user = userCredential.user;
+
+            await redirectUser(user);
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+            alert(
+                "Login failed! Please check your email or password."
+            );
+
         }
 
-        // ফেসবুক দিয়ে লগইন
-        window.handleFacebookLogin = async function() {
-            try {
-                const result = await signInWithPopup(auth, facebookProvider);
-                const user = result.user;
-                
-                if (user.email && user.email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Facebook Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Facebook Login failed: ' + error.message);
-                console.error(error);
-            }
+    };
+
+
+    // =========================
+    // Google Login
+    // =========================
+
+    window.handleGoogleLogin = async function() {
+
+        try {
+
+            const result =
+                await signInWithPopup(
+                    auth,
+                    googleProvider
+                );
+
+            const user = result.user;
+
+            await redirectUser(user);
+
+        } catch (error) {
+
+            console.error(
+                "Google Login Error:",
+                error
+            );
+
+            alert(
+                "Google Login failed: " +
+                error.message
+            );
+
         }
-    </script>
+
+    };
+
+
+    // =========================
+    // Facebook Login
+    // =========================
+
+    window.handleFacebookLogin = async function() {
+
+        try {
+
+            const result =
+                await signInWithPopup(
+                    auth,
+                    facebookProvider
+                );
+
+            const user = result.user;
+
+            await redirectUser(user);
+
+        } catch (error) {
+
+            console.error(
+                "Facebook Login Error:",
+                error
+            );
+
+            alert(
+                "Facebook Login failed: " +
+                error.message
+            );
+
+        }
+
+    };
+
+</script>
     <!-- ১. ফায়ারবেস সিডিএন লাইব্রেরি -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
