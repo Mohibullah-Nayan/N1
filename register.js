@@ -1,4 +1,15 @@
-// ইউজার রেজিস্ট্রেশন হ্যান্ডেল করার ফাংশন
+/* ==========================================================================
+   NAYAN LUXURY PERFUMES & ATTAR - USER REGISTRATION (register.js)
+   --------------------------------------------------------------------------
+   ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
+   ১. ফর্ম ভ্যালিডেশন ও ডেটা এক্সট্র্যাকশন (Validation & Data Extraction)
+   ২. ফায়ারবেস অথেন্টিকেশন রেজিস্ট্রেশন (Firebase Auth Account Creation)
+   ৩. ফায়ারস্টোর ইউজার প্রোফাইল ডেটাবেজ সেভ (Firestore Profile Storage)
+   ========================================================================== */
+
+// ==========================================================================
+// ১. ইউজার রেজিস্ট্রেশন সাবমিট হ্যান্ডলার (Registration Event Handler)
+// ==========================================================================
 function handleRegister(event) {
     event.preventDefault(); // পেজ রিলোড হওয়া বন্ধ করবে
 
@@ -17,12 +28,16 @@ function handleRegister(event) {
         return;
     }
 
-    // ফায়ারবেস অথেন্টিকেশন দিয়ে ইউজার তৈরি করা
+    // ==========================================================================
+    // ২. ফায়ারবেস অথেন্টিকেশন দিয়ে ইউজার তৈরি করা (Auth Account Creation)
+    // ==========================================================================
     firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
 
-            // ফায়ারস্টোর ডেটাবেজে ইউজারের অতিরিক্ত তথ্য ও কাস্টমার রোল সেভ করা
+            // ==========================================================================
+            // ৩. ফায়ারস্টোর ডেটাবেজে ইউজারের তথ্য সেভ করা (Firestore User Profile Save)
+            // ==========================================================================
             return firebase.firestore().collection("users").doc(user.uid).set({
                 uid: user.uid,
                 fullName: name,
@@ -36,7 +51,7 @@ function handleRegister(event) {
             });
         })
         .then(() => {
-            alert("welcome! Your account has been created successfully.");
+            alert("Welcome! Your account has been created successfully.");
             window.location.href = "index.html"; // সফল হলে হোমপেজে রিডাইরেক্ট করবে
         })
         .catch((error) => {

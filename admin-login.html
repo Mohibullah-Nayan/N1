@@ -1,12 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="bn" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Secure Admin Login | Dashboard</title>
-    <!-- Google Fonts - Poppins -->
+    <title>Secure Admin Authentication - SCENT ATELIER</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <!-- Font Awesome Icons -->
@@ -16,252 +18,99 @@
     />
 
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-      }
-
       body {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #0a0f1a;
-        position: relative;
-        overflow: hidden;
-        padding: 20px;
-      }
-
-      /* Background Decorative Elements */
-      body::before {
-        content: "";
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        background: #f26522;
-        filter: blur(150px);
-        opacity: 0.15;
-        border-radius: 50%;
-        top: -100px;
-        left: -100px;
-        z-index: -1;
-      }
-      body::after {
-        content: "";
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        background: #22c1f2;
-        filter: blur(150px);
-        opacity: 0.1;
-        border-radius: 50%;
-        bottom: -100px;
-        right: -100px;
-        z-index: -1;
-      }
-
-      .login-container {
-        width: 100%;
-        max-width: 420px;
-      }
-
-      .login-box {
-        background: rgba(
-          25,
-          25,
-          25,
-          0.6
-        ); /* Semi-transparent dark background */
-        backdrop-filter: blur(20px); /* Glassmorphism Effect */
-        -webkit-backdrop-filter: blur(20px);
-        padding: 50px 40px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        position: relative;
-        overflow: hidden;
-      }
-
-      /* Decorative Top Line */
-      .login-box::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #f26522, #d95417);
-      }
-
-      .login-box h2 {
-        text-align: center;
-        color: #fff;
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 10px;
-      }
-
-      .login-box .subtitle {
-        text-align: center;
-        color: #999;
-        margin-bottom: 40px;
-        font-size: 14px;
-        font-weight: 300;
-      }
-
-      .form-group {
-        margin-bottom: 25px;
-        position: relative;
-      }
-
-      .form-group label {
-        display: block;
-        color: #ddd;
-        font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 8px;
-        transition: all 0.3s;
-      }
-
-      .form-group input {
-        width: 100%;
-        padding: 15px 20px 15px 45px; /* Added left padding for icon */
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        outline: none;
-        font-size: 15px;
-        color: #fff;
-        transition: all 0.3s ease;
-      }
-
-      /* Input Icons */
-      .form-group i {
-        position: absolute;
-        left: 18px;
-        top: 45px; /* Aligned with input center */
-        color: #777;
-        font-size: 16px;
-        transition: all 0.3s;
-      }
-
-      /* Focus Effects */
-      .form-group input:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: #f26522;
-        box-shadow: 0 0 15px rgba(242, 101, 34, 0.2);
-      }
-
-      .form-group input:focus + i {
-        color: #f26522;
-      }
-
-      .login-btn {
-        width: 100%;
-        padding: 16px;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(90deg, #f26522, #d95417);
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-        box-shadow: 0 5px 15px rgba(242, 101, 34, 0.3);
-      }
-
-      .login-btn:hover {
-        background: linear-gradient(90deg, #d95417, #c04a14);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(242, 101, 34, 0.4);
-      }
-
-      .login-btn:active {
-        transform: translateY(1px);
-      }
-
-      .message {
-        margin-top: 20px;
-        text-align: center;
-        font-size: 13px;
-        min-height: 18px; /* Prevents jumping */
-      }
-
-      .back-link {
-        display: block;
-        text-align: center;
-        margin-top: 30px;
-        color: #888;
-        text-decoration: none;
-        font-size: 13px;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      .back-link:hover {
-        color: #f26522;
-      }
-
-      /* Responsive Adjustments */
-      @media (max-width: 480px) {
-        .login-box {
-          padding: 40px 30px;
-        }
-        .login-box h2 {
-          font-size: 24px;
-        }
-        .login-box .subtitle {
-          margin-bottom: 30px;
-        }
+        font-family: "Inter", sans-serif;
       }
     </style>
   </head>
 
-  <body>
-    <div class="login-container">
-      <div class="login-box">
-        <h2>Admin Portal</h2>
-        <p class="subtitle">Welcome back! Please login to continue.</p>
+  <body class="bg-[#0B0F19] text-slate-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden selection:bg-[#F26522] selection:text-white">
+    <!-- Ambient Background Glows -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-orange-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none"></div>
 
-        <form id="adminLoginForm">
-          <div class="form-group">
-            <label for="adminEmail">Email Address</label>
-            <input
-              type="email"
-              id="adminEmail"
-              placeholder="admin@example.com"
-              required
-            />
-            <i class="fas fa-envelope"></i>
+    <div class="w-full max-w-md relative z-10">
+      <!-- ব্রান্ড হেডার -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2.5 mb-3 group">
+          <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#F26522] to-amber-400 inline-block animate-pulse shadow-lg shadow-orange-500/50"></span>
+          <span class="text-2xl font-black tracking-widest text-white">SCENT <span class="bg-gradient-to-r from-[#F26522] to-amber-400 bg-clip-text text-transparent">ATELIER</span></span>
+        </div>
+        <p class="text-xs uppercase tracking-widest font-bold text-slate-400">Admin Control Center &bull; Able Pro Edition</p>
+      </div>
+
+      <!-- লগইন কার্ড -->
+      <div class="bg-slate-900/80 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-7 sm:p-9 shadow-2xl relative overflow-hidden border-t-4 border-t-[#F26522]">
+        
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Admin Authorization</h2>
+          <p class="text-xs text-slate-400 mt-1 font-medium">Please sign in with verified administrative credentials.</p>
+        </div>
+
+        <form id="adminLoginForm" class="space-y-4">
+          <!-- ইমেইল ফিল্ড -->
+          <div>
+            <label for="adminEmail" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-envelope text-[#F26522]"></i> Admin Email
+            </label>
+            <div class="relative">
+              <input
+                type="email"
+                id="adminEmail"
+                placeholder="admin@example.com"
+                required
+                class="w-full bg-slate-950/70 border border-slate-800 text-white text-sm font-medium rounded-xl px-4 py-3 placeholder:text-slate-600 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition shadow-inner"
+              />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="adminPassword">Password</label>
-            <input
-              type="password"
-              id="adminPassword"
-              placeholder="••••••••"
-              required
-            />
-            <i class="fas fa-lock"></i>
+          <!-- পাসওয়ার্ড ফিল্ড -->
+          <div>
+            <label for="adminPassword" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-lock text-[#F26522]"></i> Password
+            </label>
+            <div class="relative">
+              <input
+                type="password"
+                id="adminPassword"
+                placeholder="••••••••"
+                required
+                class="w-full bg-slate-950/70 border border-slate-800 text-white text-sm font-medium rounded-xl px-4 py-3 placeholder:text-slate-600 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition shadow-inner"
+              />
+            </div>
           </div>
 
-          <button type="submit" class="login-btn">
-            <i class="fas fa-sign-in-alt me-2"></i> Secure Login
+          <!-- সিকিউরিটি ইনফো -->
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+            <span class="flex items-center gap-1.5 font-medium">
+              <i class="fa-solid fa-shield-halved text-emerald-400"></i> End-to-end encrypted
+            </span>
+            <span class="text-[11px] text-slate-500 font-mono">256-bit AES</span>
+          </div>
+
+          <!-- সাবমিট বাটন -->
+          <button
+            type="submit"
+            class="login-btn w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#F26522] via-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Secure Login</span>
           </button>
 
-          <div id="message" class="message"></div>
+          <!-- মেসেজ ও স্ট্যাটাস ডিসপ্লে -->
+          <div id="message" class="message text-center text-xs font-semibold pt-2 min-h-[22px] transition-all"></div>
         </form>
 
-        <a href="login.html" class="back-link">
-          <i class="fas fa-arrow-left"></i> Back to Customer Login
-        </a>
+        <!-- ব্যাক লিঙ্ক -->
+        <div class="mt-6 pt-5 border-t border-slate-800/80 text-center">
+          <a
+            href="login.html"
+            class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-[#F26522] transition-colors"
+          >
+            <i class="fa-solid fa-arrow-left"></i> Return to Customer Login
+          </a>
+        </div>
       </div>
     </div>
 
@@ -271,7 +120,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-      // Firebase Configuration (আপনার আগের কোড থেকেই নেওয়া)
+      // Firebase Configuration
       const firebaseConfig = {
         apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
         authDomain: "nayan-bc068.firebaseapp.com",
@@ -288,7 +137,7 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // Admin Login Logic (আপনার আগের কোডটিই ব্যবহার করা হয়েছে, শুধু মেসেজের কালার আপডেট করা হয়েছে)
+      // Admin Login Logic
       document
         .getElementById("adminLoginForm")
         .addEventListener("submit", async function (event) {
@@ -298,15 +147,13 @@
           const password = document.getElementById("adminPassword").value;
           const message = document.getElementById("message");
 
-          // Updated colors for better look in dark theme
-          message.style.color = "#aaa";
-          message.textContent = "Authenticating... please wait.";
+          message.style.color = "#94a3b8";
+          message.textContent = "Authenticating with Firebase... please wait.";
 
-          // Disable button while loading
           const loginBtn = document.querySelector(".login-btn");
           loginBtn.disabled = true;
           loginBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
           try {
             const userCredential = await auth.signInWithEmailAndPassword(
@@ -318,44 +165,43 @@
             const userDoc = await db.collection("users").doc(user.uid).get();
 
             if (!userDoc.exists) {
-              message.style.color = "#ff4b4b"; /* Lighter red for errors */
-              message.textContent = "Access denied. Admin account not found.";
+              message.style.color = "#fb7185";
+              message.textContent = "Access denied: Admin record not found.";
               await auth.signOut();
               return;
             }
 
             const userData = userDoc.data();
             if (userData.role !== "admin") {
-              message.style.color = "#ff4b4b";
-              message.textContent = "Access denied. Admins only.";
+              message.style.color = "#fb7185";
+              message.textContent = "Access denied: Unauthorized role.";
               await auth.signOut();
               return;
             }
 
-            message.style.color = "#00e676"; /* Bright green for success */
-            message.textContent = "Login successful! Redirecting...";
+            message.style.color = "#34d399";
+            message.textContent = "✓ Access granted! Redirecting to Dashboard...";
 
             setTimeout(() => {
               window.location.href = "admin.html";
-            }, 700);
+            }, 600);
           } catch (error) {
             console.error("Admin login error:", error);
-            message.style.color = "#ff4b4b";
+            message.style.color = "#fb7185";
 
             if (
               error.code === "auth/invalid-credential" ||
               error.code === "auth/wrong-password" ||
               error.code === "auth/user-not-found"
             ) {
-              message.textContent = "Invalid email or password.";
+              message.textContent = "Invalid administrator email or password.";
             } else {
               message.textContent = error.message;
             }
           } finally {
-            // Re-enable button in case of error
             loginBtn.disabled = false;
             loginBtn.innerHTML =
-              '<i class="fas fa-sign-in-alt me-2"></i> Secure Login';
+              '<i class="fa-solid fa-right-to-bracket"></i> <span>Secure Login</span>';
           }
         });
     </script>

@@ -1,4 +1,16 @@
-// ================= ফায়ারবেস ইনিশিয়ালাইজেশন ও ডেটা লজিক =================
+/* ==========================================================================
+   NAYAN LUXURY PERFUMES & ATTAR - DATABASE & AUTH MANAGEMENT (db.js)
+   --------------------------------------------------------------------------
+   ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
+   ১. ফায়ারবেস কনফিগারেশন ও ইনিশিয়ালাইজেশন (Firebase Config & Init)
+   ২. ফায়ারবেস রিয়েল-টাইম প্রোডাক্ট লিসেনার (Real-time Products Listener)
+   ৩. ইউজার অথেন্টিকেশন ও হেডার ড্রপডাউন লজিক (User Auth & Header Dropdown)
+   ৪. উইন্ডো লোড ইভেন্ট হ্যান্ডলার (Window Load Event Dispatcher)
+   ========================================================================== */
+
+// ==========================================================================
+// ১. ফায়ারবেস কনফিগারেশন ও ইনিশিয়ালাইজেশন (Firebase Config & Init)
+// ==========================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
     authDomain: "nayan-bc068.firebaseapp.com",
@@ -14,7 +26,9 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// ফায়ারবেস রিয়েল-টাইম লিসেনার ও ডেটা ফেচিং
+// ==========================================================================
+// ২. ফায়ারবেস রিয়েল-টাইম প্রোডাক্ট লিসেনার (Real-time Products Listener)
+// ==========================================================================
 function setupFirebaseListener() {
     console.log("Firebase listener function called!");
 
@@ -52,7 +66,9 @@ function setupFirebaseListener() {
     }
 }
 
-// ================= ইউজার লগইন চেক ও হেডারে নাম দেখানোর এবং ড্রপডাউন লজিক =================
+// ==========================================================================
+// ৩. ইউজার অথেন্টিকেশন ও হেডার ড্রপডাউন লজিক (User Auth & Header Dropdown)
+// ==========================================================================
 function setupAuthHeaderListener() {
     if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged(async (user) => {
@@ -67,7 +83,7 @@ function setupAuthHeaderListener() {
                     parentWrapper.style.position = 'relative';
                 }
 
-                // পুরোনো ড্রপডাউন থাকলে তা রিমूव করে দেওয়া
+                // পুরোনো ড্রপডাউন থাকলে তা রিমুভ করে দেওয়া
                 const existingDropdown = parentWrapper.querySelector('#user-dropdown-menu');
                 if (existingDropdown) {
                     existingDropdown.remove();
@@ -144,6 +160,9 @@ function setupAuthHeaderListener() {
     }
 }
 
+// ==========================================================================
+// ৪. উইন্ডো লোড ইভেন্ট হ্যান্ডলার (Window Load Event Dispatcher)
+// ==========================================================================
 // পেজ এবং সমস্ত সিডিএন সম্পূর্ণ লোড হওয়ার পর ফায়ারবেস ডেটা ও হেডার সিঙ্ক শুরু হবে
 window.addEventListener('load', () => {
     setupFirebaseListener();

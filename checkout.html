@@ -3,13 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout - SCENT.</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Checkout - SCENT. Luxury Fragrances</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: '#F26522',
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Dark Mode Sync Script -->
+    <script>
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <!-- FontAwesome Icons -->
@@ -35,249 +57,475 @@
         emailjs.init("Smx6HDQg53goy2cC6");
       })();
     </script>
+
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+      }
+      /* Custom sleek scrollbar for items list */
+      #checkout-items-list::-webkit-scrollbar {
+        width: 5px;
+      }
+      #checkout-items-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #checkout-items-list::-webkit-scrollbar-thumb {
+        background: rgba(168, 162, 158, 0.3);
+        border-radius: 9999px;
+      }
+      #checkout-items-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(242, 101, 34, 0.5);
+      }
+    </style>
   </head>
   <body
-    class="bg-neutral-100 text-neutral-800 antialiased selection:bg-[#F26522] selection:text-white"
+    class="bg-stone-50/60 dark:bg-slate-950 text-stone-800 dark:text-stone-100 min-h-screen flex flex-col antialiased selection:bg-[#F26522] selection:text-white transition-colors duration-200"
   >
     <!-- হেডার সেকশন -->
     <header
-      class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-neutral-200/80 py-4 shadow-xs transition-all"
+      class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 border-b border-stone-200/80 dark:border-slate-800 py-3.5 sm:py-4 shadow-xs transition-all"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center"
       >
+        <!-- Logo -->
         <a
           href="index.html"
-          class="text-2xl font-black tracking-wider text-neutral-900 hover:opacity-90 transition"
-          >SCENT<span class="text-[#F26522]">.</span></a
+          class="flex items-center gap-2 group"
         >
+          <span class="font-serif text-2xl sm:text-3xl font-black tracking-tight text-stone-900 dark:text-white group-hover:opacity-90 transition">
+            SCENT<span class="text-[#F26522]">.</span>
+          </span>
+          <span class="hidden sm:inline-block text-[10px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800/60">
+            Parfumerie
+          </span>
+        </a>
 
-        <div class="flex items-center gap-4">
+        <!-- Header Actions -->
+        <div class="flex items-center gap-3 sm:gap-4">
           <!-- db.js এর সাথে যুক্ত হেডার ইউজার সেকশন -->
           <a
             id="user-auth-link"
             href="login.html"
-            class="text-xs sm:text-sm font-semibold text-neutral-700 hover:text-[#F26522] flex items-center gap-1.5 transition"
+            class="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 hover:text-[#F26522] dark:hover:text-[#F26522] flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition"
           >
-            <i class="fa-regular fa-user"></i> Sign In
+            <i class="fa-regular fa-user text-xs"></i>
+            <span>Sign In</span>
           </a>
+
           <a
             href="cart.html"
-            class="text-xs sm:text-sm font-semibold text-neutral-600 hover:text-[#F26522] flex items-center gap-1.5 transition"
+            class="text-xs sm:text-sm font-bold text-stone-600 dark:text-stone-300 hover:text-[#F26522] dark:hover:text-[#F26522] flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-stone-100/80 dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-slate-700 transition border border-stone-200/60 dark:border-slate-700"
           >
-            <i class="fa-solid fa-arrow-left"></i> Return to Cart
+            <i class="fa-solid fa-arrow-left text-xs"></i>
+            <span class="hidden sm:inline">Return to</span> Cart
           </a>
         </div>
       </div>
     </header>
 
     <!-- মেইন কন্টেন্ট -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-      <h1
-        class="text-2xl sm:text-3xl font-extrabold text-neutral-900 mb-6 sm:mb-8 tracking-tight"
-      >
-        Checkout
-      </h1>
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10 w-full">
+      <!-- Checkout Stepper Breadcrumb -->
+      <div class="flex items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-stone-400 mb-6 sm:mb-8">
+        <a href="cart.html" class="flex items-center gap-1.5 text-stone-600 dark:text-stone-300 hover:text-[#F26522] transition">
+          <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-xs">
+            <i class="fa-solid fa-check"></i>
+          </span>
+          <span>Cart</span>
+        </a>
+        <i class="fa-solid fa-chevron-right text-[9px] text-stone-300 dark:text-stone-600"></i>
+        <div class="flex items-center gap-1.5 text-[#F26522]">
+          <span class="w-5 h-5 rounded-full bg-[#F26522] text-white flex items-center justify-center text-[10px] font-black shadow-xs">
+            2
+          </span>
+          <span class="font-extrabold">Delivery & Details</span>
+        </div>
+        <i class="fa-solid fa-chevron-right text-[9px] text-stone-300 dark:text-stone-600"></i>
+        <div class="flex items-center gap-1.5 text-stone-400 dark:text-stone-600">
+          <span class="w-5 h-5 rounded-full bg-stone-200 dark:bg-slate-800 text-stone-500 flex items-center justify-center text-[10px] font-bold">
+            3
+          </span>
+          <span>Confirmation</span>
+        </div>
+      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-        <!-- শিপিং ও পেমেন্ট ফর্ম -->
+      <!-- Page Heading with Trust Tag -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
+        <div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-stone-900 dark:text-white tracking-tight">
+            Checkout
+          </h1>
+          <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 font-medium mt-1">
+            Complete your order with 100% authentic luxury fragrances.
+          </p>
+        </div>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-bold w-fit shadow-2xs">
+          <i class="fa-solid fa-shield-halved text-xs"></i>
+          <span>256-Bit SSL Encrypted & Secure</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-8 items-start">
+        <!-- শিপিং ও পেমেন্ট ফর্ম (Left 7 Cols) -->
         <div
-          class="lg:col-span-2 bg-white border border-neutral-200/80 rounded-2xl p-5 sm:p-8 shadow-sm"
+          class="lg:col-span-7 bg-white dark:bg-slate-900 border border-stone-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-7"
         >
-          <h2
-            class="text-base sm:text-lg font-bold text-neutral-800 mb-5 border-b border-neutral-100 pb-3 flex items-center gap-2"
-          >
-            <i class="fa-solid fa-shipping-fast text-[#F26522]"></i> Shipping
-            Information
-          </h2>
+          <!-- Section 1 Header -->
+          <div class="border-b border-stone-100 dark:border-slate-800 pb-4">
+            <h2 class="text-base sm:text-lg font-black text-stone-900 dark:text-white flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-[#F26522] flex items-center justify-center text-xs font-black shadow-2xs">
+                <i class="fa-solid fa-truck-fast"></i>
+              </span>
+              <span>Shipping & Contact Information</span>
+            </h2>
+            <p class="text-xs text-stone-400 dark:text-stone-500 mt-1 pl-9.5">
+              Please enter your valid address for prompt delivery.
+            </p>
+          </div>
 
           <form
             id="checkout-form"
             onsubmit="handleOrderSubmit(event)"
-            class="space-y-4 sm:space-y-5"
+            class="space-y-5"
           >
+            <!-- Full Name -->
             <div>
               <label
-                class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5"
-                >Your Full Name *</label
+                class="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2 flex items-center gap-1.5"
               >
+                <i class="fa-regular fa-user text-[#F26522] text-xs"></i>
+                <span>Your Full Name</span>
+                <span class="text-rose-500 font-black">*</span>
+              </label>
               <input
                 type="text"
                 id="customer-name"
                 required
-                class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all"
+                class="w-full px-4 py-3.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-2xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-4 focus:ring-[#F26522]/10 transition-all font-medium"
                 placeholder="e.g., Mohibullah Nayan"
               />
             </div>
 
+            <!-- Phone & Email Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
-                  class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5"
-                  >Phone Number *</label
+                  class="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2 flex items-center gap-1.5"
                 >
+                  <i class="fa-solid fa-phone text-[#F26522] text-xs"></i>
+                  <span>Phone Number</span>
+                  <span class="text-rose-500 font-black">*</span>
+                </label>
                 <input
                   type="tel"
                   id="customer-phone"
                   required
-                  class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all"
+                  class="w-full px-4 py-3.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-2xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-4 focus:ring-[#F26522]/10 transition-all font-medium"
                   placeholder="017xxxxxxxx"
                 />
               </div>
               <div>
                 <label
-                  class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5"
-                  >Email (for confirmation) *</label
+                  class="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2 flex items-center gap-1.5"
                 >
+                  <i class="fa-regular fa-envelope text-[#F26522] text-xs"></i>
+                  <span>Email (Confirmation)</span>
+                  <span class="text-rose-500 font-black">*</span>
+                </label>
                 <input
                   type="email"
                   id="customer-email"
                   required
-                  class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all"
+                  class="w-full px-4 py-3.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-2xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-4 focus:ring-[#F26522]/10 transition-all font-medium"
                   placeholder="example@gmail.com"
                 />
               </div>
             </div>
 
+            <!-- Full Address -->
             <div>
               <label
-                class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5"
-                >Full Address (Road, House, Area) *</label
+                class="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2 flex items-center gap-1.5"
               >
+                <i class="fa-solid fa-location-dot text-[#F26522] text-xs"></i>
+                <span>Full Address (Road, House, Area)</span>
+                <span class="text-rose-500 font-black">*</span>
+              </label>
               <textarea
                 id="customer-address"
                 required
                 rows="3"
-                class="w-full px-4 py-3 bg-neutral-50/50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all resize-none"
-                placeholder="House No, Road No, Thana, District"
+                class="w-full px-4 py-3.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-2xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-4 focus:ring-[#F26522]/10 transition-all resize-none font-medium leading-relaxed"
+                placeholder="House No, Road No, Area / Thana, District"
               ></textarea>
             </div>
 
-            <div class="pt-2">
-              <h2
-                class="text-base sm:text-lg font-bold text-neutral-800 mb-3 border-b border-neutral-100 pb-3 flex items-center gap-2"
-              >
-                <i class="fa-solid fa-wallet text-[#F26522]"></i> Payment Method
-              </h2>
-              <div class="space-y-3">
+            <!-- Payment Method Section -->
+            <div class="pt-4 border-t border-stone-100 dark:border-slate-800">
+              <div class="mb-4">
+                <h2 class="text-base sm:text-lg font-black text-stone-900 dark:text-white flex items-center gap-2.5">
+                  <span class="w-7 h-7 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-[#F26522] flex items-center justify-center text-xs font-black shadow-2xs">
+                    <i class="fa-solid fa-wallet"></i>
+                  </span>
+                  <span>Select Payment Method</span>
+                </h2>
+                <p class="text-xs text-stone-400 dark:text-stone-500 mt-1 pl-9.5">
+                  Choose how you would like to complete your payment.
+                </p>
+              </div>
+
+              <!-- Payment Cards Selection -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Cash on Delivery -->
                 <label
-                  class="flex items-center gap-3.5 p-4 border border-neutral-200 rounded-xl cursor-pointer hover:border-[#F26522] hover:bg-orange-50/25 transition-all group"
+                  id="payment-card-cod"
+                  class="relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-[#F26522] bg-orange-50/30 dark:bg-orange-950/20 cursor-pointer transition-all shadow-xs group"
+                  onclick="updatePaymentSelection('cod')"
                 >
-                  <input
-                    type="radio"
-                    name="payment-method"
-                    value="cod"
-                    checked
-                    class="w-4 h-4 text-[#F26522] focus:ring-[#F26522]"
-                  />
-                  <span
-                    class="text-sm font-semibold text-neutral-700 group-hover:text-neutral-900"
-                    >Cash on Delivery</span
-                  >
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-[#F26522] flex items-center justify-center text-lg">
+                      <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <input
+                      type="radio"
+                      name="payment-method"
+                      value="cod"
+                      checked
+                      class="w-4 h-4 text-[#F26522] focus:ring-[#F26522] accent-[#F26522]"
+                    />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Cash on Delivery</span>
+                      <span class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 px-2 py-0.5 rounded-full">Popular</span>
+                    </div>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">Pay cash upon delivery at your doorstep.</p>
+                  </div>
                 </label>
+
+                <!-- Online Payment -->
                 <label
-                  class="flex items-center gap-3.5 p-4 border border-neutral-200 rounded-xl cursor-pointer hover:border-[#F26522] hover:bg-orange-50/25 transition-all group"
+                  id="payment-card-online"
+                  class="relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-stone-200 dark:border-slate-700 hover:border-[#F26522]/50 bg-white dark:bg-slate-800/40 cursor-pointer transition-all shadow-xs group"
+                  onclick="updatePaymentSelection('online')"
                 >
-                  <input
-                    type="radio"
-                    name="payment-method"
-                    value="online"
-                    class="w-4 h-4 text-[#F26522] focus:ring-[#F26522]"
-                  />
-                  <span
-                    class="text-sm font-semibold text-neutral-700 group-hover:text-neutral-900"
-                    >Online Payment (bKash / Nagad / Card)</span
-                  >
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-stone-200 flex items-center justify-center text-lg">
+                      <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <input
+                      type="radio"
+                      name="payment-method"
+                      value="online"
+                      class="w-4 h-4 text-[#F26522] focus:ring-[#F26522] accent-[#F26522]"
+                    />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Online Payment</span>
+                      <span class="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400 px-2 py-0.5 rounded-full">Instant</span>
+                    </div>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">bKash, Nagad, Rocket, or Credit/Debit Cards.</p>
+                    <div class="flex items-center gap-1.5 mt-2.5">
+                      <span class="px-2 py-0.5 rounded bg-pink-50 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300 text-[10px] font-bold border border-pink-200/60">bKash</span>
+                      <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 text-[10px] font-bold border border-orange-200/60">Nagad</span>
+                      <span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 text-[10px] font-bold border border-purple-200/60">Rocket</span>
+                      <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 text-[10px] font-bold border border-blue-200/60">Cards</span>
+                    </div>
+                  </div>
                 </label>
               </div>
             </div>
 
+            <!-- Submit Button -->
             <button
               type="submit"
               id="order-btn"
-              class="w-full mt-6 py-3.5 bg-[#F26522] text-white text-sm font-bold rounded-xl hover:bg-neutral-900 active:scale-[0.99] transition-all shadow-md shadow-[#F26522]/20 cursor-pointer"
+              class="w-full mt-7 py-4 px-6 bg-gradient-to-r from-[#F26522] via-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-black uppercase tracking-wider rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
             >
-              Confirm Order
+              <i class="fa-solid fa-lock text-sm"></i>
+              <span>Confirm & Place Order</span>
             </button>
+
+            <!-- Trust Pills Under Button -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-5 border-t border-stone-100 dark:border-slate-800 text-center">
+              <div class="flex flex-col items-center gap-1 p-2 rounded-xl bg-stone-50 dark:bg-slate-800/40 border border-stone-200/60 dark:border-slate-700/60">
+                <i class="fa-solid fa-award text-amber-500 text-sm"></i>
+                <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300">100% Genuine</span>
+                <span class="text-[9px] text-stone-400">Authentic Attars</span>
+              </div>
+              <div class="flex flex-col items-center gap-1 p-2 rounded-xl bg-stone-50 dark:bg-slate-800/40 border border-stone-200/60 dark:border-slate-700/60">
+                <i class="fa-solid fa-truck-fast text-blue-500 text-sm"></i>
+                <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300">Fast Delivery</span>
+                <span class="text-[9px] text-stone-400">24-48 Hours</span>
+              </div>
+              <div class="flex flex-col items-center gap-1 p-2 rounded-xl bg-stone-50 dark:bg-slate-800/40 border border-stone-200/60 dark:border-slate-700/60">
+                <i class="fa-solid fa-handshake text-emerald-500 text-sm"></i>
+                <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300">Cash On Delivery</span>
+                <span class="text-[9px] text-stone-400">Across Bangladesh</span>
+              </div>
+              <div class="flex flex-col items-center gap-1 p-2 rounded-xl bg-stone-50 dark:bg-slate-800/40 border border-stone-200/60 dark:border-slate-700/60">
+                <i class="fa-solid fa-rotate-left text-purple-500 text-sm"></i>
+                <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300">Easy Returns</span>
+                <span class="text-[9px] text-stone-400">If Damaged</span>
+              </div>
+            </div>
           </form>
         </div>
 
-        <!-- অর্ডার সামারি ও কুপন সেকশন -->
+        <!-- অর্ডার সামারি ও কুপন সেকশন (Right 5 Cols) -->
         <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 sm:p-6 shadow-sm h-fit space-y-4 lg:sticky lg:top-24"
+          class="lg:col-span-5 bg-white dark:bg-slate-900 border border-stone-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-sm h-fit space-y-5 lg:sticky lg:top-24"
         >
-          <h2
-            class="text-base sm:text-lg font-bold text-neutral-800 border-b border-neutral-100 pb-3"
-          >
-            Your Order
-          </h2>
+          <!-- Summary Header -->
+          <div class="flex items-center justify-between border-b border-stone-100 dark:border-slate-800 pb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-[#F26522] flex items-center justify-center text-sm font-black">
+                <i class="fa-solid fa-bag-shopping"></i>
+              </div>
+              <h2 class="text-base sm:text-lg font-black text-stone-900 dark:text-white">
+                Order Summary
+              </h2>
+            </div>
+            <span id="checkout-items-count" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/70 dark:border-amber-800/70">
+              0 items
+            </span>
+          </div>
 
+          <!-- Items List Container -->
           <div
             id="checkout-items-list"
-            class="space-y-3 max-h-60 overflow-y-auto text-lg pr-1"
+            class="space-y-2.5 max-h-72 overflow-y-auto pr-1"
           >
-            <!-- কার্ট আইটেমগুলো এখানে লোড হবে -->
+            <!-- কার্ট আইটেমগুলো এখানে ডাইনামিকলি লোড হবে -->
           </div>
 
           <!-- কুপন অ্যাপ্লাই বক্স -->
-          <div class="border-t border-neutral-100 pt-4">
+          <div class="border-t border-stone-100 dark:border-slate-800 pt-4">
             <label
-              class="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-1.5"
-              >Coupon Code (if any)</label
+              class="block text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider mb-2 flex items-center justify-between"
             >
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-tag text-[#F26522] text-xs"></i>
+                <span>Coupon Code</span>
+              </span>
+              <span class="text-[10px] text-stone-400 font-semibold lowercase">have a code?</span>
+            </label>
             <div class="flex gap-2">
               <input
                 type="text"
                 id="coupon-input"
                 placeholder="e.g., EID100"
-                class="flex-1 px-3.5 py-2.5 bg-neutral-50/50 border border-neutral-200 rounded-xl text-xs uppercase font-semibold focus:outline-none focus:bg-white focus:border-[#F26522] transition"
+                class="flex-1 px-4 py-2.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-xl text-xs uppercase font-black text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-2 focus:ring-[#F26522]/10 transition-all"
               />
               <button
                 type="button"
                 onclick="applyCoupon()"
-                class="bg-neutral-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#F26522] transition cursor-pointer"
+                class="bg-stone-900 dark:bg-white text-white dark:text-stone-900 hover:bg-[#F26522] dark:hover:bg-[#F26522] dark:hover:text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
               >
                 Apply
               </button>
             </div>
-            <p id="coupon-message" class="text-[11px] mt-1.5 font-medium"></p>
+            <p id="coupon-message" class="text-[11px] mt-2 font-semibold"></p>
           </div>
 
-          <div class="space-y-2.5 border-t border-neutral-100 pt-4 text-sm">
-            <div class="flex justify-between text-neutral-600 font-medium">
+          <!-- প্রাইস ব্রেকডাউন -->
+          <div class="space-y-3 border-t border-stone-100 dark:border-slate-800 pt-4 text-xs sm:text-sm">
+            <div class="flex justify-between text-stone-600 dark:text-stone-400 font-semibold">
               <span>Subtotal</span>
-              <span id="checkout-subtotal">৳0</span>
+              <span id="checkout-subtotal" class="font-bold text-stone-900 dark:text-white">৳0</span>
             </div>
+
             <div
               id="discount-row"
-              class="flex justify-between text-emerald-600 font-medium hidden"
+              class="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold hidden bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60"
             >
-              <span>Discount</span>
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-tag text-xs"></i> Discount Applied</span>
               <span id="checkout-discount">-৳0</span>
             </div>
-            <div class="flex justify-between text-neutral-600 font-medium">
-              <span>Delivery Charge</span>
-              <span class="text-[16px]">৳ 60</span>
+
+            <div class="flex justify-between text-stone-600 dark:text-stone-400 font-semibold items-center">
+              <div class="flex items-center gap-1">
+                <span>Delivery Charge</span>
+                <span class="text-[10px] text-stone-400">(All Bangladesh)</span>
+              </div>
+              <span class="font-bold text-stone-900 dark:text-white">৳60</span>
             </div>
+
+            <!-- Grand Total Highlight Card -->
             <div
-              class="flex justify-between font-extrabold text-base sm:text-lg text-neutral-900 border-t border-neutral-100 pt-3"
+              class="rounded-2xl p-4 bg-gradient-to-br from-stone-50 via-stone-100/50 to-orange-50/40 dark:from-slate-800 dark:via-slate-850 dark:to-orange-950/30 border border-stone-200/90 dark:border-slate-700 flex items-center justify-between shadow-2xs mt-2"
             >
-              <span>Grand Total</span>
-              <span id="checkout-grand-total" class="text-[#F26522]">৳0</span>
+              <div>
+                <span class="text-[11px] uppercase tracking-wider font-extrabold text-stone-500 dark:text-stone-400 block">Grand Total</span>
+                <span class="text-[10px] text-stone-400 font-medium">Inclusive of all charges</span>
+              </div>
+              <span id="checkout-grand-total" class="text-2xl sm:text-3xl font-black text-[#F26522] tracking-tight">৳0</span>
             </div>
           </div>
         </div>
       </div>
     </main>
 
+    <!-- ফুটার সেকশন -->
+    <footer class="mt-auto border-t border-stone-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 py-6 text-center text-xs text-stone-500 dark:text-stone-400">
+      <div class="max-w-7xl mx-auto px-4">
+        <p>© 2026 SCENT. All rights reserved. Authentic Luxury Fragrances.</p>
+      </div>
+    </footer>
+
     <!-- db.js ফাইলটি এখানে যুক্ত করা হলো যাতে ফায়ারবেজ কনফিগ ও অথ হেডার একসাথে কাজ করে -->
     <script src="db.js"></script>
 
     <!-- চেকআউট লজিক স্ক্রিপ্ট -->
     <script>
+      /* ==========================================================================
+         NAYAN LUXURY PERFUMES & ATTAR - CHECKOUT ENGINE SCRIPT
+         --------------------------------------------------------------------------
+         ১. পেমেন্ট মেথড সিলেকশন কন্ট্রোলার (Payment Method Selector)
+         ২. কার্ট ডেটা ও চেকআউট আইটেমস সামারি (Cart Data & Summary Loader)
+         ৩. কুপন ডিসকাউন্ট ইঞ্জিন (Coupon Discount Engine)
+         ৪. অর্ডার টোটাল ও ডেলিভারি চার্জ ক্যালকুলেশন (Order Totals Calculation)
+         ৫. অর্ডার সাবমিশন ও ক্লাউড সিঙ্ক (Order Submission & EmailJS / Firestore)
+         ৬. পেজ লোড মাস্টার ইনিশিয়ালাইজেশন (Page Load Initializer)
+         ========================================================================== */
+
       let appliedDiscount = 0;
       let appliedCouponCode = "";
 
+      // ==========================================================================
+      // ১. পেমেন্ট মেথড সিলেকশন কন্ট্রোলার (Payment Method Selector)
+      // ==========================================================================
+      // পেমেন্ট মেথড কার্ড হাইলাইট ফাংশন
+      function updatePaymentSelection(method) {
+        const codCard = document.getElementById('payment-card-cod');
+        const onlineCard = document.getElementById('payment-card-online');
+        const codRadio = document.querySelector('input[name="payment-method"][value="cod"]');
+        const onlineRadio = document.querySelector('input[name="payment-method"][value="online"]');
+
+        if (method === 'cod') {
+          if (codRadio) codRadio.checked = true;
+          if (codCard) {
+            codCard.className = "relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-[#F26522] bg-orange-50/30 dark:bg-orange-950/20 cursor-pointer transition-all shadow-xs group";
+          }
+          if (onlineCard) {
+            onlineCard.className = "relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-stone-200 dark:border-slate-700 hover:border-[#F26522]/50 bg-white dark:bg-slate-800/40 cursor-pointer transition-all shadow-xs group";
+          }
+        } else {
+          if (onlineRadio) onlineRadio.checked = true;
+          if (onlineCard) {
+            onlineCard.className = "relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-[#F26522] bg-orange-50/30 dark:bg-orange-950/20 cursor-pointer transition-all shadow-xs group";
+          }
+          if (codCard) {
+            codCard.className = "relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border-2 border-stone-200 dark:border-slate-700 hover:border-[#F26522]/50 bg-white dark:bg-slate-800/40 cursor-pointer transition-all shadow-xs group";
+          }
+        }
+      }
+
+      // ==========================================================================
+      // ২. কার্ট ডেটা ও চেকআউট আইটেমস সামারি (Cart Data & Summary Loader)
+      // ==========================================================================
       function getActiveCartKey() {
         let activeKey = "nayan_cart_guest";
 
@@ -325,40 +573,63 @@
         const itemsContainer = document.getElementById("checkout-items-list");
         const subtotalEl = document.getElementById("checkout-subtotal");
         const grandTotalEl = document.getElementById("checkout-grand-total");
+        const countBadge = document.getElementById("checkout-items-count");
 
         if (!itemsContainer) return;
 
         itemsContainer.innerHTML = "";
         let subtotal = 0;
+        let totalQtyCount = 0;
 
         if (cart.length === 0) {
-          itemsContainer.innerHTML =
-            "<p class='text-neutral-400 text-center py-4 text-xs font-medium'>Your cart is empty</p>";
+          itemsContainer.innerHTML = `
+            <div class="text-center py-8 px-4 rounded-2xl bg-stone-50 dark:bg-slate-800/50 border border-dashed border-stone-200 dark:border-slate-700">
+              <i class="fa-solid fa-basket-shopping text-3xl text-stone-300 dark:text-stone-600 mb-2"></i>
+              <p class="text-stone-500 dark:text-stone-400 text-xs font-semibold">Your cart is empty</p>
+              <a href="products.html" class="inline-block mt-2.5 text-xs font-bold text-[#F26522] hover:underline">Continue shopping →</a>
+            </div>
+          `;
           if (subtotalEl) subtotalEl.innerText = "৳0";
           if (grandTotalEl) grandTotalEl.innerText = "৳60";
+          if (countBadge) countBadge.innerText = "0 items";
           return;
         }
 
         cart.forEach((item) => {
           let cleanPrice =
             parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
-          let itemTotal = cleanPrice * item.quantity;
+          let qty = parseInt(item.quantity) || 1;
+          let itemTotal = cleanPrice * qty;
           subtotal += itemTotal;
+          totalQtyCount += qty;
+
+          let itemImage = item.image || (item.images && item.images[0]) || './images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg';
 
           itemsContainer.innerHTML += `
-                    <div class="flex justify-between items-center gap-2 border-b border-neutral-50 pb-2.5">
-                        <div>
-                            <p class="font-semibold text-neutral-800 text-sm line-clamp-1">${item.title}</p>
-                            <p class="text-xs text-neutral-500 font-medium">পরিমাণ: ${item.quantity} পিস</p>
-                        </div>
-                        <span class="font-bold text-sm text-neutral-900 whitespace-nowrap">৳${itemTotal.toLocaleString("en-IN")}</span>
-                    </div>
-                `;
+            <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-stone-50/70 dark:bg-slate-800/50 border border-stone-200/70 dark:border-slate-700/60 hover:border-amber-500/40 transition-all">
+                <div class="relative w-14 h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-700 shrink-0 flex items-center justify-center p-1">
+                    <img src="${itemImage}" class="w-full h-full object-contain" alt="${item.title || 'Product'}" onerror="this.onerror=null; this.src='./images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg';">
+                    <span class="absolute -top-1 -right-1 bg-stone-900 text-amber-400 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-amber-500/40 shadow-xs">${qty}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-stone-900 dark:text-white text-xs sm:text-sm line-clamp-1">${item.title || 'Product'}</h4>
+                    <p class="text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">৳${cleanPrice.toLocaleString("en-IN")} × ${qty}</p>
+                </div>
+                <span class="font-black text-sm text-[#F26522] whitespace-nowrap">৳${itemTotal.toLocaleString("en-IN")}</span>
+            </div>
+          `;
         });
+
+        if (countBadge) {
+          countBadge.innerText = `${totalQtyCount} ${totalQtyCount === 1 ? 'item' : 'items'}`;
+        }
 
         calculateFinalTotals(subtotal);
       }
 
+      // ==========================================================================
+      // ৩. কুপন ডিসকাউন্ট ইঞ্জিন (Coupon Discount Engine)
+      // ==========================================================================
       function applyCoupon() {
         let codeInput = document
           .getElementById("coupon-input")
@@ -368,7 +639,7 @@
 
         if (!codeInput) {
           msgEl.innerText = "Please enter a coupon code.";
-          msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+          msgEl.className = "text-[11px] mt-1.5 text-rose-500 font-semibold";
           return;
         }
 
@@ -378,7 +649,7 @@
 
         if (!foundCoupon) {
           msgEl.innerText = "Invalid or expired coupon code!";
-          msgEl.className = "text-[11px] mt-1.5 text-red-500 font-semibold";
+          msgEl.className = "text-[11px] mt-1.5 text-rose-500 font-semibold";
           appliedDiscount = 0;
           appliedCouponCode = "";
           loadCheckoutSummary();
@@ -406,8 +677,8 @@
         }
 
         appliedCouponCode = foundCoupon.code;
-        msgEl.innerText = `Success! Coupon "${foundCoupon.code}" has been applied.`;
-        msgEl.className = "text-[11px] mt-1.5 text-emerald-600 font-semibold";
+        msgEl.innerText = `Success! Coupon "${foundCoupon.code}" applied.`;
+        msgEl.className = "text-[11px] mt-1.5 text-emerald-600 dark:text-emerald-400 font-bold";
 
         document.getElementById("discount-row").classList.remove("hidden");
         document.getElementById("checkout-discount").innerText =
@@ -416,6 +687,9 @@
         calculateFinalTotals(subtotal);
       }
 
+      // ==========================================================================
+      // ৪. অর্ডার টোটাল ও ডেলিভারি চার্জ ক্যালকুলেশন (Order Totals Calculation)
+      // ==========================================================================
       function calculateFinalTotals(subtotal) {
         const subtotalEl = document.getElementById("checkout-subtotal");
         const grandTotalEl = document.getElementById("checkout-grand-total");
@@ -430,6 +704,9 @@
           grandTotalEl.innerText = "৳" + grandTotal.toLocaleString("en-IN");
       }
 
+      // ==========================================================================
+      // ৫. অর্ডার সাবমিশন ও ক্লাউড সিঙ্ক (Order Submission & EmailJS / Firestore)
+      // ==========================================================================
       function handleOrderSubmit(event) {
         event.preventDefault();
 
@@ -474,7 +751,7 @@
         };
 
         let submitBtn = document.getElementById("order-btn");
-        submitBtn.innerText = "Confirming Order and Sending Email...";
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Confirming Order...</span>';
         submitBtn.disabled = true;
 
         let itemsListText = cart
@@ -553,6 +830,9 @@
         }
       }
 
+      // ==========================================================================
+      // ৬. পেজ লোড মাস্টার ইনিশিয়ালাইজেশন (Page Load Initializer)
+      // ==========================================================================
       // পেজ লোড হওয়ার পর সামারি ও হেডার সিঙ্ক কল করা
       window.addEventListener("load", () => {
         loadCheckoutSummary();

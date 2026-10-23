@@ -1,4 +1,15 @@
+/* ==========================================================================
+   NAYAN LUXURY PERFUMES & ATTAR - NAVIGATION & UI HELPERS (nav.js)
+   --------------------------------------------------------------------------
+   ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
+   ১. থিম টগল কন্ট্রোলার - ডার্ক ও লাইট মোড (Theme Toggle Module)
+   ২. বহুভাষিক অনুবাদ সিস্টেম - ইংরেজি ও বাংলা (i18n Translation Module)
+   ৩. ন্যাভবার সার্চ ও কুইক নেভিগেশন (Navbar Search & Interaction Helpers)
+   ========================================================================== */
 
+// ==========================================================================
+// ১. থিম টগল কন্ট্রোলার - ডার্ক ও লাইট মোড (Theme Toggle Module)
+// ==========================================================================
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const htmlElement = document.documentElement;
 
@@ -29,8 +40,9 @@ if (savedTheme) {
     applyTheme('light');
 }
 
-
-
+// ==========================================================================
+// ২. বহুভাষিক অনুবাদ সিস্টেম - ইংরেজি ও বাংলা (i18n Translation Module)
+// ==========================================================================
 const translations = {
     en: {
         home: 'Home',
@@ -59,14 +71,12 @@ const translations = {
 function changeLanguage(language) {
     const selectedLanguage = translations[language] ? language : 'en';
 
-
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[selectedLanguage][key]) {
             element.textContent = translations[selectedLanguage][key];
         }
     });
-
 
     document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
         const key = element.getAttribute('data-i18n-placeholder');
@@ -90,10 +100,9 @@ if (languageSelect) {
     changeLanguage(savedLanguage);
 }
 
-
-/* =========================================================
-   3. NAVBAR SEARCH & INTERACTION HELPERS
-========================================================= */
+// ==========================================================================
+// ৩. ন্যাভবার সার্চ ও কুইক নেভিগেশন (Navbar Search & Interaction Helpers)
+// ==========================================================================
 const productSearchInput = document.getElementById('productSearchInput');
 const mobileSearchInput = document.getElementById('mobileSearchInput');
 
@@ -110,4 +119,3 @@ if (productSearchInput) {
 if (mobileSearchInput) {
     mobileSearchInput.addEventListener('keypress', handleSearchRedirect);
 }
-

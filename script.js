@@ -1,3 +1,24 @@
+/* ==========================================================================
+   NAYAN LUXURY PERFUMES & ATTAR - MASTER JAVASCRIPT
+   --------------------------------------------------------------------------
+   ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
+   ১. গ্লোবাল স্টেট ও ইউটিলিটি ভেরিয়েবল (Global State & Route Setup)
+   ২. ফায়ারবেস কানেকশন ও ইনস্ট্যান্স হেল্পার (Firebase Initialization)
+   ৩. কোর হেল্পার ও অথেন্টিকেশন ইউটিলিটিজ (Core Utilities & Auth Helpers)
+   ৪. প্রোডাক্ট ডিটেইলস পেজ মডিউল (Product Details Page Module)
+   ৫. প্রোডাক্ট রিভিউ এবং রেটিং সিস্টেম (Reviews & Rating Module)
+   ৬. ক্যাটাগরি ও প্রোডাক্ট লিস্ট ফিল্টারিং ও রেন্ডারিং (Category & Listing)
+   ৭. হোমপেজ ডায়নামিক সেকশন ও হিরো ব্যানার স্লাইডার (Hero Sliders & Banners)
+   ৮. কার্ট, উইশলিস্ট ও অর্ডার সিস্টেম (Cart, Checkout & Order Module)
+   ৯. সার্চ ও গ্লোবাল ন্যাভিগেশন (Search & Global Navigation)
+   ১০. গ্লোবাল প্রোডাক্ট বুটস্ট্র্যাপ (Products Initialization)
+   ১১. পেজ লোড মাস্টার ইভেন্ট লিসেনার (Master DOMContentLoaded Handler)
+   ১২. গ্লোবাল উইন্ডো এক্সপোর্ট (Window Exports for Inline HTML Events)
+   ========================================================================== */
+
+// ==========================================================================
+// ১. গ্লোবাল স্টেট ও ইউটিলিটি ভেরিয়েবল (Global State & Route Setup)
+// ==========================================================================
 // ================= সম্পূর্ণ প্রোডাক্ট ডেটাবেজ এবং স্টেট ম্যানেজমেন্ট =================
 const urlParams = new URLSearchParams(window.location.search);
 const rawProductId = urlParams.get('id') || "1";
@@ -14,6 +35,215 @@ if (typeof productsData !== 'undefined') {
     currentProduct = productsData[rawProductId] || Object.values(productsData).find(p => String(p.id) === String(rawProductId));
 }
 const productId = currentProduct ? currentProduct.id : rawProductId;
+
+// ==========================================================================
+// ২. ফায়ারবেস কানেকশন ও ইনস্ট্যান্স হেল্পার (Firebase Initialization)
+// ==========================================================================
+// ================= ফায়ারবেস ইনিশিয়ালাইজেশন ও কানেকশন চেক =================
+// যদি আপনার প্রজেক্টের অন্য কোনো ফাইলে `db` বা `firebase` অলরেডি সেটআপ করা থাকে, 
+// তবুও নিচের কোডটি নিশ্চিত করবে যেন `db` ভেরিয়েবলটি সঠিকভাবে কাজ করে।
+const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+
+// ================= অতিরিক্ত ফায়ারবেস ব্যাকগ্রাউন্ড সিঙ্ক মডিউল =================
+function getFirestoreInstance() {
+    if (typeof db !== 'undefined') return db;
+    if (typeof firebase !== 'undefined' && firebase.firestore) return firebase.firestore();
+    return null;
+}
+
+// ==========================================================================
+// ৩. কোর হেল্পার ও অথেন্টিকেশন ইউটিলিটিজ (Core Utilities & Auth Helpers)
+// ==========================================================================
+function showPopupNotification(message) {
+    const existingToast = document.getElementById('custom-toast-alert');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.id = 'custom-toast-alert';
+    toast.className = 'fixed bottom-5 right-5 bg-neutral-900/90 text-white text-xs px-4 py-3 rounded-lg shadow-2xl z-50 flex items-center gap-3 border-l-4 border-[#F26522] transition-all duration-300 transform translate-y-5 opacity-0';
+    toast.innerHTML = `
+        <i class="fa-solid fa-circle-check text-[#F26522] text-sm"></i>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.remove('translate-y-5', 'opacity-0');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.add('translate-y-5', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ==========================================
+// পাসওয়ার্ড দিয়ে ডাটাবেস এবং ক্যাশ ক্লিয়ার করার ফাংশন
+// ==========================================
+function promptClearDatabase() {
+    const adminPassword = "12345"; // আপনার পছন্দের পাসওয়ার্ড এখানে সেট করা আছে
+    const enteredPass = prompt("Enter admin password to clear database & cache:");
+
+    if (enteredPass === null) return; // ক্যানসেল করলে বন্ধ হয়ে যাবে
+
+    if (enteredPass === adminPassword) {
+        if (confirm("Are you sure? This will permanently delete all Firebase cloud data and local cache!")) {
+
+            // ১. ব্রাউজার লোকালস্টোরেজ থেকে কার্ট ও অর্ডার ক্যাশ মুছে ফেলা
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key && (key.includes('cart') || key.includes('order') || key.includes('nayan_'))) {
+                    localStorage.removeItem(key);
+                }
+            }
+
+            // ২. ফায়ারবেস ক্লাউড ডাটাবেজ থেকে ডেটা পার্মানেন্টলি ডিলিট করার কোড
+            if (typeof db !== 'undefined') {
+                // আপনার প্রজেক্টে যে কালেকশনগুলোতে অর্ডার বা কার্ট ডেটা সেভ হয় সেগুলোর নাম এখানে দেওয়া হলো
+                const collectionsToClean = ['orders', 'carts', 'admin_orders'];
+
+                let deletePromises = collectionsToClean.map(colName => {
+                    return db.collection(colName).get().then(snapshot => {
+                        let batch = db.batch();
+                        snapshot.docs.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        return batch.commit();
+                    }).catch(err => {
+                        console.log(`Collection ${colName} might not exist or already empty.`);
+                    });
+                });
+
+                Promise.all(deletePromises).then(() => {
+                    alert("Firebase Database and local cache cleared successfully!");
+                    window.location.reload();
+                }).catch(error => {
+                    console.error("Error clearing Firebase data: ", error);
+                    alert("Cache cleared, but check console for Firebase deletion.");
+                    window.location.reload();
+                });
+            } else {
+                alert("Database and cache cleared successfully!");
+                window.location.reload();
+            }
+        }
+    } else {
+        alert("Incorrect password! Action denied.");
+    }
+}
+
+/// ================= ফায়ারবেস অথেন্টিকেশন চেক এবং প্রটেক্টেড অ্যাকশন লজিক =================
+function checkUserLoggedIn() {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        return firebase.auth().currentUser;
+    }
+    return localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+}
+
+// ==========================================================================
+
+// ==========================================================================
+
+function updateProductPrice(qty) {
+    if (!currentProduct) return;
+
+    function convertToEnglishNumber(str) {
+        const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        return str.replace(/[০-৯]/g, match => englishDigits[bengaliDigits.indexOf(match)]);
+    }
+
+    let rawPrice = 0;
+    let rawOldPrice = 0;
+
+    if (currentProduct.price) {
+        let cleanedPriceStr = convertToEnglishNumber(String(currentProduct.price).replace(/[^\d০-৯]/g, ''));
+        rawPrice = parseInt(cleanedPriceStr) || 0;
+    }
+
+    if (currentProduct.oldPrice) {
+        let cleanedOldPriceStr = convertToEnglishNumber(String(currentProduct.oldPrice).replace(/[^\d০-৯]/g, ''));
+        rawOldPrice = parseInt(cleanedOldPriceStr) || 0;
+    }
+
+    const calculatedPrice = rawPrice * qty;
+    const calculatedOldPrice = rawOldPrice * qty;
+
+    const priceEl = document.getElementById('product-price');
+    const oldPriceEl = document.getElementById('product-old-price');
+
+    if (priceEl) {
+        priceEl.innerText = '৳' + calculatedPrice.toLocaleString('en-IN');
+    }
+    if (oldPriceEl && rawOldPrice > 0) {
+        oldPriceEl.innerText = '৳' + calculatedOldPrice.toLocaleString('en-IN');
+    }
+
+    // ডিসকাউন্ট ব্যাজ ডাইনামিকলি আপডেট করার অংশ
+    const imageSaveBadge = document.getElementById('image-save-badge');
+    const priceSaveBadge = document.getElementById('price-save-badge');
+
+    if (rawOldPrice > rawPrice && rawOldPrice > 0) {
+        const discountAmount = rawOldPrice - rawPrice;
+        const discountPercent = Math.round((discountAmount / rawOldPrice) * 100);
+
+        if (imageSaveBadge) {
+            imageSaveBadge.innerText = `Save ${discountPercent}%`;
+            imageSaveBadge.style.display = 'block';
+        }
+        if (priceSaveBadge) {
+            priceSaveBadge.innerText = `Save ${discountPercent}%`;
+            priceSaveBadge.style.display = 'inline-block';
+        }
+    } else {
+        if (imageSaveBadge) imageSaveBadge.style.display = 'none';
+        if (priceSaveBadge) priceSaveBadge.style.display = 'none';
+    }
+}
+
+function increaseQty() {
+    const input = document.getElementById('quantity-input');
+    if (input) {
+        let val = parseInt(input.value) || 1;
+        let newQty = val + 1;
+        input.value = newQty;
+        updateProductPrice(newQty);
+    }
+}
+
+function decreaseQty() {
+    const input = document.getElementById('quantity-input');
+    if (input) {
+        let val = parseInt(input.value) || 1;
+        if (val > 1) {
+            let newQty = val - 1;
+            input.value = newQty;
+            updateProductPrice(newQty);
+        }
+    }
+}
+
+function changeMainImage(element, imgId) {
+    const imgElement = document.getElementById(imgId);
+    const mainImg = document.getElementById('main-product-img');
+    if (imgElement && mainImg) {
+        mainImg.src = imgElement.src;
+    }
+
+    const boxes = document.querySelectorAll('.thumbnail-box');
+    boxes.forEach(box => {
+        box.classList.remove('border-2', 'border-[#F26522]');
+        box.classList.add('border', 'border-neutral-200');
+    });
+
+    if (element) {
+        element.classList.remove('border', 'border-neutral-200');
+        element.classList.add('border-2', 'border-[#F26522]');
+    }
+}
 
 // Product Details Page Binding Function
 function bindProductDetails(prod) {
@@ -139,166 +369,9 @@ if (currentProduct) {
     bindProductDetails(currentProduct);
 }
 
-// Category Listing Page Filtering and Rendering Logic
-const gridContainer = document.getElementById('product-grid');
-const titleElement = document.getElementById('category-title');
-const noProductMsg = document.getElementById('no-product-msg');
-const loadMoreBtn = document.getElementById('load-more-btn');
+// ==========================================================================
 
-let itemsToShow = 8; // শুরুতে ৮টি প্রোডাক্ট দেখাবে
-
-// বর্তমান পেজের ফাইলের নাম থেকে ক্যাটাগরি স্বয়ংক্রিয়ভাবে বের করার লজিক 
-const currentPage = window.location.pathname.split("/").pop().replace(".html", "").toLowerCase();
-let resolvedCategory = categoryKey ? decodeURIComponent(categoryKey).trim() : null;
-
-if (!resolvedCategory) {
-    if (currentPage === "oud" || currentPage === "premium-oud") {
-        resolvedCategory = "premium-oud";
-    } else if (currentPage.includes("parfum")) {
-        resolvedCategory = "eau-de-parfum";
-    } else if (currentPage === "attar" || currentPage === "premium-attar") {
-        resolvedCategory = "premium-attar";
-    } else if (currentPage === "signature-attar" || currentPage === "signature-attar & oils") {
-        resolvedCategory = "signature-attar";
-    } else if (currentPage === "gift-sets") {
-        resolvedCategory = "gift-sets";
-    } else if (currentPage === "mens-luxury") {
-        resolvedCategory = "mens-luxury";
-    }
-}
-
-function renderProducts(filterCategory) {
-    if (!gridContainer) return;
-
-    gridContainer.innerHTML = "";
-    let matchedProducts = allProducts;
-
-    // ==========================================
-    // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
-    // ==========================================
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('search');
-
-    if (searchQuery) {
-        const cleanQuery = searchQuery.toLowerCase().trim();
-        if (titleElement) {
-            titleElement.innerText = `Search Results for: "${searchQuery}"`;
-        }
-
-        // প্রোডাক্টের নাম (title) বা ব্র্যান্ড (brand) বা ক্যাটাগরি দিয়ে ফিল্টার করা
-        matchedProducts = matchedProducts.filter(p => {
-            const titleMatch = p.title && p.title.toLowerCase().includes(cleanQuery);
-            const brandMatch = p.brand && p.brand.toLowerCase().includes(cleanQuery);
-            const categoryMatch = p.category && p.category.toLowerCase().includes(cleanQuery);
-            return titleMatch || brandMatch || categoryMatch;
-        });
-    }
-    // ২. সার্চ না থাকলে ক্যাটাগরি অনুযায়ী নির্দিষ্ট নাম শো করবে
-    else if (filterCategory) {
-        if (titleElement) {
-            const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
-
-            if (cleanFilter.includes("parfum")) {
-                titleElement.innerText = "MEN";
-            } else if (cleanFilter.includes("oud")) {
-                titleElement.innerText = "WOMEN";
-            } else if (cleanFilter.includes("attar")) {
-                titleElement.innerText = "KIDS";
-            } else if (cleanFilter.includes("giftsets") || cleanFilter.includes("gift-sets")) {
-                titleElement.innerText = "UNISEX";
-            } else if (cleanFilter.includes("mensluxury") || cleanFilter.includes("mens-luxury")) {
-                titleElement.innerText = "GIFT SETS";
-            } else {
-                titleElement.innerText = filterCategory.replace(/[-_]/g, ' ').toUpperCase();
-            }
-        }
-
-        const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
-        matchedProducts = matchedProducts.filter(p => {
-            if (!p.category) return false;
-            const pCat = p.category.trim().toLowerCase().replace(/[\s\-_]+/g, '');
-            return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
-        });
-    } else {
-        if (titleElement) {
-            titleElement.innerText = "All Products";
-        }
-    }
-
-
-    if (matchedProducts.length > 0) {
-        if (noProductMsg) noProductMsg.classList.add('hidden');
-
-        const currentProducts = matchedProducts.slice(0, itemsToShow);
-
-        currentProducts.forEach(product => {
-            const productCard = document.createElement('div');
-            productCard.className = "cursor-pointer bg-white border border-neutral-200 rounded overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative product-card";
-            productCard.setAttribute('onclick', `window.location.href='product-details.html?id=${product.id}'`);
-
-            const prodImg = product.images && product.images[0] ? product.images[0] : (product.image || '');
-
-            productCard.innerHTML = ` 
-                <div class="product-hover-popup absolute top-2 right-2 bg-neutral-900/90 text-white text-[10px] px-2.5 py-1 rounded shadow-md z-20 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1.5 backdrop-blur-sm"> 
-                    <i class="fa-solid fa-eye text-[#F26522]"></i> Quick View 
-                </div> 
-                <div class="relative w-full h-48 overflow-hidden bg-neutral-100 flex items-center justify-center"> 
-                    <img src="${prodImg}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="${product.title || ''}"> 
-                </div> 
-                <div class="p-3 flex flex-col flex-grow"> 
-                    <span class="text-[13px] font-bold text-neutral-400 uppercase tracking-widest min-h-[14px]">${product.brand ? product.brand : '&nbsp;'}</span> 
-                    <h4 class="text-lg font-semibold text-neutral-800 line-clamp-2 mt-1 min-h-[32px]">${product.title || ''}</h4> 
-                    
-                    <div class="mt-2 flex items-center justify-between mt-auto pt-2 border-t border-neutral-100 max-sm:flex-col max-sm:items-start max-sm:gap-2"> 
-                    
-                    <div class="flex flex-col"> 
-                    <span class="text-lg font-bold text-[#F26522]">৳ ${product.price || ''}</span> 
-                   
-                   ${Number(product.oldPrice) > Number(product.price) ? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>` : ''} 
-                   
-                   </div> 
-                   
-                        <button onclick="event.stopPropagation(); addProductToCartDirect('${product.id}');" class="bg-white border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white text-[15px] max-sm:text-[11px] px-3 max-sm:px-2 py-1 rounded transition-colors flex items-center gap-1 shadow-sm"> 
-                            <i class="fa-solid fa-cart-shopping"></i> Add To Cart 
-                        </button> 
-                        
-                    </div> 
-                </div> 
-            `;
-            gridContainer.appendChild(productCard);
-        });
-
-        if (loadMoreBtn) {
-            if (itemsToShow < matchedProducts.length) {
-                loadMoreBtn.style.display = 'inline-block';
-            } else {
-                loadMoreBtn.style.display = 'none';
-            }
-        }
-
-    } else {
-        if (noProductMsg) noProductMsg.classList.remove('hidden');
-        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-    }
-}
-
-// ক্যাটাগরি পেজের জন্য রেন্ডারিং ফাংশন অটোমেটিক কল করা
-if (gridContainer) {
-    renderProducts(resolvedCategory);
-}
-
-// "Load More" বাটনের ক্লিক হ্যান্ডলার
-if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', () => {
-        itemsToShow += 4;
-        renderProducts(resolvedCategory);
-    });
-}
-
-// ================= ফায়ারবেস ইনিশিয়ালাইজেশন ও কানেকশন চেক =================
-// যদি আপনার প্রজেক্টের অন্য কোনো ফাইলে `db` বা `firebase` অলরেডি সেটআপ করা থাকে, 
-// তবুও নিচের কোডটি নিশ্চিত করবে যেন `db` ভেরিয়েবলটি সঠিকভাবে কাজ করে।
-const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+// ==========================================================================
 
 // ================= রিয়েল-টাইম রিভিউ এবং রেটিং সিস্টেম লজিক =================
 
@@ -540,10 +613,6 @@ function submitProductReview(prodId, event) {
 }
 
 // পেজ লোড হওয়ার সাথে সাথে রিয়েল-টাইম লিসেনার চালু করা
-document.addEventListener("DOMContentLoaded", () => {
-    const activeProdId = (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
-    renderProductReviews(activeProdId);
-});
 
 // ================= রেটিং সামারি এবং রেন্ডারিং লজিক =================
 function renderProductReviews(prodId) {
@@ -696,8 +765,189 @@ function renderProductReviews(prodId) {
         }
     });
 }
-// পেজ লোড হওয়ার সাথে সাথে যেন প্রোডাক্টগুলো রেন্ডার হয়, সেজন্য ফাংশনটি কল করা হলো
-renderProducts(resolvedCategory);
+
+// ==========================================================================
+
+// ==========================================================================
+
+// Category Listing Page Filtering and Rendering Logic
+const gridContainer = document.getElementById('product-grid');
+const titleElement = document.getElementById('category-title');
+const noProductMsg = document.getElementById('no-product-msg');
+const loadMoreBtn = document.getElementById('load-more-btn');
+
+let itemsToShow = 8; // শুরুতে ৮টি প্রোডাক্ট দেখাবে
+
+// বর্তমান পেজের ফাইলের নাম থেকে ক্যাটাগরি স্বয়ংক্রিয়ভাবে বের করার লজিক 
+const currentPage = window.location.pathname.split("/").pop().replace(".html", "").toLowerCase();
+let resolvedCategory = categoryKey ? decodeURIComponent(categoryKey).trim() : null;
+
+if (!resolvedCategory) {
+    if (currentPage === "oud" || currentPage === "premium-oud") {
+        resolvedCategory = "premium-oud";
+    } else if (currentPage.includes("parfum")) {
+        resolvedCategory = "eau-de-parfum";
+    } else if (currentPage === "attar" || currentPage === "premium-attar") {
+        resolvedCategory = "premium-attar";
+    } else if (currentPage === "signature-attar" || currentPage === "signature-attar & oils") {
+        resolvedCategory = "signature-attar";
+    } else if (currentPage === "gift-sets") {
+        resolvedCategory = "gift-sets";
+    } else if (currentPage === "mens-luxury") {
+        resolvedCategory = "mens-luxury";
+    }
+}
+
+function renderProducts(filterCategory) {
+    if (!gridContainer) return;
+
+    gridContainer.innerHTML = "";
+    let matchedProducts = allProducts;
+
+    // ==========================================
+    // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+
+    if (searchQuery) {
+        const cleanQuery = searchQuery.toLowerCase().trim();
+        if (titleElement) {
+            titleElement.innerText = `Search Results for: "${searchQuery}"`;
+        }
+
+        // প্রোডাক্টের নাম (title) বা ব্র্যান্ড (brand) বা ক্যাটাগরি দিয়ে ফিল্টার করা
+        matchedProducts = matchedProducts.filter(p => {
+            const titleMatch = p.title && p.title.toLowerCase().includes(cleanQuery);
+            const brandMatch = p.brand && p.brand.toLowerCase().includes(cleanQuery);
+            const categoryMatch = p.category && p.category.toLowerCase().includes(cleanQuery);
+            return titleMatch || brandMatch || categoryMatch;
+        });
+    }
+    // ২. সার্চ না থাকলে ক্যাটাগরি অনুযায়ী নির্দিষ্ট নাম শো করবে
+    else if (filterCategory) {
+        if (titleElement) {
+            const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+
+            if (cleanFilter.includes("parfum")) {
+                titleElement.innerText = "MEN";
+            } else if (cleanFilter.includes("oud")) {
+                titleElement.innerText = "WOMEN";
+            } else if (cleanFilter.includes("attar")) {
+                titleElement.innerText = "KIDS";
+            } else if (cleanFilter.includes("giftsets") || cleanFilter.includes("gift-sets")) {
+                titleElement.innerText = "UNISEX";
+            } else if (cleanFilter.includes("mensluxury") || cleanFilter.includes("mens-luxury")) {
+                titleElement.innerText = "GIFT SETS";
+            } else {
+                titleElement.innerText = filterCategory.replace(/[-_]/g, ' ').toUpperCase();
+            }
+        }
+
+        const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+        matchedProducts = matchedProducts.filter(p => {
+            if (!p.category) return false;
+            const pCat = p.category.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+            return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
+        });
+    } else {
+        if (titleElement) {
+            titleElement.innerText = "All Products";
+        }
+    }
+
+    if (matchedProducts.length > 0) {
+        if (noProductMsg) noProductMsg.classList.add('hidden');
+
+        const currentProducts = matchedProducts.slice(0, itemsToShow);
+
+        currentProducts.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = "cursor-pointer bg-white border border-neutral-200 rounded overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative product-card";
+            productCard.setAttribute('onclick', `window.location.href='product-details.html?id=${product.id}'`);
+
+            const prodImg = product.images && product.images[0] ? product.images[0] : (product.image || '');
+
+            productCard.innerHTML = ` 
+                <div class="product-hover-popup absolute top-2 right-2 bg-neutral-900/90 text-white text-[10px] px-2.5 py-1 rounded shadow-md z-20 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1.5 backdrop-blur-sm"> 
+                    <i class="fa-solid fa-eye text-[#F26522]"></i> Quick View 
+                </div> 
+                <div class="relative w-full h-48 overflow-hidden bg-neutral-100 flex items-center justify-center"> 
+                    <img src="${prodImg}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="${product.title || ''}"> 
+                </div> 
+                <div class="p-3 flex flex-col flex-grow"> 
+                    <span class="text-[13px] font-bold text-neutral-400 uppercase tracking-widest min-h-[14px]">${product.brand ? product.brand : '&nbsp;'}</span> 
+                    <h4 class="text-lg font-semibold text-neutral-800 line-clamp-2 mt-1 min-h-[32px]">${product.title || ''}</h4> 
+                    
+                    <div class="mt-2 flex items-center justify-between mt-auto pt-2 border-t border-neutral-100 max-sm:flex-col max-sm:items-start max-sm:gap-2"> 
+                    
+                    <div class="flex flex-col"> 
+                    <span class="text-lg font-bold text-[#F26522]">৳ ${product.price || ''}</span> 
+                   
+                   ${Number(product.oldPrice) > Number(product.price) ? `<span class="text-[17px] font-bold text-neutral-400 line-through">৳ ${product.oldPrice}</span>` : ''} 
+                   
+                   </div> 
+                   
+                        <button onclick="event.stopPropagation(); addProductToCartDirect('${product.id}');" class="bg-white border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white text-[15px] max-sm:text-[11px] px-3 max-sm:px-2 py-1 rounded transition-colors flex items-center gap-1 shadow-sm"> 
+                            <i class="fa-solid fa-cart-shopping"></i> Add To Cart 
+                        </button> 
+                        
+                    </div> 
+                </div> 
+            `;
+            gridContainer.appendChild(productCard);
+        });
+
+        if (loadMoreBtn) {
+            if (itemsToShow < matchedProducts.length) {
+                loadMoreBtn.style.display = 'inline-block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+    } else {
+        if (noProductMsg) noProductMsg.classList.remove('hidden');
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+    }
+}
+
+function loadMoreProducts() {
+    let matchedProducts = resolvedCategory ? allProducts.filter(p => {
+        if (!p.category) return false;
+        const cleanFilter = resolvedCategory.trim().toLowerCase().replace(/[\s_]+/g, '-');
+        const pCat = p.category.trim().toLowerCase().replace(/[\s_]+/g, '-');
+        return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
+    }) : allProducts;
+
+    if (itemsToShow < matchedProducts.length) {
+        itemsToShow += 4;
+        renderProducts(resolvedCategory);
+        if (typeof showPopupNotification === 'function') showPopupNotification("More new products loaded! 🚀");
+    } else {
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = 'none';
+        }
+        if (typeof showPopupNotification === 'function') showPopupNotification("All products displayed!");
+    }
+}
+
+// ক্যাটাগরি পেজের জন্য রেন্ডারিং ফাংশন অটোমেটিক কল করা
+if (gridContainer) {
+    renderProducts(resolvedCategory);
+}
+
+// "Load More" বাটনের ক্লিক হ্যান্ডলার
+if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+        itemsToShow += 4;
+        renderProducts(resolvedCategory);
+    });
+}
+
+// ==========================================================================
+
+// ==========================================================================
 
 // ================= হোমপেজের নির্দিষ্ট সেকশন ডাইনামিক লোড করার ফাংশন =================
 function renderHomeSectionProducts(sectionName, containerId) {
@@ -757,6 +1007,62 @@ function renderHomeSectionProducts(sectionName, containerId) {
 }
 
 // অটো স্লাইড পরিবর্তনের জন্য গ্লোবাল ভেরিয়েবল
+
+// ================= HERO BANNER SLIDER & MANUAL CHANGE SYSTEM =================
+let bannerImages = [];
+let currentImageIndex = 0;
+let sliderInterval = null;
+
+function showSlideImage(index) {
+    const slideImage = document.querySelector('#slide-1 img');
+    if (slideImage && bannerImages.length > 0) {
+        if (index >= bannerImages.length) currentImageIndex = 0;
+        if (index < 0) currentImageIndex = bannerImages.length - 1;
+
+        slideImage.style.opacity = '0';
+        setTimeout(() => {
+            slideImage.src = bannerImages[currentImageIndex];
+            slideImage.style.opacity = '1';
+        }, 300);
+    }
+}
+
+function nextSlide() {
+    if (bannerImages.length === 0) return;
+    currentImageIndex = (currentImageIndex + 1) % bannerImages.length;
+    showSlideImage(currentImageIndex);
+}
+
+function prevSlide() {
+    if (bannerImages.length === 0) return;
+    currentImageIndex = (currentImageIndex - 1 + bannerImages.length) % bannerImages.length;
+    showSlideImage(currentImageIndex);
+}
+
+// অটো স্লাইড চালু করার ফাংশন
+function startSliderTimer() {
+    if (sliderInterval) clearInterval(sliderInterval);
+    if (bannerImages.length > 1) {
+        sliderInterval = setInterval(nextSlide, 5000);
+    }
+}
+
+// ফায়ারবেস বা ডেটাবেজ থেকে হিরো স্লাইড লোড করে অ্যারেতে সেট করার ফাংশন
+function initHeroSliders(productsArray) {
+    if (!productsArray || !Array.isArray(productsArray)) return;
+
+    const sliderProducts = productsArray.filter(p => p.homeSection && (p.homeSection === 'slider-1' || p.homeSection === 'slider-2' || p.homeSection.startsWith('slider-')));
+
+    if (sliderProducts.length > 0) {
+        bannerImages = sliderProducts.map(p => p.image || (p.images && p.images[0]) || '').filter(url => url !== '');
+
+        if (bannerImages.length > 0) {
+            showSlideImage(0);
+            startSliderTimer();
+        }
+    }
+}
+
 let bannerInterval = null;
 
 async function loadDynamicBanners(db) {
@@ -885,176 +1191,10 @@ async function loadDynamicBanners(db) {
         console.error("Dynamic Banner load error: ", error);
     }
 }
-window.initializeProducts = function (fbProducts, dbInstance) {
-    if (fbProducts && fbProducts.length > 0) {
-        // ফায়ারবেসের ডাটার সাথে নরমালাইজড ক্যাটাগরি ফিল্ড নিশ্চিত করা
-        allProducts = fbProducts.map(p => ({
-            ...p,
-            category: p.category || p.productCategory || p.cat || "general"
-        }));
-    }
 
-    if (gridContainer) {
-        renderProducts(resolvedCategory);
-    }
+// ==========================================================================
 
-    renderHomeSectionProducts("Premium Combos", "premium-combos-grid");
-    renderHomeSectionProducts("Signature Attar & Oils", "signature-attar-grid");
-
-    if (typeof productId !== 'undefined' && (!currentProduct || currentProduct === null)) {
-        const found = allProducts.find(p => p.id == productId);
-        if (found) {
-            currentProduct = found;
-            bindProductDetails(currentProduct);
-        }
-    }
-
-    if (dbInstance) {
-        loadDynamicBanners(dbInstance);
-    }
-};
-
-if (gridContainer) {
-    renderProducts(resolvedCategory);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    renderHomeSectionProducts("Premium Combos", "premium-combos-grid");
-    renderHomeSectionProducts("Signature Attar & Oils", "signature-attar-grid");
-    if (typeof renderCartPageItems === 'function') renderCartPageItems();
-    if (typeof updateCartBadgeCount === 'function') updateCartBadgeCount();
-
-    // ==========================================
-    // হোম পেজ এবং অন্যান্য পেজের সার্চ অপশন সচল করার কোড
-    // ==========================================
-    const searchInput = document.querySelector('.nav-search-input');
-    const searchBtn = document.querySelector('.nav-search-btn');
-
-    function performSearch() {
-        if (!searchInput) return;
-        const query = searchInput.value.trim();
-        if (query !== "") {
-            // ব্যবহারকারীকে products.html পেজে সার্চ কুয়েরি সহ রিডাইরেক্ট করবে
-            window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-        }
-    }
-
-    if (searchBtn) {
-        searchBtn.addEventListener('click', performSearch);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-    }
-});
-function loadMoreProducts() {
-    let matchedProducts = resolvedCategory ? allProducts.filter(p => {
-        if (!p.category) return false;
-        const cleanFilter = resolvedCategory.trim().toLowerCase().replace(/[\s_]+/g, '-');
-        const pCat = p.category.trim().toLowerCase().replace(/[\s_]+/g, '-');
-        return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
-    }) : allProducts;
-
-    if (itemsToShow < matchedProducts.length) {
-        itemsToShow += 4;
-        renderProducts(resolvedCategory);
-        if (typeof showPopupNotification === 'function') showPopupNotification("More new products loaded! 🚀");
-    } else {
-        if (loadMoreBtn) {
-            loadMoreBtn.style.display = 'none';
-        }
-        if (typeof showPopupNotification === 'function') showPopupNotification("All products displayed!");
-    }
-}
-function updateProductPrice(qty) {
-    if (!currentProduct) return;
-
-    function convertToEnglishNumber(str) {
-        const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-        return str.replace(/[০-৯]/g, match => englishDigits[bengaliDigits.indexOf(match)]);
-    }
-
-    let rawPrice = 0;
-    let rawOldPrice = 0;
-
-    if (currentProduct.price) {
-        let cleanedPriceStr = convertToEnglishNumber(String(currentProduct.price).replace(/[^\d০-৯]/g, ''));
-        rawPrice = parseInt(cleanedPriceStr) || 0;
-    }
-
-    if (currentProduct.oldPrice) {
-        let cleanedOldPriceStr = convertToEnglishNumber(String(currentProduct.oldPrice).replace(/[^\d০-৯]/g, ''));
-        rawOldPrice = parseInt(cleanedOldPriceStr) || 0;
-    }
-
-    const calculatedPrice = rawPrice * qty;
-    const calculatedOldPrice = rawOldPrice * qty;
-
-    const priceEl = document.getElementById('product-price');
-    const oldPriceEl = document.getElementById('product-old-price');
-
-    if (priceEl) {
-        priceEl.innerText = '৳' + calculatedPrice.toLocaleString('en-IN');
-    }
-    if (oldPriceEl && rawOldPrice > 0) {
-        oldPriceEl.innerText = '৳' + calculatedOldPrice.toLocaleString('en-IN');
-    }
-
-    // ডিসকাউন্ট ব্যাজ ডাইনামিকলি আপডেট করার অংশ
-    const imageSaveBadge = document.getElementById('image-save-badge');
-    const priceSaveBadge = document.getElementById('price-save-badge');
-
-    if (rawOldPrice > rawPrice && rawOldPrice > 0) {
-        const discountAmount = rawOldPrice - rawPrice;
-        const discountPercent = Math.round((discountAmount / rawOldPrice) * 100);
-
-        if (imageSaveBadge) {
-            imageSaveBadge.innerText = `Save ${discountPercent}%`;
-            imageSaveBadge.style.display = 'block';
-        }
-        if (priceSaveBadge) {
-            priceSaveBadge.innerText = `Save ${discountPercent}%`;
-            priceSaveBadge.style.display = 'inline-block';
-        }
-    } else {
-        if (imageSaveBadge) imageSaveBadge.style.display = 'none';
-        if (priceSaveBadge) priceSaveBadge.style.display = 'none';
-    }
-}
-
-function increaseQty() {
-    const input = document.getElementById('quantity-input');
-    if (input) {
-        let val = parseInt(input.value) || 1;
-        let newQty = val + 1;
-        input.value = newQty;
-        updateProductPrice(newQty);
-    }
-}
-
-function decreaseQty() {
-    const input = document.getElementById('quantity-input');
-    if (input) {
-        let val = parseInt(input.value) || 1;
-        if (val > 1) {
-            let newQty = val - 1;
-            input.value = newQty;
-            updateProductPrice(newQty);
-        }
-    }
-}
-/// ================= ফায়ারবেস অথেন্টিকেশন চেক এবং প্রটেক্টেড অ্যাকশন লজিক =================
-function checkUserLoggedIn() {
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-        return firebase.auth().currentUser;
-    }
-    return localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-}
+// ==========================================================================
 
 // ইউজারভিত্তিক কার্ট কি (Key) পাওয়ার ফাংশন যাতে একেক ইউজারের কার্ট আলাদা থাকে
 function getCartStorageKey() {
@@ -1269,42 +1409,6 @@ function callForOrder() {
     window.location.href = "tel:+8801234567890";
 }
 
-function changeMainImage(element, imgId) {
-    const imgElement = document.getElementById(imgId);
-    const mainImg = document.getElementById('main-product-img');
-    if (imgElement && mainImg) {
-        mainImg.src = imgElement.src;
-    }
-
-    const boxes = document.querySelectorAll('.thumbnail-box');
-    boxes.forEach(box => {
-        box.classList.remove('border-2', 'border-[#F26522]');
-        box.classList.add('border', 'border-neutral-200');
-    });
-
-    if (element) {
-        element.classList.remove('border', 'border-neutral-200');
-        element.classList.add('border-2', 'border-[#F26522]');
-    }
-}
-
-// পেজ লোড বা অথ স্টেট চেঞ্জ হলে কার্ট কাউন্ট রিফ্রেশ করা
-if (typeof firebase !== 'undefined' && firebase.auth) {
-    firebase.auth().onAuthStateChanged((user) => {
-        updateCartBadgeCount();
-        if (typeof renderCartPageItems === 'function') {
-            renderCartPageItems();
-        }
-    });
-}
-
-// ================= অতিরিক্ত ফায়ারবেস ব্যাকগ্রাউন্ড সিঙ্ক মডিউল =================
-function getFirestoreInstance() {
-    if (typeof db !== 'undefined') return db;
-    if (typeof firebase !== 'undefined' && firebase.firestore) return firebase.firestore();
-    return null;
-}
-
 // লোকাল কার্টের ডেটা ফায়ারবেসের 'carts' কালেকশনে ব্যাকগ্রাউন্ডে সেভ করা
 function syncCartToFirebaseDatabase(cartItems) {
     const dbInst = getFirestoreInstance();
@@ -1343,68 +1447,89 @@ function syncOrderToFirebaseDatabase() {
     });
 }
 
-// ================= HERO BANNER SLIDER & MANUAL CHANGE SYSTEM =================
-let bannerImages = [];
-let currentImageIndex = 0;
-let sliderInterval = null;
+// পেজ লোড বা অথ স্টেট চেঞ্জ হলে কার্ট কাউন্ট রিফ্রেশ করা
+if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().onAuthStateChanged((user) => {
+        updateCartBadgeCount();
+        if (typeof renderCartPageItems === 'function') {
+            renderCartPageItems();
+        }
+    });
+}
 
-function showSlideImage(index) {
-    const slideImage = document.querySelector('#slide-1 img');
-    if (slideImage && bannerImages.length > 0) {
-        if (index >= bannerImages.length) currentImageIndex = 0;
-        if (index < 0) currentImageIndex = bannerImages.length - 1;
-
-        slideImage.style.opacity = '0';
-        setTimeout(() => {
-            slideImage.src = bannerImages[currentImageIndex];
-            slideImage.style.opacity = '1';
-        }, 300);
+// ==========================================================================
+// ৯. সার্চ ও গ্লোবাল ন্যাভিগেশন (Search & Global Navigation)
+// ==========================================================================
+function performSearch() {
+    const searchInput = document.querySelector('.nav-search-input');
+    if (!searchInput) return;
+    const query = searchInput.value.trim();
+    if (query !== "") {
+        // প্রোডাক্ট বা ব্র্যান্ডের নাম সহ products.html পেজে রিডাইরেক্ট করবে
+        window.location.href = `products.html?search=${encodeURIComponent(query)}`;
     }
 }
 
-function nextSlide() {
-    if (bannerImages.length === 0) return;
-    currentImageIndex = (currentImageIndex + 1) % bannerImages.length;
-    showSlideImage(currentImageIndex);
-}
+// ==========================================================================
 
-function prevSlide() {
-    if (bannerImages.length === 0) return;
-    currentImageIndex = (currentImageIndex - 1 + bannerImages.length) % bannerImages.length;
-    showSlideImage(currentImageIndex);
-}
+// ==========================================================================
 
-// অটো স্লাইড চালু করার ফাংশন
-function startSliderTimer() {
-    if (sliderInterval) clearInterval(sliderInterval);
-    if (bannerImages.length > 1) {
-        sliderInterval = setInterval(nextSlide, 5000);
+window.initializeProducts = function (fbProducts, dbInstance) {
+    if (fbProducts && fbProducts.length > 0) {
+        // ফায়ারবেসের ডাটার সাথে নরমালাইজড ক্যাটাগরি ফিল্ড নিশ্চিত করা
+        allProducts = fbProducts.map(p => ({
+            ...p,
+            category: p.category || p.productCategory || p.cat || "general"
+        }));
     }
-}
 
-// ফায়ারবেস বা ডেটাবেজ থেকে হিরো স্লাইড লোড করে অ্যারেতে সেট করার ফাংশন
-function initHeroSliders(productsArray) {
-    if (!productsArray || !Array.isArray(productsArray)) return;
+    if (gridContainer) {
+        renderProducts(resolvedCategory);
+    }
 
-    const sliderProducts = productsArray.filter(p => p.homeSection && (p.homeSection === 'slider-1' || p.homeSection === 'slider-2' || p.homeSection.startsWith('slider-')));
+    renderHomeSectionProducts("Premium Combos", "premium-combos-grid");
+    renderHomeSectionProducts("Signature Attar & Oils", "signature-attar-grid");
 
-    if (sliderProducts.length > 0) {
-        bannerImages = sliderProducts.map(p => p.image || (p.images && p.images[0]) || '').filter(url => url !== '');
-
-        if (bannerImages.length > 0) {
-            showSlideImage(0);
-            startSliderTimer();
+    if (typeof productId !== 'undefined' && (!currentProduct || currentProduct === null)) {
+        const found = allProducts.find(p => p.id == productId);
+        if (found) {
+            currentProduct = found;
+            bindProductDetails(currentProduct);
         }
     }
-}
 
-// ================= DOCUMENT LOAD EVENTS =================
+    if (dbInstance) {
+        loadDynamicBanners(dbInstance);
+    }
+};
+
+// ==========================================================================
+// ১১. পেজ লোড মাস্টার ইভেন্ট লিসেনার (Master DOMContentLoaded Event Dispatcher)
+// ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // ক. প্রোডাক্ট ডিটেইলস পেজে রিভিউ লোড করা
+    const activeProdId = (typeof productId !== 'undefined' ? productId : null) || (typeof currentProduct !== 'undefined' && currentProduct?.id ? currentProduct.id : null) || new URLSearchParams(window.location.search).get('id') || "1";
+    if (typeof renderProductReviews === 'function') {
+        renderProductReviews(activeProdId);
+    }
+
+    // খ. হোমপেজের নির্দিষ্ট গ্রিড সেকশন লোড করা
+    if (typeof renderHomeSectionProducts === 'function') {
+        renderHomeSectionProducts("Premium Combos", "premium-combos-grid");
+        renderHomeSectionProducts("Signature Attar & Oils", "signature-attar-grid");
+    }
+
+    // গ. কার্ট পেজ আইটেম এবং ব্যাজ কাউন্ট রিফ্রেশ করা
+    if (typeof renderCartPageItems === 'function') renderCartPageItems();
+    if (typeof updateCartBadgeCount === 'function') updateCartBadgeCount();
+
+    // ঘ. হিরো স্লাইডার অপাসিটি ট্রানজিশন সেটআপ
     const slideImage = document.querySelector('#slide-1 img');
     if (slideImage) {
         slideImage.style.transition = 'opacity 0.5s ease-in-out';
     }
 
+    // ঙ. অ্যাড টু কার্ট বাটনগুলোর ক্লিক ইভেন্ট হ্যান্ডলিং
     const cartButtons = document.querySelectorAll('.add-to-cart-btn');
     cartButtons.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -1413,6 +1538,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // চ. প্রোডাক্ট কার্ড হোভার কুইক ভিউ পপআপ হ্যান্ডলার
     const gridContainer = document.getElementById('grid-container') || document.querySelector('.grid-container');
     if (gridContainer) {
         gridContainer.addEventListener('mouseenter', (e) => {
@@ -1437,6 +1563,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, true);
     }
 
+    // ছ. কোয়ান্টিটি ইনপুট পরিবর্তনের সাথে প্রাইস আপডেট
     const qtyInput = document.getElementById('quantity-input');
     if (qtyInput) {
         qtyInput.addEventListener('input', () => {
@@ -1448,26 +1575,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // হোম পেজ এবং অন্যান্য পেজের গ্লোবাল সার্চ অপশন সচল করার কোড
-    // ==========================================
+    // জ. গ্লোবাল সার্চ ইনপুট ও বাটন ইভেন্ট লিসেনার
     const searchInput = document.querySelector('.nav-search-input');
     const searchBtn = document.querySelector('.nav-search-btn');
 
-    function performSearch() {
-        if (!searchInput) return;
-        const query = searchInput.value.trim();
-        if (query !== "") {
-            // প্রোডাক্ট বা ব্র্যান্ডের নাম সহ products.html পেজে রিডাইরেক্ট করবে
-            window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-        }
-    }
-
-    if (searchBtn) {
+    if (searchBtn && typeof performSearch === 'function') {
         searchBtn.addEventListener('click', performSearch);
     }
 
-    if (searchInput) {
+    if (searchInput && typeof performSearch === 'function') {
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performSearch();
@@ -1476,86 +1592,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function showPopupNotification(message) {
-    const existingToast = document.getElementById('custom-toast-alert');
-    if (existingToast) {
-        existingToast.remove();
-    }
+// ==========================================================================
 
-    const toast = document.createElement('div');
-    toast.id = 'custom-toast-alert';
-    toast.className = 'fixed bottom-5 right-5 bg-neutral-900/90 text-white text-xs px-4 py-3 rounded-lg shadow-2xl z-50 flex items-center gap-3 border-l-4 border-[#F26522] transition-all duration-300 transform translate-y-5 opacity-0';
-    toast.innerHTML = `
-        <i class="fa-solid fa-circle-check text-[#F26522] text-sm"></i>
-        <span>${message}</span>
-    `;
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.remove('translate-y-5', 'opacity-0');
-    }, 10);
-
-    setTimeout(() => {
-        toast.classList.add('translate-y-5', 'opacity-0');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// ==========================================
-// পাসওয়ার্ড দিয়ে ডাটাবেস এবং ক্যাশ ক্লিয়ার করার ফাংশন
-// ==========================================
-function promptClearDatabase() {
-    const adminPassword = "12345"; // আপনার পছন্দের পাসওয়ার্ড এখানে সেট করা আছে
-    const enteredPass = prompt("Enter admin password to clear database & cache:");
-
-    if (enteredPass === null) return; // ক্যানসেল করলে বন্ধ হয়ে যাবে
-
-    if (enteredPass === adminPassword) {
-        if (confirm("Are you sure? This will permanently delete all Firebase cloud data and local cache!")) {
-
-            // ১. ব্রাউজার লোকালস্টোরেজ থেকে কার্ট ও অর্ডার ক্যাশ মুছে ফেলা
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key && (key.includes('cart') || key.includes('order') || key.includes('nayan_'))) {
-                    localStorage.removeItem(key);
-                }
-            }
-
-            // ২. ফায়ারবেস ক্লাউড ডাটাবেজ থেকে ডেটা পার্মানেন্টলি ডিলিট করার কোড
-            if (typeof db !== 'undefined') {
-                // আপনার প্রজেক্টে যে কালেকশনগুলোতে অর্ডার বা কার্ট ডেটা সেভ হয় সেগুলোর নাম এখানে দেওয়া হলো
-                const collectionsToClean = ['orders', 'carts', 'admin_orders'];
-
-                let deletePromises = collectionsToClean.map(colName => {
-                    return db.collection(colName).get().then(snapshot => {
-                        let batch = db.batch();
-                        snapshot.docs.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-                        return batch.commit();
-                    }).catch(err => {
-                        console.log(`Collection ${colName} might not exist or already empty.`);
-                    });
-                });
-
-                Promise.all(deletePromises).then(() => {
-                    alert("Firebase Database and local cache cleared successfully!");
-                    window.location.reload();
-                }).catch(error => {
-                    console.error("Error clearing Firebase data: ", error);
-                    alert("Cache cleared, but check console for Firebase deletion.");
-                    window.location.reload();
-                });
-            } else {
-                alert("Database and cache cleared successfully!");
-                window.location.reload();
-            }
-        }
-    } else {
-        alert("Incorrect password! Action denied.");
-    }
-}
+// ==========================================================================
 
 window.nextSlide = nextSlide;
 window.prevSlide = prevSlide;
