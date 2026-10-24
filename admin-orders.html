@@ -354,7 +354,7 @@
         try {
           const userSnap = await getDoc(doc(db, "users", user.uid));
           if (!userSnap.exists() || userSnap.data()?.role !== "admin") {
-            alert("অননুমোদিত অ্যাক্সেস! এই পেজে শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।");
+            alert("Unauthorized access! Only authorized admins can access this page.");
             await signOut(auth);
             window.location.href = "admin-login.html";
             return;

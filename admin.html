@@ -156,7 +156,7 @@
                             <i class="fa-solid fa-sack-dollar text-base"></i>
                         </div>
                     </div>
-                    <h3 id="today-sales" class="text-3xl font-black text-[#F26522] tracking-tight">৳০</h3>
+                    <h3 id="today-sales" class="text-3xl font-black text-[#F26522] tracking-tight">৳0</h3>
                     <div class="mt-3 flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full w-fit shadow-xs">
                         <i class="fa-solid fa-arrow-trend-up"></i> Live Updated
                     </div>
@@ -170,7 +170,7 @@
                             <i class="fa-solid fa-chart-line text-base"></i>
                         </div>
                     </div>
-                    <h3 id="total-sales" class="text-3xl font-black text-slate-900 tracking-tight">৳০</h3>
+                    <h3 id="total-sales" class="text-3xl font-black text-slate-900 tracking-tight">৳0</h3>
                     <div class="mt-3 flex items-center gap-1.5 text-xs text-blue-700 font-bold bg-blue-50 border border-blue-200/80 px-2.5 py-1 rounded-full w-fit shadow-xs">
                         <i class="fa-solid fa-wallet"></i> Overall Revenue
                     </div>
@@ -184,7 +184,7 @@
                             <i class="fa-solid fa-circle-check text-base"></i>
                         </div>
                     </div>
-                    <h3 id="total-orders-count" class="text-3xl font-black text-slate-900 tracking-tight">০</h3>
+                    <h3 id="total-orders-count" class="text-3xl font-black text-slate-900 tracking-tight">0</h3>
                     <div class="mt-3 flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full w-fit shadow-xs">
                         <i class="fa-solid fa-check"></i> Completed
                     </div>
@@ -198,7 +198,7 @@
                             <i class="fa-solid fa-cart-shopping text-base"></i>
                         </div>
                     </div>
-                    <h3 id="cart-items-count" class="text-3xl font-black text-slate-900 tracking-tight">০</h3>
+                    <h3 id="cart-items-count" class="text-3xl font-black text-slate-900 tracking-tight">0</h3>
                     <div class="mt-3 flex items-center gap-1.5 text-xs text-purple-700 font-bold bg-purple-50 border border-purple-200/80 px-2.5 py-1 rounded-full w-fit shadow-xs">
                         <i class="fa-solid fa-clock"></i> In Live Carts
                     </div>
@@ -825,7 +825,7 @@
             // Verify if user record exists and role is strictly 'admin'
             const userSnap = await getDoc(doc(db, "users", user.uid));
             if (!userSnap.exists() || userSnap.data()?.role !== 'admin') {
-                alert("অননুমোদিত অ্যাক্সেস! এই পেজে শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।");
+                alert("Unauthorized access! Only authorized admins can access this page.");
                 await signOut(auth);
                 window.location.href = 'admin-login.html';
                 return;
@@ -846,7 +846,7 @@
             loadProductsForCoupon(); 
         } catch (error) {
             console.error("Admin authorization check failed:", error);
-            alert("অ্যাডমিন যাচাইকরণে সমস্যা হয়েছে: " + error.message);
+            alert("Admin verification error: " + error.message);
             window.location.href = 'admin-login.html';
         }
     });
@@ -1056,7 +1056,7 @@
 
     // ৩. পুরোনো র্যান্ডম হ্যাশ ডকুমেন্ট আইডিগুলোকে (যেমন: qkdQybyrlN5y1pMsy0ec) অর্থবহ আইডিতে কনভার্ট করার টুল
     window.migrateLegacyFirebaseIds = async function() {
-        const confirmMigrate = confirm("⚠️ আপনি কি ফায়ারবেসের পুরোনো দুর্বোধ্য হ্যাশ আইডিগুলো (যেমন: qkdQybyrlN5y1pMsy0ec) পরিবর্তন করে সুন্দর রিডেবল আইডিতে (যেমন: PRD-..., ORD-...) রূপান্তর করতে চান?\n\nএটি ফায়ারবেস ডেটাবেসকে পরিষ্কার ও অর্থবহ করবে।");
+        const confirmMigrate = confirm("⚠️ Do you want to convert old legacy hash IDs (e.g. qkdQybyrlN5y1pMsy0ec) to clean readable IDs (e.g. PRD-..., ORD-...)?\n\nThis will organize and optimize your database.");
         if (!confirmMigrate) return;
 
         let toast = document.getElementById('admin-status-toast');
@@ -1127,14 +1127,14 @@
                 toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
             }, 3000);
 
-            alert(`অভিনন্দন! সফলভাবে ফায়ারবেস ডকুমেন্ট আইডি কনভার্ট হয়েছে:\n\n• রূপান্তরকৃত প্রোডাক্ট: ${migratedProducts} টি\n• রূপান্তরকৃত অর্ডার: ${migratedOrders} টি\n\nএখন ফায়ারবেস কনসোলে সকল ডকুমেন্ট সুন্দর রিডেবল নামে প্রদর্শিত হবে।`);
+            alert(`Congratulations! Successfully converted Firebase document IDs:\n\n• Migrated Products: ${migratedProducts}\n• Migrated Orders: ${migratedOrders}\n\nAll documents are now organized with clean readable IDs.`);
             
             await loadProductsMap();
             await loadAdminProductsTable();
             loadAdminDashboardData();
         } catch (error) {
             console.error("Migration error:", error);
-            alert("আইডি মাইগ্রেশন করতে সমস্যা হয়েছে: " + error.message);
+            alert("ID migration failed: " + error.message);
         }
     };
 

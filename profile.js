@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     saveBtn.classList.add("opacity-50", "cursor-not-allowed");
                     saveBtn.innerText = "Admin Account (Restricted)";
                 }
-                alert("⚠️ আপনি অ্যাডমিন হিসেবে লগইন করেছেন। এই কাস্টমার প্রোফাইল ফর্মটি অ্যাডমিন রোলের জন্য প্রযোজ্য নয়। আপনাকে অ্যাডমিন কন্ট্রোল সেন্টারে পাঠানো হচ্ছে...");
+                alert("⚠️ You are logged in as an Admin. This customer profile form is not applicable for admin roles. Redirecting to admin dashboard...");
                 setTimeout(() => {
                     window.location.href = "admin.html";
                 }, 1000);
@@ -163,7 +163,7 @@ async function handleProfileSave(event) {
     const address = document.getElementById("profile-address").value.trim();
 
     if (!name || name.length < 2) {
-        showProfileAlert("অনুগ্রহ করে আপনার সঠিক পূর্ণ নাম লিখুন।", false);
+        showProfileAlert("Please enter your full name.", false);
         document.getElementById("profile-name").focus();
         return;
     }
@@ -171,7 +171,7 @@ async function handleProfileSave(event) {
     // বাংলাদেশী মোবাইল নম্বর ভ্যালিডেশন
     const cleanPhone = phone.replace(/[\s\-\+]/g, "");
     if (phone && !/^(?:8801|01)[3-9]\d{8}$/.test(cleanPhone)) {
-        showProfileAlert("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।", false);
+        showProfileAlert("Please enter a valid 11-digit mobile number (e.g. 017XXXXXXXX).", false);
         document.getElementById("profile-phone").focus();
         return;
     }
@@ -179,7 +179,7 @@ async function handleProfileSave(event) {
     const saveBtn = document.getElementById("save-profile-btn");
     const originalText = saveBtn.innerHTML;
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> সেভ হচ্ছে...';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
     try {
         // ফায়ারস্টোর আপডেটে ইমেইল বা রোল কখনোই পাঠানো যাবে না (নিরাপত্তা নিশ্চিতকরণ)
@@ -192,10 +192,10 @@ async function handleProfileSave(event) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        showProfileAlert("✓ আপনার প্রোফাইলের তথ্য সফলভাবে সেভ ও আপডেট হয়েছে!", true);
+        showProfileAlert("✓ Profile details saved and updated successfully!", true);
     } catch (error) {
         console.error("Error updating profile:", error);
-        showProfileAlert("প্রোফাইল আপডেট করতে সমস্যা হয়েছে: " + error.message, false);
+        showProfileAlert("Failed to update profile: " + error.message, false);
     } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalText;
@@ -216,13 +216,13 @@ async function handlePasswordChange(event) {
     const confirmPassword = document.getElementById("profile-confirm-password").value;
 
     if (!newPassword || newPassword.length < 6) {
-        showProfileAlert("নতুন পাসওয়ার্ড অবশ্যই কমপক্ষে ৬ অক্ষরের হতে হবে।", false);
+        showProfileAlert("New password must be at least 6 characters.", false);
         document.getElementById("profile-new-password").focus();
         return;
     }
 
     if (newPassword !== confirmPassword) {
-        showProfileAlert("নতুন পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না!", false);
+        showProfileAlert("New password and confirm password do not match!", false);
         document.getElementById("profile-confirm-password").focus();
         return;
     }
@@ -230,21 +230,21 @@ async function handlePasswordChange(event) {
     const changeBtn = document.getElementById("change-password-btn");
     const originalText = changeBtn.innerHTML;
     changeBtn.disabled = true;
-    changeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> পাসওয়ার্ড আপডেট হচ্ছে...';
+    changeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating password...';
 
     try {
         await currentUser.updatePassword(newPassword);
         document.getElementById("profile-new-password").value = "";
         document.getElementById("profile-confirm-password").value = "";
-        showProfileAlert("✓ আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!", true);
+        showProfileAlert("✓ Password changed successfully!", true);
     } catch (error) {
         console.error("Error updating password:", error);
         if (error.code === "auth/requires-recent-login") {
-            alert("নিরাপত্তার স্বার্থে পাসওয়ার্ড পরিবর্তনের জন্য আপনাকে পুনরায় লগইন করতে হবে। অনুগ্রহ করে আবার লগইন করে চেষ্টা করুন।");
+            alert("For security reasons, please log in again before changing password.");
             await firebase.auth().signOut();
             window.location.href = "login.html";
         } else {
-            showProfileAlert("পাসওয়ার্ড পরিবর্তনে সমস্যা: " + error.message, false);
+            showProfileAlert("Failed to change password: " + error.message, false);
         }
     } finally {
         changeBtn.disabled = false;
@@ -268,13 +268,13 @@ function togglePasswordVisibility(inputId, iconBtn) {
 // ৫. ইউজার লগআউট সিস্টেম
 // ==========================================================================
 async function handleUserLogout() {
-    if (confirm("আপনি কি নিশ্চিতভাবে অ্যাকাউন্ট থেকে লগআউট করতে চান?")) {
+    if (confirm("Are you sure you want to log out of your account?")) {
         try {
             await firebase.auth().signOut();
             window.location.href = "login.html";
         } catch (error) {
             console.error("Logout error:", error);
-            alert("লগআউটে সমস্যা হয়েছে: " + error.message);
+            alert("Logout error: " + error.message);
         }
     }
 }

@@ -897,7 +897,7 @@
             const currentUser = firebase.auth().currentUser;
 
             if (!currentUser) {
-                alert('⚠️ মেসেজ পাঠানোর জন্য আপনাকে প্রথমে লগইন করতে হবে!');
+                alert('⚠️ Please log in first to send a message!');
                 window.location.href = "login.html"; // লগইন পেজের লিংক
                 return;
             }
