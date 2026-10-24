@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Customer Orders & Shipment Tracking - SCENT ATELIER</title>
+    <title>Orders Management - SCENT</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome CDN -->
@@ -37,6 +37,12 @@
     </style>
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-[#F26522] selection:text-white">
+    <!-- Admin Authentication Guard Overlay -->
+    <div id="admin-auth-guard" class="fixed inset-0 z-[9999] bg-[#0B0F19] flex flex-col items-center justify-center text-white transition-opacity duration-300">
+      <div class="w-12 h-12 border-4 border-amber-500/20 border-t-[#F26522] rounded-full animate-spin mb-4"></div>
+      <p class="text-sm font-semibold tracking-wider text-slate-300">Verifying Admin Authorization...</p>
+      <span class="text-xs text-slate-500 mt-1">Checking secure order management permissions...</span>
+    </div>
     <!-- টপ প্রফেশনাল হেডার (Obsidian Able Pro Style) -->
     <header class="bg-[#0B0F19] border-b border-slate-800/80 sticky top-0 z-50 shadow-2xl backdrop-blur-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center">
@@ -73,6 +79,14 @@
             <i class="fa-solid fa-store"></i>
             <span class="hidden sm:inline">Visit Store</span>
           </a>
+          <button
+            onclick="handleAdminLogout()"
+            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-rose-300 hover:text-white bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 px-3 sm:px-3.5 py-2 rounded-xl transition-all cursor-pointer hover:scale-105 active:scale-95"
+            title="Logout Admin"
+          >
+            <i class="fa-solid fa-power-off"></i>
+            <span class="hidden md:inline">Logout</span>
+          </button>
         </div>
       </div>
     </header>
@@ -259,11 +273,16 @@
          ৩. রিয়েল-টাইম অর্ডার ও ইউজার ডেটা ফেচিং (Orders & Users Sync Engine)
          ========================================================================== */
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
       import {
         getFirestore,
         collection,
         onSnapshot,
         getDocs,
+        getDoc,
+        doc,
+        updateDoc,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       // ফায়ারবেস সঠিক কনফিগারেশন
@@ -277,7 +296,84 @@
       };
 
       const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
       const db = getFirestore(app);
+
+      // অ্যাডমিন লগআউট হ্যান্ডলার
+      window.handleAdminLogout = async function () {
+        try {
+          await signOut(auth);
+          window.location.href = "admin-login.html";
+        } catch (err) {
+          console.error("Admin logout error:", err);
+        }
+      };
+
+      // অর্ডার স্ট্যাটাস রিয়েলটাইমে আপডেট করার ফাংশন
+      window.updateOrderStatus = async function (firebaseId, newStatus, selectElement) {
+        if (!firebaseId) {
+          alert("Order ID missing for status update.");
+          return;
+        }
+        try {
+          if (selectElement) {
+            selectElement.disabled = true;
+            selectElement.style.opacity = '0.6';
+          }
+          await updateDoc(doc(db, "orders", firebaseId), {
+            status: newStatus,
+            updatedAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("Error updating order status:", err);
+          alert("Failed to update status: " + err.message);
+          if (selectElement) {
+            selectElement.disabled = false;
+            selectElement.style.opacity = '1';
+          }
+        }
+      };
+
+      let adminOrdersAuthInitialized = false;
+
+      // কঠোর অ্যাডমিন রোল অথেন্টিকেশন গার্ড
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "admin-login.html";
+          return;
+        }
+
+        // একবার অথেন্টিকেশন হয়ে গেলে পরবর্তী কোনো ইভেন্টে পুনরায় গার্ড বা রিলোড চলবে না
+        if (adminOrdersAuthInitialized) {
+          return;
+        }
+        adminOrdersAuthInitialized = true;
+
+        const guardEl = document.getElementById("admin-auth-guard");
+
+        try {
+          const userSnap = await getDoc(doc(db, "users", user.uid));
+          if (!userSnap.exists() || userSnap.data()?.role !== "admin") {
+            alert("অননুমোদিত অ্যাক্সেস! এই পেজে শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।");
+            await signOut(auth);
+            window.location.href = "admin-login.html";
+            return;
+          }
+
+          // Verified Admin Access Granted - গার্ডটি স্থায়ীভাবে ডম থেকে সরিয়ে দেওয়া হলো
+          if (guardEl) {
+            guardEl.classList.add("opacity-0", "pointer-events-none");
+            setTimeout(() => {
+              try { guardEl.remove(); } catch(e) { guardEl.style.display = "none"; }
+            }, 300);
+          }
+
+          fetchAllData();
+        } catch (err) {
+          console.error("Admin verification error:", err);
+          window.location.href = "admin-login.html";
+        }
+      });
 
       // গ্লোবাল স্টেট
       window.cachedRawOrders = [];
@@ -619,7 +715,7 @@
             <div class="flex flex-wrap justify-between items-center border-b border-slate-100 pb-4 gap-3">
               <div class="flex items-center gap-2.5">
                 <span class="text-xs font-black text-[#F26522] bg-orange-50 px-3 py-1.5 rounded-xl border border-orange-200/80 font-mono shadow-2xs">
-                  #${displayOrderId}
+                  #${String(displayOrderId).replace(/^#+/, '')}
                 </span>
                 <span class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
                   <i class="fa-regular fa-clock text-slate-400"></i> ${displayDate}
@@ -629,9 +725,12 @@
                 <span class="text-xs font-black text-slate-900 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
                   Total: ${order.totalAmount || "৳0"}
                 </span>
-                <span class="text-xs font-bold px-3.5 py-1.5 ${statusPillClasses} rounded-full border shadow-2xs inline-flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span> ${currentStatus}
-                </span>
+                <select onchange="event.stopPropagation(); updateOrderStatus('${order.firebaseId}', this.value, this)" data-order-id="${order.firebaseId}" class="order-status-select border text-xs font-bold px-3 py-1.5 rounded-xl shadow-2xs cursor-pointer transition-all ${statusPillClasses} focus:outline-none focus:ring-2 focus:ring-[#F26522]/20">
+                  <option value="Processing" ${currentStatus === 'Processing' ? 'selected' : ''}>⏳ Processing</option>
+                  <option value="On The Way" ${currentStatus === 'On The Way' ? 'selected' : ''}>🚚 On The Way</option>
+                  <option value="Delivered" ${currentStatus === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+                  <option value="Cancelled" ${currentStatus === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                </select>
               </div>
             </div>
 

@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+    <!-- Instant Theme & Language Auto Sync (Prevents FOUC on all devices) -->
+    <script>
+      (function(){try{const t=localStorage.getItem('theme');const d=t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else{document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}const l=localStorage.getItem('scent-language')||'en';document.documentElement.lang=l==='bn'?'bn':'en';}catch(e){}})();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Men's Luxury - premium perfume shop</title>
+    <title>Men's Luxury - SCENT</title>
         <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,182 +54,8 @@
 <body class="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-stone-50 dark:bg-darkBg text-stone-800 dark:text-stone-100 font-sans transition-colors duration-300 flex flex-col justify-between selection:bg-amber-600 selection:text-white">
    <div>
 
-        <!-- ==================== ULTRA-MODERN PROFESSIONAL NAVBAR ==================== -->
-        <div class="custom-navbar-wrapper w-full sticky top-0 z-50 glass-header border-b border-stone-200/60 dark:border-slate-800 shadow-sm transition-all">
-
-            <header class="top-header max-w-7xl mx-auto w-full flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
-
-                  <!-- 1. Brand Logo with Photo/Image -->
-          <a
-            href="index.html"
-            class="nav-logo shrink-0 flex items-center gap-2.5 group"
-          >
-            <div
-              class="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform flex items-center justify-center bg-white dark:bg-slate-900"
-            >
-              <!-- এখানে আপনার লোগো ছবির পাথ (path) বসিয়ে দেবেন -->
-              <img
-                src="./images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg"
-                class="w-full h-full object-cover"
-              />
-            </div>
-
-            <span
-              class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent"
-            >
-              SCENT<span class="text-amber-600">.</span>
-            </span>
-          </a>
-                <!-- 2. Sleek Realtime Search Bar -->
-                <div class="nav-search-wrapper hidden md:flex flex-1 max-w-md relative mx-4">
-                    <input
-                        type="text"
-                        id="productSearchInput"
-                        data-i18n-placeholder="search"
-                        placeholder="Search exclusive perfumes, ouds..."
-                        class="nav-search-input w-full bg-stone-100/90 dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700/80 rounded-full py-2 pl-11 pr-4 text-xs sm:text-sm focus:outline-none focus:border-amber-600 dark:focus:border-amber-500 transition shadow-inner"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-stone-400 text-xs"></i>
-                </div>
-
-                <!-- 3. Header Utilities & Actions -->
-                <div class="header-utls flex items-center gap-2 sm:gap-3 text-sm font-medium">
-
-                    <!-- Theme Toggle -->
-                    <button
-                        id="themeToggleBtn"
-                        class="w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition shadow-2xs"
-                        title="Toggle Theme"
-                    >
-                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
-                        <i class="fa-solid fa-sun hidden dark:inline text-xs text-amber-400"></i>
-                    </button>
-
-                    <!-- Language Selector -->
-                    <div class="hidden sm:flex items-center gap-1 border border-stone-200 dark:border-slate-700 rounded-full px-2.5 py-1.5 bg-stone-100 dark:bg-slate-800 text-xs">
-
-                        <i class="fa-solid fa-globe text-amber-600 text-[10px]"></i>
-
-                        <select
-                            id="languageSelect"
-                            class="bg-transparent outline-none cursor-pointer font-semibold text-stone-700 dark:text-stone-300"
-                        >
-                            <option value="en" class="dark:bg-slate-800">EN</option>
-                            <option value="bn" class="dark:bg-slate-800">বাংলা</option>
-                        </select>
-
-                    </div>
-
-                    <!-- Track Order Link -->
-                    <a
-                        href="track-order.html"
-                        class="utl-item hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-circle-question text-amber-600"></i>
-                        <span data-i18n="track">Track</span>
-                    </a>
-
-                    <!-- User Account / Sign In -->
-                    <a
-                        href="login.html"
-                        id="user-auth-link"
-                        class="utl-item flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-user text-amber-600"></i>
-                        <span class="hidden sm:inline" data-i18n="signIn">Sign In</span>
-                    </a>
-
-                    <!-- Wishlist -->
-                    <a
-                        href="wishlist.html"
-                        class="utl-item hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 transition text-stone-700 dark:text-stone-300 relative"
-                        title="Wishlist"
-                    >
-                        <i class="fa-regular fa-heart text-xs"></i>
-                    </a>
-
-                    <!-- Shopping Cart with Badge -->
-                    <a
-                        href="cart.html"
-                        class="utl-item relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3.5 py-2 rounded-full transition shadow-md font-semibold text-xs"
-                    >
-                        <i class="fa-solid fa-bag-shopping"></i>
-
-                        <span class="hidden sm:inline" data-i18n="cart">Cart</span>
-
-                        <span class="cart-count-badge bg-stone-900 text-amber-400 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow">
-                            1
-                        </span>
-                    </a>
-
-                </div>
-            </header>
-
-            <!-- Mobile Search Bar -->
-            <div class="md:hidden px-4 pb-2.5">
-                <div class="relative w-full">
-
-                    <input
-                        type="text"
-                        id="mobileSearchInput"
-                        data-i18n-placeholder="mobileSearch"
-                        placeholder="Search exclusive perfumes..."
-                        class="w-full bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-amber-600"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-stone-400 text-xs"></i>
-
-                </div>
-            </div>
-
-            <!-- Navigation Links Ribbon -->
-            <nav class="menu-ribbon w-full border-t border-stone-200/50 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 py-2">
-
-                <ul class="menu-container flex items-center justify-center gap-6 sm:gap-12 px-4 w-full overflow-x-auto text-xs sm:text-sm font-semibold tracking-wider uppercase">
-
-                    <li class="shrink-0">
-    <a
-        href="index.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5"
-    >
-        <i class="fa-solid fa-house text-[11px]"></i>
-        <span data-i18n="home">Home</span>
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="products.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-        data-i18n="allProducts"
-    >
-        All Products
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="about.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-        data-i18n="about"
-    >
-        About 
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="contact.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap"
-        data-i18n="contact"
-    >
-        Contact Us
-    </a>
-</li>
- </ul>
-</nav>
-</div>
+        <!-- ==================== GLOBAL UNIFIED NAVBAR ==================== -->
+      <div id="navbar-placeholder"></div>
       <!-- Page Header -->
 <main class="max-w-[1280px] mx-auto px-4 py-8">
     <div class="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-4">
@@ -714,7 +544,7 @@
             class="h-16 flex justify-center items-center text-center border-t border-stone-200 dark:border-slate-800 text-xs text-stone-500 dark:text-stone-400">
 
             <p>
-                © 2026 SCENT. All rights reserved. Crafted with precision for Nayan.
+                © 2026 SCENT. All rights reserved.
             </p>
 
         </div>

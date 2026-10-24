@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NAYAN LUXURY PERFUMES & ATTAR - USER REGISTRATION (register.js)
+   SCENT LUXURY PERFUMES & ATTAR - USER REGISTRATION (register.js)
    --------------------------------------------------------------------------
    ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
    ১. ফর্ম ভ্যালিডেশন ও ডেটা এক্সট্র্যাকশন (Validation & Data Extraction)

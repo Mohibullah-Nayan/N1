@@ -1,9 +1,13 @@
 <!doctype html>
 <html lang="bn">
   <head>
+    <!-- Instant Theme & Language Auto Sync (Prevents FOUC on all devices) -->
+    <script>
+      (function(){try{const t=localStorage.getItem('theme');const d=t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else{document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}const l=localStorage.getItem('scent-language')||'en';document.documentElement.lang=l==='bn'?'bn':'en';}catch(e){}})();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Dashboard & Profile - Premium Perfume Shop</title>
+    <title>User Profile - SCENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Font Awesome Icons -->
@@ -51,247 +55,280 @@
 <body class="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-stone-50 dark:bg-darkBg text-stone-800 dark:text-stone-100 font-sans transition-colors duration-300 flex flex-col justify-between selection:bg-amber-600 selection:text-white">
    <div>
 
-        <!-- ==================== ULTRA-MODERN PROFESSIONAL NAVBAR ==================== -->
-        <div class="custom-navbar-wrapper w-full sticky top-0 z-50 glass-header border-b border-stone-200/60 dark:border-slate-800 shadow-sm transition-all">
-
-            <header class="top-header max-w-7xl mx-auto w-full flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3">
-
-                <!-- 1. Brand Logo with Glow Accent -->
-                <a href="index.html" class="nav-logo shrink-0 flex items-center gap-2.5 group">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-                        <i class="fa-solid fa-spray-can-sparkles text-sm"></i>
-                    </div>
-
-                    <span class="font-serif text-2xl md:text-[28px] font-bold tracking-wider bg-gradient-to-r from-stone-900 via-amber-800 to-amber-600 dark:from-white dark:via-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
-                        SCENT<span class="text-amber-600">.</span>
-                    </span>
-                </a>
-
-                <!-- 2. Sleek Realtime Search Bar -->
-                <div class="nav-search-wrapper hidden md:flex flex-1 max-w-md relative mx-4">
-                    <input
-                        type="text"
-                        id="productSearchInput"
-                        data-i18n-placeholder="search"
-                        placeholder="Search exclusive perfumes, ouds..."
-                        class="nav-search-input w-full bg-stone-100/90 dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700/80 rounded-full py-2 pl-11 pr-4 text-xs sm:text-sm focus:outline-none focus:border-amber-600 dark:focus:border-amber-500 transition shadow-inner"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-stone-400 text-xs"></i>
-                </div>
-
-                <!-- 3. Header Utilities & Actions -->
-                <div class="header-utls flex items-center gap-2 sm:gap-3 text-sm font-medium">
-
-                    <!-- Theme Toggle -->
-                    <button
-                        id="themeToggleBtn"
-                        class="w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 text-stone-600 dark:text-stone-300 flex items-center justify-center transition shadow-2xs"
-                        title="Toggle Theme"
-                    >
-                        <i class="fa-solid fa-moon dark:hidden text-xs"></i>
-                        <i class="fa-solid fa-sun hidden dark:inline text-xs text-amber-400"></i>
-                    </button>
-
-                    <!-- Language Selector -->
-                    <div class="hidden sm:flex items-center gap-1 border border-stone-200 dark:border-slate-700 rounded-full px-2.5 py-1.5 bg-stone-100 dark:bg-slate-800 text-xs">
-
-                        <i class="fa-solid fa-globe text-amber-600 text-[10px]"></i>
-
-                        <select
-                            id="languageSelect"
-                            class="bg-transparent outline-none cursor-pointer font-semibold text-stone-700 dark:text-stone-300"
-                        >
-                            <option value="en" class="dark:bg-slate-800">EN</option>
-                            <option value="bn" class="dark:bg-slate-800">বাংলা</option>
-                        </select>
-
-                    </div>
-
-                    <!-- Track Order Link -->
-                    <a
-                        href="track-order.html"
-                        class="utl-item hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-circle-question text-amber-600"></i>
-                        <span data-i18n="track">Track</span>
-                    </a>
-
-                    <!-- User Account / Sign In -->
-                    <a
-                        href="login.html"
-                        id="user-auth-link"
-                        class="utl-item flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-slate-800 transition text-xs font-semibold"
-                    >
-                        <i class="fa-regular fa-user text-amber-600"></i>
-                        <span class="hidden sm:inline" data-i18n="signIn">Sign In</span>
-                    </a>
-
-                    <!-- Wishlist -->
-                    <a
-                        href="wishlist.html"
-                        class="utl-item hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 transition text-stone-700 dark:text-stone-300 relative"
-                        title="Wishlist"
-                    >
-                        <i class="fa-regular fa-heart text-xs"></i>
-                    </a>
-
-                    <!-- Shopping Cart with Badge -->
-                    <a
-                        href="cart.html"
-                        class="utl-item relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3.5 py-2 rounded-full transition shadow-md font-semibold text-xs"
-                    >
-                        <i class="fa-solid fa-bag-shopping"></i>
-
-                        <span class="hidden sm:inline" data-i18n="cart">Cart</span>
-
-                        <span class="cart-count-badge bg-stone-900 text-amber-400 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow">
-                            1
-                        </span>
-                    </a>
-
-                </div>
-            </header>
-
-            <!-- Mobile Search Bar -->
-            <div class="md:hidden px-4 pb-2.5">
-                <div class="relative w-full">
-
-                    <input
-                        type="text"
-                        id="mobileSearchInput"
-                        data-i18n-placeholder="mobileSearch"
-                        placeholder="Search exclusive perfumes..."
-                        class="w-full bg-stone-100 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-amber-600"
-                    >
-
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-stone-400 text-xs"></i>
-
-                </div>
-            </div>
-
-            <!-- Navigation Links Ribbon -->
-            <nav class="menu-ribbon w-full border-t border-stone-200/50 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 py-2">
-
-                <ul class="menu-container flex items-center justify-center gap-6 sm:gap-12 px-4 w-full overflow-x-auto text-xs sm:text-sm font-semibold tracking-wider uppercase">
-
-                    <li class="shrink-0">
-    <a
-        href="index.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5"
-    >
-        <i class="fa-solid fa-house text-[11px]"></i>
-        <span data-i18n="home">Home</span>
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="products.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-        data-i18n="allProducts"
-    >
-        All Products
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="about.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition"
-        data-i18n="about"
-    >
-        About 
-    </a>
-</li>
-
-<li class="shrink-0">
-    <a
-        href="contact.html"
-        class="menu-link text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap"
-        data-i18n="contact"
-    >
-        Contact Us
-    </a>
-</li>
- </ul>
-</nav>
-</div>
+        <!-- ==================== GLOBAL UNIFIED NAVBAR ==================== -->
+      <div id="navbar-placeholder"></div>
     <!-- Dashboard Wrapper -->
-    <main class="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 flex-grow w-full">
+    <main class="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
       <div
-        class="max-w-[800px] mx-auto bg-white dark:bg-slate-900 border border-neutral-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-10 shadow-xl shadow-neutral-100 dark:shadow-none my-8 relative overflow-hidden transition-colors"
+        class="max-w-[880px] mx-auto bg-white dark:bg-slate-900 border border-neutral-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-neutral-100 dark:shadow-none my-6 relative overflow-hidden transition-colors"
       >
         <!-- Decorative Accent Bar -->
         <div
           class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-[#F26522] to-orange-400"
         ></div>
 
+        <!-- Top Header & Return Link -->
         <div
           class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-neutral-100 dark:border-slate-800 pb-5"
         >
           <div>
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F26522] mb-1">
+              <i class="fa-solid fa-circle-user"></i> My Account
+            </div>
             <h2
-              class="text-2xl sm:text-3xl font-sans font-bold text-neutral-900 dark:text-white tracking-tight"
+              class="text-2xl sm:text-3xl font-sans font-black text-neutral-900 dark:text-white tracking-tight"
             >
-              User Dashboard & Profile
+              Customer Profile & Settings
             </h2>
-            <p class="text-lg text-neutral-500 dark:text-slate-400 mt-1 font-medium">
-              Manage your personal information and account settings
+            <p class="text-xs sm:text-sm text-neutral-500 dark:text-slate-400 mt-1 font-medium">
+              Real-time profile information connected directly to SCENT database
             </p>
           </div>
-          <a
-            href="index.html"
-            class="inline-flex items-center gap-1.5 text-lg text-[#F26522] font-semibold bg-orange-50 dark:bg-slate-800 px-3.5 py-2 rounded-xl hover:bg-orange-100 dark:hover:bg-slate-700 transition-colors"
-          >
-            <i class="fa-solid fa-arrow-left"></i> Return to Home
-          </a>
-        </div>
-
-        <!-- সফল মেসেজ দেখানোর জন্য -->
-        <div
-          id="success-msg"
-          class="hidden mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-lg rounded-xl font-medium flex items-center gap-2 shadow-2xs"
-        >
-          <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> Your
-          profile has been updated successfully!
-        </div>
-
-        <div class="space-y-6">
-          <!-- ইমেইল (এডিট করা যাবে না) -->
-          <div>
-            <label
-              class="block text-[15px] font-semibold text-neutral-400 dark:text-slate-500 uppercase tracking-wider mb-2"
-              >Email Address (Not Editable)</label
+          <div class="flex items-center gap-2">
+            <a
+              href="track-order.html"
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-slate-800 hover:bg-stone-200 dark:hover:bg-slate-700 px-3.5 py-2.5 rounded-xl transition"
             >
-            <div class="relative">
-              <span
-                class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400 dark:text-slate-500 text-xs"
-              >
-                <i class="fa-regular fa-envelope"></i>
-              </span>
-              <input
-                type="email"
-                id="profile-email"
-                disabled
-                class="w-full pl-9 pr-3 py-2 text-[14px] bg-neutral-100/70 dark:bg-slate-800/60 border border-neutral-200 dark:border-slate-700 rounded-xl text-neutral-500 dark:text-slate-400 font-medium cursor-not-allowed"
-              />
-            </div>
-          </div>
-
-          <!-- ডাইনামিক ফিল্ডগুলো এখানে স্বয়ংক্রিয়ভাবে চলে আসবে -->
-          <div id="dynamic-fields-container" class="space-y-4">
-            <!-- ডাটাবেজের সব ফিল্ড জাভাস্ক্রিপ্ট দিয়ে এখানে লোড হবে -->
-          </div>
-
-          <div class="pt-6 border-t border-neutral-100 dark:border-slate-800 flex justify-end">
+              <i class="fa-solid fa-truck-fast text-[#F26522]"></i> My Orders
+            </a>
             <button
-              id="update-btn"
-              onclick="updateProfile()"
-              class="bg-[#F26522] hover:bg-orange-600 dark:hover:bg-orange-600 text-white text-[14px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl transition-all duration-300 cursor-pointer shadow-md shadow-orange-500/20"
+              type="button"
+              onclick="handleUserLogout()"
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 px-3.5 py-2.5 rounded-xl transition cursor-pointer"
             >
-              Save Changes
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
             </button>
+          </div>
+        </div>
+
+        <!-- Admin Role Restricted Banner (যদি কোনো অ্যাডমিন ঢুকে পড়ে) -->
+        <div
+          id="admin-role-banner"
+          class="hidden mb-6 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 flex items-start gap-3 text-xs sm:text-sm font-medium shadow-sm"
+        >
+          <i class="fa-solid fa-shield-halved text-base text-amber-600 dark:text-amber-400 mt-0.5"></i>
+          <div class="flex-1">
+            <h4 class="font-bold text-amber-800 dark:text-amber-300 text-sm">Admin Account Detected</h4>
+            <p class="mt-0.5">You are signed in as an Administrator. This profile page is intended for customers only. Admin credentials and roles cannot be modified here.</p>
+            <a href="admin.html" class="inline-flex items-center gap-1.5 mt-2.5 font-bold text-xs bg-amber-600 text-white px-3.5 py-1.5 rounded-lg hover:bg-amber-700 transition">
+              Go to Admin Dashboard <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- সফল / এরর নোটিফিকেশন বক্স -->
+        <div
+          id="profile-alert-box"
+          class="hidden mb-6 p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center gap-2.5 transition-all shadow-xs"
+        ></div>
+
+        <!-- ইউজার সামারি কার্ড (Profile Overview Card) -->
+        <div class="mb-8 p-5 rounded-2xl bg-gradient-to-r from-stone-50 via-white to-orange-50/20 dark:from-slate-800/80 dark:via-slate-800/50 dark:to-slate-900 border border-stone-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-[#F26522] to-orange-500 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-orange-500/25 shrink-0" id="profile-avatar-initials">
+            SC
+          </div>
+          <div class="text-center sm:text-left flex-1 space-y-1">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h3 class="text-lg sm:text-xl font-black text-stone-900 dark:text-white" id="profile-header-name">Loading Profile...</h3>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 w-fit mx-auto sm:mx-0">
+                <i class="fa-solid fa-circle-check text-[9px]"></i> Customer
+              </span>
+            </div>
+            <p class="text-xs text-stone-500 dark:text-stone-400 font-medium" id="profile-header-email">Loading email...</p>
+            <p class="text-[11px] text-stone-400 dark:text-stone-500 pt-0.5">
+              Member Since: <strong class="text-stone-600 dark:text-stone-300" id="profile-member-since">...</strong>
+            </p>
+          </div>
+        </div>
+
+        <!-- ১. কাস্টমার ব্যক্তিগত তথ্য ফরম (Personal Information) -->
+        <div class="space-y-6">
+          <div class="border-b border-stone-200/70 dark:border-slate-800 pb-2">
+            <h3 class="text-base font-bold text-stone-900 dark:text-white flex items-center gap-2">
+              <i class="fa-solid fa-id-card text-[#F26522]"></i> Registration Details
+            </h3>
+            <p class="text-xs text-stone-500 dark:text-slate-400 mt-0.5">Your personal registration information stored in Firebase Firestore</p>
+          </div>
+
+          <form onsubmit="handleProfileSave(event)" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- পূর্ণ নাম -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user text-[#F26522] text-xs"></i> Full Name <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="profile-name"
+                  required
+                  placeholder="Enter your full name"
+                  class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium"
+                />
+              </div>
+
+              <!-- ইমেইল (কোনোভাবেই এডিট করা যাবে না) -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-envelope text-[#F26522] text-xs"></i> Email Address</span>
+                  <span class="text-[10px] text-stone-400 font-semibold normal-case"><i class="fa-solid fa-lock text-[9px]"></i> Non-Editable</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="email"
+                    id="profile-email"
+                    readonly
+                    disabled
+                    class="w-full px-4 py-3 bg-stone-100/90 dark:bg-slate-800/40 border border-stone-200 dark:border-slate-800 rounded-xl text-sm text-stone-500 dark:text-stone-400 font-medium cursor-not-allowed select-none shadow-inner"
+                    title="Email address is permanent and cannot be modified."
+                  />
+                  <span class="absolute right-3.5 top-3.5 text-stone-400 text-xs" title="Permanent Account Email">
+                    <i class="fa-solid fa-lock"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- ফোন নম্বর -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                  <i class="fa-solid fa-phone text-[#F26522] text-xs"></i> Phone Number <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  id="profile-phone"
+                  required
+                  placeholder="01XXXXXXXXX"
+                  class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium"
+                />
+              </div>
+
+              <!-- জেন্ডার -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                  <i class="fa-solid fa-venus-mars text-[#F26522] text-xs"></i> Gender
+                </label>
+                <select
+                  id="profile-gender"
+                  class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium cursor-pointer"
+                >
+                  <option value="male">Male (পুরুষ)</option>
+                  <option value="female">Female (মহিলা)</option>
+                  <option value="other">Other (অন্যান্য)</option>
+                </select>
+              </div>
+
+              <!-- জন্ম তারিখ -->
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                  <i class="fa-regular fa-calendar text-[#F26522] text-xs"></i> Date of Birth
+                </label>
+                <input
+                  type="date"
+                  id="profile-dob"
+                  class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium"
+                />
+              </div>
+
+              <!-- ডেলিভারি ঠিকানা -->
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                  <i class="fa-solid fa-location-dot text-[#F26522] text-xs"></i> Shipping / Delivery Address
+                </label>
+                <textarea
+                  id="profile-address"
+                  rows="3"
+                  placeholder="House number, Road, Area, Thana, District"
+                  class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- সেভ বাটন -->
+            <div class="pt-2 flex justify-end">
+              <button
+                type="submit"
+                id="save-profile-btn"
+                class="py-3 px-6 rounded-xl bg-gradient-to-r from-[#F26522] via-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer flex items-center gap-2"
+              >
+                <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+              </button>
+            </div>
+          </form>
+
+          <!-- ২. পাসওয়ার্ড পরিবর্তন সেকশন (Password Security) -->
+          <div class="mt-10 pt-8 border-t border-stone-200/80 dark:border-slate-800 space-y-5">
+            <div>
+              <h3 class="text-base font-bold text-stone-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-[#F26522]"></i> Change Account Password
+              </h3>
+              <p class="text-xs text-stone-500 dark:text-slate-400 mt-0.5">
+                Update your login password securely directly on Firebase Authentication
+              </p>
+            </div>
+
+            <form onsubmit="handlePasswordChange(event)" class="space-y-4 max-w-xl">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- নতুন পাসওয়ার্ড -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-[#F26522] text-xs"></i> New Password
+                  </label>
+                  <div class="relative">
+                    <input
+                      type="password"
+                      id="profile-new-password"
+                      required
+                      minlength="6"
+                      placeholder="Min 6 characters"
+                      class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium pr-10"
+                    />
+                    <button
+                      type="button"
+                      onclick="togglePasswordVisibility('profile-new-password', this)"
+                      class="absolute right-3 top-3.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs p-1 cursor-pointer"
+                      title="Show/Hide Password"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- কনফার্ম নতুন পাসওয়ার্ড -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-[#F26522] text-xs"></i> Confirm Password
+                  </label>
+                  <div class="relative">
+                    <input
+                      type="password"
+                      id="profile-confirm-password"
+                      required
+                      minlength="6"
+                      placeholder="Repeat new password"
+                      class="w-full px-4 py-3 bg-stone-50 dark:bg-slate-800/80 border border-stone-200 dark:border-slate-700 rounded-xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-medium pr-10"
+                    />
+                    <button
+                      type="button"
+                      onclick="togglePasswordVisibility('profile-confirm-password', this)"
+                      class="absolute right-3 top-3.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs p-1 cursor-pointer"
+                      title="Show/Hide Password"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- পাসওয়ার্ড চেঞ্জ বাটন -->
+              <div class="pt-1 flex justify-start">
+                <button
+                  type="submit"
+                  id="change-password-btn"
+                  class="py-2.5 px-5 rounded-xl bg-stone-900 dark:bg-slate-800 hover:bg-stone-800 dark:hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border border-stone-800 dark:border-slate-700"
+                >
+                  <i class="fa-solid fa-key text-amber-500"></i> Update Password
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -760,137 +797,19 @@
             class="h-16 flex justify-center items-center text-center border-t border-stone-200 dark:border-slate-800 text-xs text-stone-500 dark:text-stone-400">
 
             <p>
-                © 2026 SCENT. All rights reserved. Crafted with precision for Nayan.
+                © 2026 SCENT. All rights reserved.
             </p>
 
         </div>
 
     </footer>
     
-    <script src="nav.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
-
-
-<script>
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const htmlElement = document.documentElement;
-
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        htmlElement.classList.add('dark');
-        htmlElement.setAttribute('data-theme', 'dark');
-    } else {
-        htmlElement.classList.remove('dark');
-        htmlElement.setAttribute('data-theme', 'light');
-    }
-    localStorage.setItem('theme', theme);
-}
-
-if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
-        applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-    });
-}
-
-// Initial Theme Check
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    applyTheme(savedTheme);
-} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    applyTheme('dark');
-} else {
-    applyTheme('light');
-}
-
-
-/* =========================================================
-   2. LANGUAGE TRANSLATION LOGIC (Navbar & Footer/UI)
-========================================================= */
-const translations = {
-    en: {
-        home: 'Home',
-        allProducts: 'All Products',
-        about: 'About',
-        contact: 'Contact Us',
-        trackOrder: 'Track Order',
-        track: 'Track',
-        signIn: 'Sign In',
-        wishlist: 'Wishlist',
-        cart: 'Cart'
-    },
-    bn: {
-        home: 'হোম',
-        allProducts: 'সকল পণ্য',
-        about: 'আমাদের সম্পর্কে',
-        contact: 'যোগাযোগ করুন',
-        trackOrder: 'অর্ডার ট্র্যাক করুন',
-        track: 'ট্র্যাক',
-        signIn: 'সাইন ইন',
-        wishlist: 'উইশলিস্ট',
-        cart: 'কার্ট'
-    }
-};
-
-function changeLanguage(language) {
-    const selectedLanguage = translations[language] ? language : 'en';
-
-    // Update elements with [data-i18n]
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[selectedLanguage][key]) {
-            element.textContent = translations[selectedLanguage][key];
-        }
-    });
-
-    // Update elements with placeholders [data-i18n-placeholder]
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-i18n-placeholder');
-        if (key === 'search' || key === 'mobileSearch') {
-            element.placeholder = selectedLanguage === 'bn' ? 'এক্সক্লুসিভ পারফিউম খুঁজুন...' : 'Search exclusive perfumes, ouds...';
-        }
-    });
-
-    document.documentElement.lang = selectedLanguage === 'bn' ? 'bn' : 'en';
-    localStorage.setItem('scent-language', selectedLanguage);
-}
-
-const languageSelect = document.getElementById('languageSelect');
-if (languageSelect) {
-    languageSelect.addEventListener('change', function () {
-        changeLanguage(this.value);
-    });
-
-    const savedLanguage = localStorage.getItem('scent-language') || 'en';
-    languageSelect.value = savedLanguage;
-    changeLanguage(savedLanguage);
-}
-
-
-/* =========================================================
-   3. NAVBAR SEARCH & INTERACTION HELPERS
-========================================================= */
-const productSearchInput = document.getElementById('productSearchInput');
-const mobileSearchInput = document.getElementById('mobileSearchInput');
-
-function handleSearchRedirect(e) {
-    if (e.key === 'Enter' && this.value.trim() !== '') {
-        const query = encodeURIComponent(this.value.trim());
-        window.location.href = `products.html?search=${query}`;
-    }
-}
-
-if (productSearchInput) {
-    productSearchInput.addEventListener('keypress', handleSearchRedirect);
-}
-if (mobileSearchInput) {
-    mobileSearchInput.addEventListener('keypress', handleSearchRedirect);
-}
-
-</script>
-
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+    <script src="nav.js"></script>
+    <script src="profile.js"></script>
   </body>
 </html>

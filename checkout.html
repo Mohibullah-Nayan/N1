@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout - SCENT. Luxury Fragrances</title>
+    <title>Checkout - SCENT</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -18,13 +18,9 @@
         }
       }
     </script>
-    <!-- Dark Mode Sync Script -->
+    <!-- Instant Theme & Language Auto Sync (Prevents FOUC on all devices) -->
     <script>
-      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      (function(){try{const t=localStorage.getItem('theme');const d=t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else{document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}const l=localStorage.getItem('scent-language')||'en';document.documentElement.lang=l==='bn'?'bn':'en';}catch(e){}})();
     </script>
 
     <!-- Google Fonts -->
@@ -40,12 +36,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
-    <!-- Firebase App (Core SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Firebase Auth -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <!-- Firebase SDKs (Compat v10.8.0 - Consistent Across Whole Project) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- EmailJS SDK CDN -->
     <script
@@ -203,7 +197,7 @@
                 id="customer-name"
                 required
                 class="w-full px-4 py-3.5 bg-stone-50/80 dark:bg-slate-800/60 border border-stone-200 dark:border-slate-700/80 rounded-2xl text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-[#F26522] focus:ring-4 focus:ring-[#F26522]/10 transition-all font-medium"
-                placeholder="e.g., Mohibullah Nayan"
+                placeholder="e.g., Tanvir Ahmed"
               />
             </div>
 
@@ -481,7 +475,7 @@
     <!-- চেকআউট লজিক স্ক্রিপ্ট -->
     <script>
       /* ==========================================================================
-         NAYAN LUXURY PERFUMES & ATTAR - CHECKOUT ENGINE SCRIPT
+         SCENT LUXURY PERFUMES & ATTAR - CHECKOUT ENGINE SCRIPT
          --------------------------------------------------------------------------
          ১. পেমেন্ট মেথড সিলেকশন কন্ট্রোলার (Payment Method Selector)
          ২. কার্ট ডেটা ও চেকআউট আইটেমস সামারি (Cart Data & Summary Loader)
@@ -710,18 +704,40 @@
       function handleOrderSubmit(event) {
         event.preventDefault();
 
-        let name = document.getElementById("customer-name").value;
-        let phone = document.getElementById("customer-phone").value;
-        let email = document.getElementById("customer-email").value;
-        let address = document.getElementById("customer-address").value;
+        let name = document.getElementById("customer-name").value.trim();
+        let phone = document.getElementById("customer-phone").value.trim();
+        let email = document.getElementById("customer-email").value.trim();
+        let address = document.getElementById("customer-address").value.trim();
         let paymentMethod = document.querySelector(
           'input[name="payment-method"]:checked',
         ).value;
 
+        // ভ্যালিডেশন ১: নাম পরীক্ষা
+        if (!name || name.length < 2) {
+          alert("অনুগ্রহ করে আপনার সঠিক পূর্ণ নাম লিখুন।");
+          document.getElementById("customer-name").focus();
+          return;
+        }
+
+        // ভ্যালিডেশন ২: বাংলাদেশী মোবাইল নম্বর ভ্যালিডেশন
+        const cleanPhone = phone.replace(/[\s\-\+]/g, "");
+        if (!/^(?:8801|01)[3-9]\d{8}$/.test(cleanPhone)) {
+          alert("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX, 018XXXXXXXX, 019XXXXXXXX)");
+          document.getElementById("customer-phone").focus();
+          return;
+        }
+
+        // ভ্যালিডেশন ৩: ঠিকানা পরীক্ষা
+        if (!address || address.length < 5) {
+          alert("অনুগ্রহ করে বিস্তারিত ডেলিভারি ঠিকানা লিখুন (যেমন: বাড়ি/রোড, এলাকা, থানা, জেলা)।");
+          document.getElementById("customer-address").focus();
+          return;
+        }
+
         let cartKey = getActiveCartKey();
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         if (cart.length === 0) {
-          alert("Your cart is empty!");
+          alert("আপনার কার্ট খালি! অনুগ্রহ করে প্রথমে পণ্য যোগ করুন।");
           return;
         }
 
@@ -735,8 +751,13 @@
 
         let orderId = "#" + Math.floor(10000 + Math.random() * 90000);
 
+        let activeUser = (typeof firebase !== "undefined" && firebase.auth && firebase.auth().currentUser) || null;
+        let userId = activeUser ? activeUser.uid : null;
+
         let orderData = {
           orderId: orderId,
+          userId: userId,
+          customerEmail: email,
           name: name,
           phone: phone,
           email: email,
@@ -795,16 +816,22 @@
         orderId,
       ) {
         try {
-          // db.js-এ ফায়ারবেজ ইনিশিয়াল করা আছে, তাই সরাসরি ফায়ারস্টোরে সেভ হবে
+          // হ্যাশ আইডির পরিবর্তে সহজে চেনার মতো ক্লিয়ার অর্ডার আইডি (যেমন: ORD-60416) দিয়ে ফায়ারস্টোরে সেভ
+          const readableOrderDocId = "ORD-" + String(orderId).replace(/[^0-9]/g, "");
+
           await firebase
             .firestore()
             .collection("orders")
-            .add({
+            .doc(readableOrderDocId)
+            .set({
               ...orderData,
+              firebaseId: readableOrderDocId,
+              orderId: orderId,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
 
           localStorage.removeItem(cartKey);
+          try { localStorage.removeItem("nayan_cart_guest"); } catch(e) {}
 
           if (paymentMethod === "online") {
             localStorage.setItem("pendingOrder", JSON.stringify(orderData));
@@ -813,7 +840,7 @@
             alert(
               `Congratulations! Your order has been successfully placed. Order ID: ${orderId}`,
             );
-            window.location.href = "track-order.html";
+            window.location.href = `track-order.html?id=${encodeURIComponent(orderId)}`;
           }
         } catch (error) {
           console.error("Error saving order to Firebase: ", error);
@@ -826,20 +853,55 @@
           allOrders.push(orderData);
           localStorage.setItem("orders", JSON.stringify(allOrders));
           localStorage.removeItem(cartKey);
-          window.location.href = "track-order.html";
+          try { localStorage.removeItem("nayan_cart_guest"); } catch(e) {}
+          window.location.href = `track-order.html?id=${encodeURIComponent(orderId)}`;
         }
       }
 
       // ==========================================================================
-      // ৬. পেজ লোড মাস্টার ইনিশিয়ালাইজেশন (Page Load Initializer)
+      // ৬. পেজ লোড ও রিয়েলটাইম ইউজার অটো-ফিল ইনিশিয়ালাইজার
       // ==========================================================================
-      // পেজ লোড হওয়ার পর সামারি ও হেডার সিঙ্ক কল করা
       window.addEventListener("load", () => {
         loadCheckoutSummary();
         if (typeof setupAuthHeaderListener === "function") {
           setupAuthHeaderListener();
         }
       });
+
+      // ফায়ারবেস অথ স্টেট পরিবর্তন হলে কার্ট রি-সিঙ্ক ও প্রোফাইল ডাটা স্বয়ংক্রিয়ভাবে ফর্মে লোড হওয়া
+      if (typeof firebase !== "undefined" && firebase.auth) {
+        firebase.auth().onAuthStateChanged(async (user) => {
+          loadCheckoutSummary();
+          if (user) {
+            try {
+              const uDoc = await firebase
+                .firestore()
+                .collection("users")
+                .doc(user.uid)
+                .get();
+              if (uDoc.exists) {
+                const uData = uDoc.data();
+                const nameEl = document.getElementById("customer-name");
+                const emailEl = document.getElementById("customer-email");
+                const phoneEl = document.getElementById("customer-phone");
+                const addrEl = document.getElementById("customer-address");
+
+                if (nameEl && !nameEl.value && uData.fullName) nameEl.value = uData.fullName;
+                if (emailEl && !emailEl.value && uData.email) emailEl.value = uData.email;
+                if (phoneEl && !phoneEl.value && uData.phone) phoneEl.value = uData.phone;
+                if (addrEl && !addrEl.value && uData.shippingAddress) addrEl.value = uData.shippingAddress;
+              } else {
+                const nameEl = document.getElementById("customer-name");
+                const emailEl = document.getElementById("customer-email");
+                if (nameEl && !nameEl.value && user.displayName) nameEl.value = user.displayName;
+                if (emailEl && !emailEl.value && user.email) emailEl.value = user.email;
+              }
+            } catch (err) {
+              console.warn("Could not auto-fill customer details:", err);
+            }
+          }
+        });
+      }
     </script>
   </body>
 </html>

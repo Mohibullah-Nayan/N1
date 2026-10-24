@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NAYAN LUXURY PERFUMES & ATTAR - DATABASE & AUTH MANAGEMENT (db.js)
+   SCENT LUXURY PERFUMES & ATTAR - DATABASE & AUTH MANAGEMENT (db.js)
    --------------------------------------------------------------------------
    ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
    ১. ফায়ারবেস কনফিগারেশন ও ইনিশিয়ালাইজেশন (Firebase Config & Init)
@@ -29,6 +29,18 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 // ==========================================================================
 // ২. ফায়ারবেস রিয়েল-টাইম প্রোডাক্ট লিসেনার (Real-time Products Listener)
 // ==========================================================================
+// ব্যানার আইটেম কি না তা নিশ্চিত করার ইউনিভার্সাল হেল্পার ফাংশন
+function isBannerItem(item) {
+    if (!item) return false;
+    if (item.isBanner === true || item.isHeroBanner === true || item.type === 'banner') return true;
+    const sec = (item.homeSection || '').trim().toLowerCase();
+    if (sec === 'slider-1' || sec === 'slider-2' || sec.startsWith('slider-') || sec === 'side-banner') return true;
+    const cat = (item.category || item.productCategory || '').trim().toLowerCase();
+    if (cat === 'banner' || cat === 'hero-banner') return true;
+    return false;
+}
+window.isBannerItem = isBannerItem;
+
 function setupFirebaseListener() {
     console.log("Firebase listener function called!");
 
@@ -46,6 +58,10 @@ function setupFirebaseListener() {
                 });
 
                 console.log("Firebase products :", fbProducts);
+                window.allRawProducts = fbProducts;
+                window.allBanners = fbProducts.filter(isBannerItem);
+                // হিরো ব্যানার বা ব্যানার আইটেমগুলো বাদ দিয়ে কেবল প্রকৃত প্রোডাক্ট রাখা হলো
+                window.allProducts = fbProducts.filter(p => !isBannerItem(p));
 
                 // script.js ফাইলের initializeProducts ফাংশনে ডেটা এবং dbInstance পাঠানো হলো
                 if (typeof initializeProducts === 'function') {
@@ -91,6 +107,14 @@ function setupAuthHeaderListener() {
 
                 if (user) {
                     try {
+                        localStorage.setItem('user', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName || ''
+                        }));
+                    } catch(e) {}
+
+                    try {
                         const userDoc = await firebase.firestore().collection("users").doc(user.uid).get();
 
                         let fullName = "User";
@@ -98,7 +122,7 @@ function setupAuthHeaderListener() {
                             const userData = userDoc.data();
                             fullName = userData.fullName || "User";
                         } else {
-                            fullName = user.email.split('@')[0];
+                            fullName = user.email ? user.email.split('@')[0] : "User";
                         }
 
                         // লগইন থাকা অবস্থায় নাম এবং ড্রপডাউন সেটআপ
@@ -108,13 +132,13 @@ function setupAuthHeaderListener() {
                         // ড্রপডাউন মেনু তৈরি
                         const dropdownMenu = document.createElement('div');
                         dropdownMenu.id = 'user-dropdown-menu';
-                        dropdownMenu.className = 'absolute right-0 mt-40 w-48 bg-white border border-neutral-200 rounded-md shadow-lg py-1 hidden z-50 text-xs';
+                        dropdownMenu.className = 'absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 border border-neutral-200 dark:border-slate-700 rounded-xl shadow-xl py-1 hidden z-50 text-xs';
                         dropdownMenu.innerHTML = `
-                            <a href="profile.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-id-card mr-2 text-[#F26522]"></i> Profile</a>
-                            <a href="track-order.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-solid fa-box-archive mr-2 text-[#F26522]"></i> My Orders</a>
-                            <a href="wishlist.html" class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"><i class="fa-regular fa-heart mr-2 text-[#F26522]"></i> Wishlist</a>
-                            <div class="border-t border-neutral-100 my-1"></div>
-                            <a href="javascript:void(0);" class="logout-btn-trigger block px-4 py-2 text-red-600 hover:bg-red-50"><i class="fa-solid fa-right-from-bracket mr-2"></i> Logout</a>
+                            <a href="profile.html" class="block px-4 py-2 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-800 transition"><i class="fa-regular fa-id-card mr-2 text-[#F26522]"></i> Profile</a>
+                            <a href="track-order.html" class="block px-4 py-2 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-box-archive mr-2 text-[#F26522]"></i> My Orders</a>
+                            <a href="wishlist.html" class="block px-4 py-2 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-800 transition"><i class="fa-regular fa-heart mr-2 text-[#F26522]"></i> Wishlist</a>
+                            <div class="border-t border-neutral-100 dark:border-slate-800 my-1"></div>
+                            <a href="javascript:void(0);" class="logout-btn-trigger block px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition"><i class="fa-solid fa-right-from-bracket mr-2"></i> Logout</a>
                         `;
 
                         parentWrapper.appendChild(dropdownMenu);
@@ -132,6 +156,7 @@ function setupAuthHeaderListener() {
                             logoutBtn.onclick = async () => {
                                 try {
                                     await firebase.auth().signOut();
+                                    try { localStorage.removeItem('user'); } catch(e) {}
                                     window.location.reload();
                                 } catch (err) {
                                     console.error("Error signing out:", err);
@@ -150,6 +175,7 @@ function setupAuthHeaderListener() {
                         console.error("Error loading user data:", error);
                     }
                 } else {
+                    try { localStorage.removeItem('user'); } catch(e) {}
                     // লগইন না থাকলে সাধারণ Sign In বাটন দেখাবে
                     authLink.innerHTML = `<i class="fa-regular fa-user"></i> Sign In`;
                     authLink.href = "login.html";

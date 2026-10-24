@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scent - Live Admin Dashboard (Able Pro Edition)</title>
+    <title>Admin Dashboard - SCENT</title>
     <!-- Speed Optimization Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +31,13 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden antialiased">
+
+    <!-- Admin Authentication Guard Overlay -->
+    <div id="admin-auth-guard" class="fixed inset-0 z-[9999] bg-[#0B0F19] flex flex-col items-center justify-center text-white transition-opacity duration-300">
+        <div class="w-12 h-12 border-4 border-amber-500/20 border-t-[#F26522] rounded-full animate-spin mb-4"></div>
+        <p class="text-sm font-semibold tracking-wider text-slate-300">Verifying Admin Authorization...</p>
+        <span class="text-xs text-slate-500 mt-1">Checking secure role credentials...</span>
+    </div>
 
     <!-- বাম পাশের সাইডবার (Sidebar) -->
     <aside id="admin-sidebar" class="w-64 bg-[#0B0F19] text-slate-300 flex flex-col justify-between hidden md:flex border-r border-slate-800/80 shadow-2xl z-20 flex-shrink-0">
@@ -103,12 +110,6 @@
                 <a href="#admin-messages-section" class="admin-menu flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-900 hover:text-white text-sm font-medium transition-all group">
                    <i class="fa-solid fa-envelope w-4 text-slate-400 group-hover:text-rose-400 transition-colors"></i><span>Customer Messages</span>
                 </a>
-
-                <!-- সরাসরি মেনুর ভেতরেই Clear Database বাটন -->
-                <button onclick="promptClearDatabase()" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-rose-300 hover:bg-rose-600 hover:text-white transition-all text-sm font-medium border border-rose-500/30 bg-rose-500/10 mt-3 group">
-                    <i class="fa-solid fa-database text-rose-400 group-hover:text-white w-4"></i>
-                    <span>Clear Database</span>
-                </button>
             </div>
         </div>
 
@@ -366,15 +367,53 @@
 
             <!-- সমস্ত প্রোডাক্ট লিস্ট ম্যানেজমেন্ট, এডিট এবং ডিলিট -->
             <div id="all-products-section" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 border-t-4 border-t-blue-600 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300">
-                <div class="flex items-center gap-3.5 pb-5 mb-6 border-b border-slate-100">
-                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/30">
-                        <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                <div class="flex items-center justify-between gap-3.5 pb-5 mb-6 border-b border-slate-100 flex-wrap">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/30">
+                            <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 tracking-tight">All Products Inventory Management</h2>
+                            <p class="text-xs text-slate-500 font-medium">Update pricing, categories, descriptions, or remove live inventory items</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900 tracking-tight">All Products Inventory Management</h2>
-                        <p class="text-xs text-slate-500 font-medium">Update pricing, categories, descriptions, or remove live inventory items</p>
+                    <button
+                        type="button"
+                        onclick="migrateLegacyFirebaseIds()"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-200/80 transition-all shadow-2xs cursor-pointer ml-auto"
+                        title="Convert old random hash IDs like qkdQybyrlN5y1pMsy0ec to clean readable IDs"
+                    >
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                        <span>Beautify Legacy IDs</span>
+                    </button>
+                </div>
+
+                <!-- রিয়েল-টাইম প্রোডাক্ট সার্চ বার (Search by Product Name or Product ID) -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="relative w-full sm:flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input
+                            type="text"
+                            id="admin-product-search-input"
+                            oninput="filterAdminProductsTable(this.value)"
+                            placeholder="Search products by title, ID (e.g. PRD-...) or category..."
+                            class="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 font-medium transition"
+                        />
+                        <button
+                            type="button"
+                            id="clear-product-search-btn"
+                            onclick="clearAdminProductSearch()"
+                            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"
+                            title="Clear search"
+                        >
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500 shrink-0 px-1">
+                        <span id="product-inventory-count" class="bg-blue-50 text-blue-700 border border-blue-200/80 px-3 py-1.5 rounded-xl font-mono text-[11px]">Loading products...</span>
                     </div>
                 </div>
+
                 <div class="overflow-x-auto rounded-2xl border border-slate-200/90 max-h-[460px] overflow-y-auto shadow-xs bg-white">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead class="sticky top-0 bg-slate-100/95 backdrop-blur-md z-10 border-b border-slate-200 text-slate-700 uppercase tracking-wider text-[11px] font-black">
@@ -452,9 +491,9 @@
                 <div class="flex flex-col sm:flex-row gap-3 mb-6 bg-slate-50/70 p-2 rounded-2xl border border-slate-200/80">
                     <div class="relative flex-1">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input type="text" id="customer-search-input" placeholder="Enter customer name, phone (017...), email or order ID (#60416)..." class="w-full border-0 bg-transparent pl-10 pr-4 py-2.5 text-sm rounded-xl focus:outline-none focus:ring-0 font-medium text-slate-800 placeholder:text-slate-400">
+                        <input type="text" id="customer-search-input" onkeydown="if(event.key==='Enter'){event.preventDefault();searchCustomerHistory();}" placeholder="Enter customer name, phone (017...), email or order ID (#60416)..." class="w-full border-0 bg-transparent pl-10 pr-4 py-2.5 text-sm rounded-xl focus:outline-none focus:ring-0 font-medium text-slate-800 placeholder:text-slate-400">
                     </div>
-                    <button onclick="searchCustomerHistory()" class="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-7 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-teal-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <button type="button" onclick="searchCustomerHistory()" class="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-7 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-teal-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-search"></i> Search Record
                     </button>
                 </div>
@@ -494,7 +533,7 @@
                                     <th class="p-3.5">Payment Details</th>
                                     <th class="p-3.5">Purchased Products</th>
                                     <th class="p-3.5">Total Amount</th>
-                                    <th class="p-3.5">Delivery Status</th>
+                                    <th class="p-3.5">Shipping Status Update</th>
                                 </tr>
                             </thead>
                             <tbody id="customer-history-tbody" class="divide-y divide-slate-100"></tbody>
@@ -660,9 +699,11 @@
                         <label class="block text-xs font-bold uppercase tracking-wider mb-1.5 text-slate-700">Display Placement on Storefront</label>
                         <select id="p-home-section" onchange="handleBannerSectionChange()" class="w-full border border-slate-200 bg-white p-2.5 text-sm rounded-xl focus:outline-none focus:border-[#F26522] focus:ring-4 focus:ring-orange-500/10 transition font-semibold text-slate-800 shadow-2xs cursor-pointer">
                             <option value="">Nowhere (Will only appear in category pages)</option>
-                            <option value="slider-1">Hero Slider 1 (Top Banner)</option>
-                            <option value="Premium Combos">Premium Combos</option>
-                            <option value="Signature Attar & Oils">Signature Parfume</option>
+                            <option value="slider-1">Hero Slider 1 (Top Banner - Image Only)</option>
+                            <option value="slider-2">Hero Slider 2 (Top Banner - Image Only)</option>
+                            <option value="side-banner">Side Banner (Mid Banner - Image Only)</option>
+                            <option value="Premium Combos">Premium Combos (Product Grid)</option>
+                            <option value="Signature Attar & Oils">Signature Parfume (Product Grid)</option>
                         </select>
                     </div>
 
@@ -681,7 +722,7 @@
 
 <script type="module">
     /* ==========================================================================
-       NAYAN LUXURY PERFUMES & ATTAR - ADMIN DASHBOARD ENGINE
+       SCENT LUXURY PERFUMES & ATTAR - ADMIN DASHBOARD ENGINE
        --------------------------------------------------------------------------
        ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
        ১. সাইডবার ন্যাভিগেশন ও একটিভ স্টাইলিং (Sidebar Navigation Styling)
@@ -700,7 +741,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     
     // ==========================================================================
     // ১. সাইডবার ন্যাভিগেশন ও একটিভ স্টাইলিং (Sidebar Navigation Styling)
@@ -764,15 +805,49 @@
 
     let globalProductsMap = {};
 
+    let adminAuthInitialized = false;
+
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            window.location.href = 'login.html';
-        } else {
+            window.location.href = 'admin-login.html';
+            return;
+        }
+
+        // একবার অথেন্টিকেশন হয়ে গেলে পরবর্তী কোনো ইভেন্টে পুনরায় গার্ড বা রিলোড চলবে না
+        if (adminAuthInitialized) {
+            return;
+        }
+        adminAuthInitialized = true;
+
+        const guardEl = document.getElementById('admin-auth-guard');
+
+        try {
+            // Verify if user record exists and role is strictly 'admin'
+            const userSnap = await getDoc(doc(db, "users", user.uid));
+            if (!userSnap.exists() || userSnap.data()?.role !== 'admin') {
+                alert("অননুমোদিত অ্যাক্সেস! এই পেজে শুধুমাত্র অনুমোদিত অ্যাডমিন প্রবেশ করতে পারবেন।");
+                await signOut(auth);
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // Successfully authenticated as Admin - গার্ডটি স্থায়ীভাবে ডম থেকে সরিয়ে দেওয়া হলো
+            if (guardEl) {
+                guardEl.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    try { guardEl.remove(); } catch(e) { guardEl.style.display = 'none'; }
+                }, 300);
+            }
+
             await loadProductsMap();
             await loadAdminProductsTable(); 
             loadAdminDashboardData();
             loadCouponsList();
             loadProductsForCoupon(); 
+        } catch (error) {
+            console.error("Admin authorization check failed:", error);
+            alert("অ্যাডমিন যাচাইকরণে সমস্যা হয়েছে: " + error.message);
+            window.location.href = 'admin-login.html';
         }
     });
 
@@ -793,47 +868,11 @@
     window.handleLogout = async function() {
         try {
             await signOut(auth);
-            window.location.href = 'login.html';
+            window.location.href = 'admin-login.html';
         } catch (error) {
             console.error("Logout error: ", error);
         }
-    }
-
-    window.promptClearDatabase = async function() {
-        const adminPassword = "12345";
-        const enteredPass = prompt("Enter admin password to clear database & cache:");
-
-        if (enteredPass === null) return;
-
-        if (enteredPass === adminPassword) {
-            if (confirm("Are you sure? This will permanently delete all Firebase cloud data and local cache!")) {
-                for (let i = 0; i < localStorage.length; i++) {
-                    let key = localStorage.key(i);
-                    if (key && (key.includes('cart') || key.includes('order') || key.includes('nayan_') || key.includes('adminCoupons'))) {
-                        localStorage.removeItem(key);
-                    }
-                }
-
-                try {
-                    const collectionsToClean = ['orders', 'carts'];
-                    for (let colName of collectionsToClean) {
-                        const snap = await getDocs(collection(db, colName));
-                        for (let docSnap of snap.docs) {
-                            await deleteDoc(doc(db, colName, docSnap.id));
-                        }
-                    }
-                    alert("Firebase Database and local cache cleared successfully! 🧹");
-                    window.location.reload();
-                } catch (err) {
-                    console.error("Error clearing data:", err);
-                    alert("Local cache cleared! Error clearing some cloud data: " + err.message);
-                    window.location.reload();
-                }
-            }
-        } else {
-            alert("Incorrect password! Action denied.");
-        }
-    }
+    };
 
     // ==========================================================================
     // ৪. অল প্রোডাক্টস ম্যানেজমেন্ট - ফেচ, এডিট ও ডিলিট (Products CRUD Engine)
@@ -855,7 +894,7 @@
         if (!homeSectionSelect) return;
 
         const selectedVal = homeSectionSelect.value;
-        const isHero = (selectedVal === 'slider-1' || selectedVal === 'slider-2');
+        const isHero = (selectedVal === 'slider-1' || selectedVal === 'slider-2' || selectedVal === 'side-banner');
 
         const fieldsToToggle = [
             { id: 'p-title', isReq: true },
@@ -886,69 +925,218 @@
         });
     };
 
-    // ১. ফায়ারস্টোর থেকে প্রোডাক্ট ফেচ করে All Products Management টেবিলে দেখানোর জন্য
+    // ১. ফায়ারস্টোর থেকে প্রোডাক্ট ফেচ করে All Products Management টেবিলে লাইভ সার্চ ও ক্যাশিং সহ রেন্ডার করা
+    window.cachedAdminProducts = [];
+
     async function loadAdminProductsTable() {
         let targetContainer = document.getElementById('admin-all-products-table');
         if (!targetContainer) return;
 
         try {
             const querySnapshot = await getDocs(collection(db, "products"));
-            
-            targetContainer.innerHTML = '';
-
-            if (querySnapshot.empty) {
-                targetContainer.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-6 text-center text-slate-400 font-medium">No products found. Please upload.</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let rowsHTML = '';
+            let products = [];
             querySnapshot.forEach((docSnap) => {
-                let product = docSnap.data();
-                let pId = docSnap.id;
-                let imgSrc = product.image || (product.images && product.images[0]) || 'https://via.placeholder.com/50';
-
-                rowsHTML += `
-                    <tr class="hover:bg-slate-50/90 transition-colors border-b border-slate-100 group">
-                        <td class="p-3.5">
-                            <div class="w-12 h-12 rounded-xl overflow-hidden border border-slate-200/80 shadow-2xs bg-slate-100 flex-shrink-0">
-                                <img src="${imgSrc}" alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                            </div>
-                        </td>
-                        <td class="p-3.5">
-                            <p class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">${product.title || 'Unnamed'}</p>
-                            <p class="text-[11px] text-slate-400 font-mono mt-0.5">ID: ${pId.slice(0, 8)}...</p>
-                        </td>
-                        <td class="p-3.5">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
-                                ${product.category || 'General'}
-                            </span>
-                        </td>
-                        <td class="p-3.5 font-black text-[#F26522] text-sm">৳${product.price || '0'}</td>
-                        <td class="p-3.5 text-right space-x-1.5">
-                            <button onclick="openEditModal('${pId}', '${escapeHtml(product.title)}', '${escapeHtml(product.category || '')}', '${product.price || ''}', '${escapeHtml(product.description || '')}')" class="bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white border border-amber-500/25 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-pen text-[10px]"></i> Edit
-                            </button>
-                            <button onclick="deleteProductFromCloud('${pId}')" class="bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white border border-rose-500/25 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-trash text-[10px]"></i> Delete
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                let p = docSnap.data();
+                p.id = docSnap.id;
+                products.push(p);
             });
-            targetContainer.innerHTML = rowsHTML;
+
+            products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            window.cachedAdminProducts = products;
+
+            const searchInput = document.getElementById('admin-product-search-input');
+            const currentQ = searchInput ? searchInput.value : '';
+            filterAdminProductsTable(currentQ);
         } catch (error) {
             console.error("Error loading admin products table:", error);
         }
+    }
+
+    // প্রোডাক্ট নাম বা আইডি দিয়ে রিয়েল-টাইম সার্চ ও ফিল্টারিং
+    window.filterAdminProductsTable = function(searchQuery) {
+        const targetContainer = document.getElementById('admin-all-products-table');
+        const countBadge = document.getElementById('product-inventory-count');
+        const clearBtn = document.getElementById('clear-product-search-btn');
+        if (!targetContainer) return;
+
+        const allProducts = window.cachedAdminProducts || [];
+        const q = String(searchQuery || '').trim().toLowerCase();
+
+        if (clearBtn) {
+            if (q.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        let filtered = allProducts;
+        if (q) {
+            filtered = allProducts.filter(p => {
+                const title = String(p.title || '').toLowerCase();
+                const id = String(p.id || '').toLowerCase();
+                const category = String(p.category || '').toLowerCase();
+                const brand = String(p.brand || '').toLowerCase();
+                const homeSection = String(p.homeSection || '').toLowerCase();
+                const isBannerKeyword = (q === 'banner' || q === 'hero') && (p.isBanner || p.isHeroBanner || homeSection.includes('slider') || homeSection.includes('banner'));
+                return title.includes(q) || id.includes(q) || category.includes(q) || brand.includes(q) || homeSection.includes(q) || isBannerKeyword;
+            });
+        }
+
+        if (countBadge) {
+            if (q) {
+                countBadge.innerText = `Showing ${filtered.length} of ${allProducts.length} items`;
+            } else {
+                countBadge.innerText = `Total ${allProducts.length} items`;
+            }
+        }
+
+        renderAdminProductsRows(filtered, targetContainer, q);
+    };
+
+    window.clearAdminProductSearch = function() {
+        const searchInput = document.getElementById('admin-product-search-input');
+        if (searchInput) {
+            searchInput.value = '';
+            filterAdminProductsTable('');
+            searchInput.focus();
+        }
+    };
+
+    function renderAdminProductsRows(products, targetContainer, query = '') {
+        if (!targetContainer) return;
+
+        if (products.length === 0) {
+            targetContainer.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-slate-400 font-medium">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2 block opacity-40"></i>
+                        ${query ? `No products matching "<strong class="text-slate-600">${escapeHtml(query)}</strong>"` : 'No products found. Please upload items.'}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let rowsHTML = '';
+        products.forEach((product) => {
+            let pId = product.id;
+            let imgSrc = product.image || (product.images && product.images[0]) || 'https://via.placeholder.com/50';
+
+            rowsHTML += `
+                <tr class="hover:bg-slate-50/90 transition-colors border-b border-slate-100 group">
+                    <td class="p-3.5">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden border border-slate-200/80 shadow-2xs bg-slate-100 flex-shrink-0">
+                            <img src="${imgSrc}" alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';">
+                        </div>
+                    </td>
+                    <td class="p-3.5">
+                        <p class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">${product.title || ((product.isBanner || (product.homeSection && (product.homeSection.startsWith('slider-') || product.homeSection === 'side-banner'))) ? 'Hero Banner (' + (product.homeSection || 'Slider') + ')' : 'Unnamed')}</p>
+                        <span class="inline-block text-[11px] text-blue-600 font-mono mt-0.5 font-bold bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs">ID: ${pId}</span>
+                    </td>
+                    <td class="p-3.5">
+                        ${(product.isBanner || product.isHeroBanner || (product.homeSection && (product.homeSection.startsWith('slider-') || product.homeSection === 'side-banner'))) ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">🖼️ Banner (${product.homeSection || 'Hero'})</span>` : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">${product.category || 'General'}</span>`}
+                    </td>
+                    <td class="p-3.5 font-black text-[#F26522] text-sm">${(product.isBanner || product.isHeroBanner || (product.homeSection && (product.homeSection.startsWith('slider-') || product.homeSection === 'side-banner'))) ? `<span class="text-xs text-slate-400 italic font-medium">Banner (Not for sale)</span>` : `৳${product.price || '0'}`}</td>
+                    <td class="p-3.5 text-right space-x-1.5">
+                        <button type="button" onclick="openEditModal('${pId}', '${escapeHtml(product.title)}', '${escapeHtml(product.category || '')}', '${product.price || ''}', '${escapeHtml(product.description || '')}')" class="bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white border border-amber-500/25 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                        </button>
+                        <button type="button" onclick="deleteProductFromCloud('${pId}')" class="bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white border border-rose-500/25 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-trash text-[10px]"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        targetContainer.innerHTML = rowsHTML;
     }
 
     function escapeHtml(text) {
         if (!text) return '';
         return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
+
+    // ৩. পুরোনো র্যান্ডম হ্যাশ ডকুমেন্ট আইডিগুলোকে (যেমন: qkdQybyrlN5y1pMsy0ec) অর্থবহ আইডিতে কনভার্ট করার টুল
+    window.migrateLegacyFirebaseIds = async function() {
+        const confirmMigrate = confirm("⚠️ আপনি কি ফায়ারবেসের পুরোনো দুর্বোধ্য হ্যাশ আইডিগুলো (যেমন: qkdQybyrlN5y1pMsy0ec) পরিবর্তন করে সুন্দর রিডেবল আইডিতে (যেমন: PRD-..., ORD-...) রূপান্তর করতে চান?\n\nএটি ফায়ারবেস ডেটাবেসকে পরিষ্কার ও অর্থবহ করবে।");
+        if (!confirmMigrate) return;
+
+        let toast = document.getElementById('admin-status-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'admin-status-toast';
+            toast.className = 'fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-slate-700 transition-all duration-300';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-amber-400 text-sm"></i> <span>Migrating legacy hash IDs in Firebase...</span>`;
+        toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+
+        try {
+            let migratedProducts = 0;
+            let migratedOrders = 0;
+
+            // ১. প্রোডাক্টস কালেকশনের হ্যাশ আইডি রূপান্তর
+            const prodSnaps = await getDocs(collection(db, "products"));
+            for (const pDoc of prodSnaps.docs) {
+                const oldId = pDoc.id;
+                if (!oldId.startsWith("PRD-") && !oldId.startsWith("BANNER-")) {
+                    const data = pDoc.data();
+                    const isBanner = data.isBanner || data.isHeroBanner || (data.homeSection && (data.homeSection.startsWith('slider-') || data.homeSection === 'side-banner'));
+                    const titleSlug = String(data.title || (isBanner ? 'BANNER' : 'ITEM'))
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '')
+                        .slice(0, 25);
+                    const rand = Math.floor(1000 + Math.random() * 9000);
+                    const newId = isBanner
+                        ? `BANNER-${(data.homeSection || 'HERO').toUpperCase().replace(/[^A-Z0-9]+/g, '-')}-${rand}`
+                        : (titleSlug ? `PRD-${titleSlug}-${rand}` : `PRD-${Date.now()}`);
+
+                    await setDoc(doc(db, "products", newId), {
+                        ...data,
+                        id: newId,
+                        isBanner: isBanner || false,
+                        isHeroBanner: isBanner || false
+                    });
+
+                    await deleteDoc(doc(db, "products", oldId));
+                    migratedProducts++;
+                }
+            }
+
+            // ২. অর্ডারস কালেকশনের হ্যাশ আইডি রূপান্তর
+            const orderSnaps = await getDocs(collection(db, "orders"));
+            for (const oDoc of orderSnaps.docs) {
+                const oldId = oDoc.id;
+                if (!oldId.startsWith("ORD-")) {
+                    const data = oDoc.data();
+                    const rawOrderNum = String(data.orderId || oldId).replace(/[^0-9]/g, '');
+                    const newId = rawOrderNum ? `ORD-${rawOrderNum}` : `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+
+                    await setDoc(doc(db, "orders", newId), {
+                        ...data,
+                        firebaseId: newId,
+                        orderId: data.orderId || `#${newId.replace('ORD-', '')}`
+                    });
+
+                    await deleteDoc(doc(db, "orders", oldId));
+                    migratedOrders++;
+                }
+            }
+
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Cleaned: ${migratedProducts} Products & ${migratedOrders} Orders!</span>`;
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+
+            alert(`অভিনন্দন! সফলভাবে ফায়ারবেস ডকুমেন্ট আইডি কনভার্ট হয়েছে:\n\n• রূপান্তরকৃত প্রোডাক্ট: ${migratedProducts} টি\n• রূপান্তরকৃত অর্ডার: ${migratedOrders} টি\n\nএখন ফায়ারবেস কনসোলে সকল ডকুমেন্ট সুন্দর রিডেবল নামে প্রদর্শিত হবে।`);
+            
+            await loadProductsMap();
+            await loadAdminProductsTable();
+            loadAdminDashboardData();
+        } catch (error) {
+            console.error("Migration error:", error);
+            alert("আইডি মাইগ্রেশন করতে সমস্যা হয়েছে: " + error.message);
+        }
+    };
 
     // ২. এডিট মডাল ওপেন করার ফাংশন
     window.openEditModal = function(id, title, category, price, description) {
@@ -995,18 +1183,20 @@
         }
     }
 
-    // ৫. প্রোডাক্ট ডিলিট করার ফাংশন
+    // ৫. প্রোডাক্ট বা ব্যানার ডিলিট করার ফাংশন
     window.deleteProductFromCloud = async function(pId) {
-        if (confirm('Are you sure you want to delete this product?')) {
+        const isBanner = String(pId).startsWith('BANNER-');
+        const itemType = isBanner ? 'banner' : 'item';
+        if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
             try {
                 await deleteDoc(doc(db, "products", pId));
-                alert('Product deleted successfully! 🗑️');
+                alert(`${isBanner ? 'Banner' : 'Product'} deleted successfully! 🗑️`);
                 if (typeof loadProductsMap === 'function') await loadProductsMap();
                 await loadAdminProductsTable();
                 if (typeof loadProductsForCoupon === 'function') loadProductsForCoupon();
             } catch (error) {
-                console.error("Error deleting product:", error);
-                alert('Failed to delete product: ' + error.message);
+                console.error("Error deleting product/banner:", error);
+                alert('Failed to delete: ' + error.message);
             }
         }
     }
@@ -1240,21 +1430,39 @@
                 }
             }
 
-            // ফায়ারস্টোরে ডেটা সেভ করা
-            await addDoc(collection(db, "products"), {
-                title: title,
+            // ব্যানার কি না তা নির্ধারণ করা
+            const isBannerMode = (homeSection === 'slider-1' || homeSection === 'slider-2' || homeSection === 'side-banner' || homeSection.startsWith('slider-'));
+
+            // হ্যাশ আইডির পরিবর্তে সহজে চেনার মতো ক্লিয়ার প্রোডাক্ট বা ব্যানার আইডি তৈরি
+            const cleanTitleSlug = title
+                .toUpperCase()
+                .replace(/[^A-Z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+                .slice(0, 25);
+            const randSuffix = Math.floor(1000 + Math.random() * 9000);
+            const productDocId = isBannerMode
+                ? `BANNER-${homeSection.toUpperCase()}-${randSuffix}`
+                : (cleanTitleSlug ? `PRD-${cleanTitleSlug}-${randSuffix}` : `PRD-${Date.now()}`);
+
+            // ফায়ারস্টোরে রিডেবল ডকুমেন্ট আইডিতে ডেটা সেভ করা (ব্যানারের জন্য স্পষ্ট ফ্ল্যাগ সহ)
+            await setDoc(doc(db, "products", productDocId), {
+                id: productDocId,
+                title: title || (isBannerMode ? `Hero Banner (${homeSection})` : 'Product'),
                 brand: brand,
-                category: category,
-                price: price,
+                category: isBannerMode ? 'banner' : (category || 'general'),
+                price: price || (isBannerMode ? '0' : ''),
                 oldPrice: oldPrice,
                 images: imageUrls,
                 image: mainDownloadURL,
                 desc: desc,
-                homeSection: homeSection, 
+                homeSection: homeSection,
+                isBanner: isBannerMode,
+                isHeroBanner: isBannerMode,
+                type: isBannerMode ? 'banner' : 'product',
                 createdAt: Date.now()
             });
 
-            alert('Product uploaded successfully! 🚀');
+            alert(isBannerMode ? 'Hero Banner uploaded successfully! 🚀' : 'Product uploaded successfully! 🚀');
             e.target.reset();
             await loadProductsMap();
             await loadAdminProductsTable();
@@ -1701,7 +1909,7 @@
                             <td class="p-3.5 space-y-1">${itemsHtml}</td>
                             <td class="p-3.5 font-black text-slate-900 text-sm">${order.totalAmount || '৳0'}</td>
                             <td class="p-3.5">
-                                <select onchange="updateOrderStatus('${order.firebaseId}', this.value)" class="border border-slate-200 bg-white p-2 rounded-xl text-xs font-bold focus:outline-none focus:border-[#F26522] shadow-2xs cursor-pointer ${statusBadgeClasses}">
+                                <select onchange="event.stopPropagation(); updateOrderStatus('${order.firebaseId}', this.value, this)" data-order-id="${order.firebaseId}" class="order-status-select border border-slate-200 bg-white p-2 rounded-xl text-xs font-bold focus:outline-none focus:border-[#F26522] shadow-2xs cursor-pointer transition-all ${statusBadgeClasses}">
                                     <option value="Processing" ${currentStatus === 'Processing' ? 'selected' : ''}>⏳ Processing</option>
                                     <option value="On The Way" ${currentStatus === 'On The Way' ? 'selected' : ''}>🚚 On The Way</option>
                                     <option value="Delivered" ${currentStatus === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
@@ -1744,15 +1952,91 @@
     // ==========================================================================
     // ৯. অর্ডার স্ট্যাটাস ও ডেট ফিল্টারিং (Order Status & Date Range Filter)
     // ==========================================================================
-    // অর্ডার স্ট্যাটাস আপডেট করার ফাংশন
-    window.updateOrderStatus = async function(firebaseId, newStatus) {
+    // কাস্টমার সার্চ সামারি কার্ড রিয়েলটাইমে রিফ্রেশ করার ফাংশন
+    function refreshCustomerSearchStats() {
+        const selects = document.querySelectorAll('#customer-history-tbody select.order-status-select');
+        if (selects.length === 0) return;
+
+        let total = selects.length;
+        let processing = 0;
+        let delivered = 0;
+        let cancelled = 0;
+
+        selects.forEach(sel => {
+            let val = sel.value;
+            if (val === 'Delivered') delivered++;
+            else if (val === 'Cancelled') cancelled++;
+            else processing++;
+        });
+
+        const setElemText = (id, text) => {
+            let el = document.getElementById(id);
+            if (el) el.innerText = text;
+        };
+
+        setElemText('cust-stat-total', total);
+        setElemText('cust-stat-processing', processing);
+        setElemText('cust-stat-delivered', delivered);
+        setElemText('cust-stat-cancelled', cancelled);
+    }
+
+    // অর্ডার স্ট্যাটাস আপডেট করার ফাংশন (Search Customer ও Order Management দুই জায়গা থেকেই রিয়েলটাইমে কার্যকর)
+    window.updateOrderStatus = async function(firebaseId, newStatus, selectElement) {
+        if (!firebaseId) {
+            alert("Order ID not found for status update.");
+            return;
+        }
+
+        const badgeClassMap = {
+            'Processing': 'bg-amber-50 text-amber-700 border-amber-200/80',
+            'On The Way': 'bg-blue-50 text-blue-700 border-blue-200/80',
+            'Delivered': 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+            'Cancelled': 'bg-rose-50 text-rose-700 border-rose-200/80'
+        };
+
+        const matchingSelects = document.querySelectorAll(`select[data-order-id="${firebaseId}"]`);
+        matchingSelects.forEach(sel => {
+            sel.disabled = true;
+            sel.style.opacity = '0.6';
+        });
+
         try {
             const orderRef = doc(db, "orders", firebaseId);
             await updateDoc(orderRef, {
-                status: newStatus
+                status: newStatus,
+                updatedAt: serverTimestamp()
             });
-            alert(`Order status successfully updated to "${newStatus}"! ✨`);
+
+            const newBadgeClasses = badgeClassMap[newStatus] || 'bg-slate-50 text-slate-700 border-slate-200';
+            matchingSelects.forEach(sel => {
+                sel.value = newStatus;
+                sel.disabled = false;
+                sel.style.opacity = '1';
+                sel.className = `order-status-select border p-2 rounded-xl text-xs font-bold focus:outline-none focus:border-[#F26522] shadow-2xs cursor-pointer transition-all ${newBadgeClasses}`;
+            });
+
+            // কাস্টমার সার্চ সেকশনের কাউন্টার রিয়েলটাইমে আপডেট
+            refreshCustomerSearchStats();
+
+            // লাইভ ফিডব্যাক টোস্ট নোটিফিকেশন
+            let toast = document.getElementById('admin-status-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'admin-status-toast';
+                toast.className = 'fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-slate-700 transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Order status updated to "${newStatus}"</span>`;
+            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 2500);
+
         } catch (error) {
+            matchingSelects.forEach(sel => {
+                sel.disabled = false;
+                sel.style.opacity = '1';
+            });
             console.error("Error updating status: ", error);
             alert("Failed to update status: " + error.message);
         }
@@ -1975,11 +2259,19 @@
                         <td class="p-3.5 space-y-1">${itemsHtml}</td>
                         <td class="p-3.5 font-black text-slate-900 text-sm">${totalAmt}</td>
                         <td class="p-3.5">
-                            <span class="px-3 py-1 rounded-full text-[11px] font-bold shadow-2xs ${
-                                order.status === 'Delivered' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80' :
-                                order.status === 'Cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200/80' :
-                                'bg-amber-50 text-amber-700 border border-amber-200/80'
-                            }">${order.status || 'Processing'}</span>
+                            <select onchange="event.stopPropagation(); updateOrderStatus('${order.firebaseId}', this.value, this)" data-order-id="${order.firebaseId}" class="order-status-select border bg-white p-2 rounded-xl text-xs font-bold focus:outline-none focus:border-[#F26522] shadow-2xs cursor-pointer transition-all ${
+                                {
+                                    'Processing': 'bg-amber-50 text-amber-700 border-amber-200/80',
+                                    'On The Way': 'bg-blue-50 text-blue-700 border-blue-200/80',
+                                    'Delivered': 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+                                    'Cancelled': 'bg-rose-50 text-rose-700 border-rose-200/80'
+                                }[order.status || 'Processing'] || 'bg-slate-50 text-slate-700 border-slate-200'
+                            }">
+                                <option value="Processing" ${(order.status || 'Processing') === 'Processing' ? 'selected' : ''}>⏳ Processing</option>
+                                <option value="On The Way" ${order.status === 'On The Way' ? 'selected' : ''}>🚚 On The Way</option>
+                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+                                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                            </select>
                         </td>
                     </tr>
                 `;

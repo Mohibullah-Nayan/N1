@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NAYAN LUXURY PERFUMES & ATTAR - MASTER JAVASCRIPT
+   SCENT LUXURY PERFUMES & ATTAR - MASTER JAVASCRIPT
    --------------------------------------------------------------------------
    ORGANIZED ARCHITECTURE & SEQUENTIAL MODULES:
    ১. গ্লোবাল স্টেট ও ইউটিলিটি ভেরিয়েবল (Global State & Route Setup)
@@ -26,8 +26,20 @@ const rawProductId = urlParams.get('id') || "1";
 // ক্যাটাগরি বা cat যেটা দিয়েই আসুক তা যেন ঠিকঠাক কাজ করে এবং পার্সিং ঠিক থাকে
 const categoryKey = urlParams.get('category') || urlParams.get('cat');
 
-// ১০০% নিশ্চিত করার জন্য গ্লোবাল অ্যারে তৈরি করা হলো (ফায়ারবেস বা স্ট্যাটিক ডেটা থেকে)
-let allProducts = typeof productsData !== 'undefined' ? Object.values(productsData) : [];
+// ব্যানার আইটেম কি না তা শতভাগ নিশ্চিত করার ইউনিভার্সাল হেল্পার ফাংশন
+function isBannerItem(item) {
+    if (!item) return false;
+    if (item.isBanner === true || item.isHeroBanner === true || item.type === 'banner') return true;
+    const sec = (item.homeSection || '').trim().toLowerCase();
+    if (sec === 'slider-1' || sec === 'slider-2' || sec.startsWith('slider-') || sec === 'side-banner') return true;
+    const cat = (item.category || item.productCategory || '').trim().toLowerCase();
+    if (cat === 'banner' || cat === 'hero-banner') return true;
+    return false;
+}
+window.isBannerItem = isBannerItem;
+
+// ১০০% নিশ্চিত করার জন্য গ্লোবাল অ্যারে তৈরি করা হলো (ফায়ারবেস বা স্ট্যাটিক ডেটা থেকে) - ব্যানার সম্পূর্ণ বাদ দেওয়া হলো
+let allProducts = typeof productsData !== 'undefined' ? Object.values(productsData).filter(p => !isBannerItem(p)) : [];
 
 // আইডি স্ট্রিং বা নাম্বার যাই হোক না কেন সঠিকভাবে খুঁজে বের করার লজিক
 let currentProduct = null;
@@ -54,6 +66,24 @@ function getFirestoreInstance() {
 // ==========================================================================
 // ৩. কোর হেল্পার ও অথেন্টিকেশন ইউটিলিটিজ (Core Utilities & Auth Helpers)
 // ==========================================================================
+// সিকিউরিটি হেল্পার: XSS Injection প্রতিরোধক স্যানিটাইজার
+function escapeHTML(str) {
+    if (!str || typeof str !== 'string') return str || '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// সিকিউরিটি হেল্পার: বাংলাদেশী ভ্যালিড ফোন নম্বর ভ্যালিডেটর
+function isValidBDPhone(phone) {
+    if (!phone) return false;
+    const cleanPhone = String(phone).replace(/[\s\-\+]/g, '');
+    return /^(?:8801|01)[3-9]\d{8}$/.test(cleanPhone);
+}
+
 function showPopupNotification(message) {
     const existingToast = document.getElementById('custom-toast-alert');
     if (existingToast) {
@@ -65,7 +95,7 @@ function showPopupNotification(message) {
     toast.className = 'fixed bottom-5 right-5 bg-neutral-900/90 text-white text-xs px-4 py-3 rounded-lg shadow-2xl z-50 flex items-center gap-3 border-l-4 border-[#F26522] transition-all duration-300 transform translate-y-5 opacity-0';
     toast.innerHTML = `
         <i class="fa-solid fa-circle-check text-[#F26522] text-sm"></i>
-        <span>${message}</span>
+        <span>${escapeHTML(message)}</span>
     `;
 
     document.body.appendChild(toast);
@@ -78,61 +108,6 @@ function showPopupNotification(message) {
         toast.classList.add('translate-y-5', 'opacity-0');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-
-// ==========================================
-// পাসওয়ার্ড দিয়ে ডাটাবেস এবং ক্যাশ ক্লিয়ার করার ফাংশন
-// ==========================================
-function promptClearDatabase() {
-    const adminPassword = "12345"; // আপনার পছন্দের পাসওয়ার্ড এখানে সেট করা আছে
-    const enteredPass = prompt("Enter admin password to clear database & cache:");
-
-    if (enteredPass === null) return; // ক্যানসেল করলে বন্ধ হয়ে যাবে
-
-    if (enteredPass === adminPassword) {
-        if (confirm("Are you sure? This will permanently delete all Firebase cloud data and local cache!")) {
-
-            // ১. ব্রাউজার লোকালস্টোরেজ থেকে কার্ট ও অর্ডার ক্যাশ মুছে ফেলা
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key && (key.includes('cart') || key.includes('order') || key.includes('nayan_'))) {
-                    localStorage.removeItem(key);
-                }
-            }
-
-            // ২. ফায়ারবেস ক্লাউড ডাটাবেজ থেকে ডেটা পার্মানেন্টলি ডিলিট করার কোড
-            if (typeof db !== 'undefined') {
-                // আপনার প্রজেক্টে যে কালেকশনগুলোতে অর্ডার বা কার্ট ডেটা সেভ হয় সেগুলোর নাম এখানে দেওয়া হলো
-                const collectionsToClean = ['orders', 'carts', 'admin_orders'];
-
-                let deletePromises = collectionsToClean.map(colName => {
-                    return db.collection(colName).get().then(snapshot => {
-                        let batch = db.batch();
-                        snapshot.docs.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-                        return batch.commit();
-                    }).catch(err => {
-                        console.log(`Collection ${colName} might not exist or already empty.`);
-                    });
-                });
-
-                Promise.all(deletePromises).then(() => {
-                    alert("Firebase Database and local cache cleared successfully!");
-                    window.location.reload();
-                }).catch(error => {
-                    console.error("Error clearing Firebase data: ", error);
-                    alert("Cache cleared, but check console for Firebase deletion.");
-                    window.location.reload();
-                });
-            } else {
-                alert("Database and cache cleared successfully!");
-                window.location.reload();
-            }
-        }
-    } else {
-        alert("Incorrect password! Action denied.");
-    }
 }
 
 /// ================= ফায়ারবেস অথেন্টিকেশন চেক এবং প্রটেক্টেড অ্যাকশন লজিক =================
@@ -444,7 +419,11 @@ function saveProductReview(prodId, reviewObj) {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    db.collection("reviews").add(firestoreReviewObj)
+    const cleanProd = String(prodId || 'item').replace(/[^a-zA-Z0-9]/g, '').slice(0, 15);
+
+    const reviewDocId = "REV-" + cleanProd + "-" + Date.now();
+
+    db.collection("reviews").doc(reviewDocId).set(firestoreReviewObj)
         .then(() => {
             console.log("Review saved successfully to Firebase!");
             if (typeof showPopupNotification === 'function') {
@@ -753,11 +732,11 @@ function renderProductReviews(prodId) {
                 reviewCard.className = "bg-neutral-50 border border-neutral-200 p-4 rounded-lg space-y-2 relative min-h-[85px]";
                 reviewCard.innerHTML = `
                     <div class="flex items-center justify-between pr-20">
-                        <h5 class="text-xs font-bold text-neutral-800">${rev.name} <span class="text-[10px] font-normal text-neutral-400 ml-1">(${rev.date || ''})</span></h5>
+                        <h5 class="text-xs font-bold text-neutral-800">${escapeHTML(rev.name)} <span class="text-[10px] font-normal text-neutral-400 ml-1">(${escapeHTML(rev.date || '')})</span></h5>
                         <div class="text-amber-400 text-xs flex gap-0.5">${starHtml}</div>
                     </div>
-                    <p class="text-xs text-neutral-600 leading-relaxed pr-16">${rev.comment}</p>
-                    <span class="inline-block text-[10px] bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded">${rev.role}</span>
+                    <p class="text-xs text-neutral-600 leading-relaxed pr-16">${escapeHTML(rev.comment)}</p>
+                    <span class="inline-block text-[10px] bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded">${escapeHTML(rev.role)}</span>
                     ${deleteButtonHtml}
                 `;
                 container.appendChild(reviewCard);
@@ -802,7 +781,8 @@ function renderProducts(filterCategory) {
     if (!gridContainer) return;
 
     gridContainer.innerHTML = "";
-    let matchedProducts = allProducts;
+    // হিরো ব্যানার কোনো অবস্থাতেই প্রোডাক্ট গ্রিডে দেখানো হবে না
+    let matchedProducts = allProducts.filter(p => !isBannerItem(p));
 
     // ==========================================
     // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
@@ -914,11 +894,11 @@ function renderProducts(filterCategory) {
 
 function loadMoreProducts() {
     let matchedProducts = resolvedCategory ? allProducts.filter(p => {
-        if (!p.category) return false;
+        if (!p.category || isBannerItem(p)) return false;
         const cleanFilter = resolvedCategory.trim().toLowerCase().replace(/[\s_]+/g, '-');
         const pCat = p.category.trim().toLowerCase().replace(/[\s_]+/g, '-');
         return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
-    }) : allProducts;
+    }) : allProducts.filter(p => !isBannerItem(p));
 
     if (itemsToShow < matchedProducts.length) {
         itemsToShow += 4;
@@ -956,16 +936,11 @@ function renderHomeSectionProducts(sectionName, containerId) {
 
     container.innerHTML = "";
 
-    // ব্যানার আইটেমগুলোকে মূল প্রোডাক্ট সেকশন থেকে ফিল্টার করে বাদ দেওয়া হয়েছে
+    // ব্যানার আইটেমগুলোকে মূল প্রোডাক্ট সেকশন থেকে সম্পূর্ণরূপে ফিল্টার করে বাদ দেওয়া হয়েছে
     const matched = allProducts.filter(p => {
+        if (isBannerItem(p)) return false;
         const pSection = p.homeSection ? p.homeSection.trim().toLowerCase() : "";
         const targetSection = sectionName.trim().toLowerCase();
-
-        // যদি আইটেমটি 'slider-1' বা ব্যানার হয় এবং বর্তমান সেকশনটি স্লাইডার না হয়, তবে বাদ যাবে
-        if (pSection === "slider-1" && targetSection !== "slider-1") {
-            return false;
-        }
-
         return pSection === targetSection;
     });
 
@@ -1051,7 +1026,7 @@ function startSliderTimer() {
 function initHeroSliders(productsArray) {
     if (!productsArray || !Array.isArray(productsArray)) return;
 
-    const sliderProducts = productsArray.filter(p => p.homeSection && (p.homeSection === 'slider-1' || p.homeSection === 'slider-2' || p.homeSection.startsWith('slider-')));
+    const sliderProducts = productsArray.filter(p => isBannerItem(p) || (p.homeSection && (p.homeSection === 'slider-1' || p.homeSection === 'slider-2' || p.homeSection.startsWith('slider-'))));
 
     if (sliderProducts.length > 0) {
         bannerImages = sliderProducts.map(p => p.image || (p.images && p.images[0]) || '').filter(url => url !== '');
@@ -1094,15 +1069,16 @@ async function loadDynamicBanners(db) {
                 return 0;
             });
 
-            // ================= [ হিরো স্লাইডার ১ (slider-1) লজিক ] =================
+            // ================= [ হিরো স্লাইডার ১ (slider-1) ব্যানার লজিক ] =================
+            // শুধুমাত্র প্রকৃত ব্যানার আইটেম নেওয়া হবে - কোনো সাধারণ প্রোডাক্ট যেন ব্যানারে না আসে
             let slider1Products = allDocs.filter(p => {
                 const section = p.homeSection ? p.homeSection.trim() : "";
                 const imgUrl = p.images && p.images[0] ? p.images[0] : p.image;
-                return imgUrl && section === "slider-1";
+                return imgUrl && (section === "slider-1" || p.isBanner === true);
             });
 
-            // সর্টেড লিস্ট থেকে একদম লেটেস্ট ৩টি প্রোডাক্ট নিশ্চিত করা
-            let finalHeroProducts = slider1Products.length > 0 ? slider1Products.slice(-3) : allDocs.filter(p => p.images && p.images[0] || p.image).slice(-3);
+            // সর্টেড লিস্ট থেকে লেটেস্ট ব্যানারগুলো নেওয়া হলো (সাধারণ প্রোডাক্ট কখনোই ব্যানারে আসবে না)
+            let finalHeroProducts = slider1Products.length > 0 ? slider1Products.slice(-3) : [];
 
             finalHeroProducts.forEach(product => {
                 const imgUrl = product.images && product.images[0] ? product.images[0] : product.image;
@@ -1339,10 +1315,10 @@ function renderCartPageItems() {
 
         cardDiv.innerHTML = `
             <div class="flex items-center gap-4 w-full sm:w-auto">
-                <img src="${item.image}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-neutral-200 shrink-0" alt="${item.title}">
+                <img src="${item.image}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-neutral-200 shrink-0" alt="${escapeHTML(item.title)}">
                 <div class="space-y-1">
-                    <h4 class="font-semibold text-neutral-900 text-sm sm:text-base">${item.title}</h4>
-                    <p class="text-xs text-neutral-500">Price: <span class="font-medium text-neutral-700">${item.price}</span></p>
+                    <h4 class="font-semibold text-neutral-900 text-sm sm:text-base">${escapeHTML(item.title)}</h4>
+                    <p class="text-xs text-neutral-500">Price: <span class="font-medium text-neutral-700">${escapeHTML(item.price)}</span></p>
                     <p class="text-xs text-neutral-500">Quantity: <span class="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">${item.quantity} quantity</span></p>
                 </div>
             </div>
@@ -1438,7 +1414,7 @@ function syncOrderToFirebaseDatabase() {
 
     dbInst.collection('orders').add({
         userId: user && user.uid ? user.uid : 'guest',
-        userEmail: user && user.email ? user.email : 'guest@nayan.com',
+        userEmail: user && user.email ? user.email : 'guest@scent.com',
         items: cart,
         orderDate: new Date().toISOString(),
         status: 'Pending'
@@ -1476,11 +1452,17 @@ function performSearch() {
 
 window.initializeProducts = function (fbProducts, dbInstance) {
     if (fbProducts && fbProducts.length > 0) {
-        // ফায়ারবেসের ডাটার সাথে নরমালাইজড ক্যাটাগরি ফিল্ড নিশ্চিত করা
-        allProducts = fbProducts.map(p => ({
-            ...p,
-            category: p.category || p.productCategory || p.cat || "general"
-        }));
+        // হিরো ব্যানারগুলোকে আলাদা গ্লোবাল রেফারেন্সে রাখা হলো
+        window.allBanners = fbProducts.filter(isBannerItem);
+
+        // ফায়ারবেসের ডাটা থেকে হিরো ব্যানারগুলো সম্পূর্ণরূপে বাদ দিয়ে কেবল আসল বিক্রয়যোগ্য প্রোডাক্ট রাখা হলো
+        allProducts = fbProducts
+            .filter(p => !isBannerItem(p))
+            .map(p => ({
+                ...p,
+                category: p.category || p.productCategory || p.cat || "general"
+            }));
+        window.allProducts = allProducts;
     }
 
     if (gridContainer) {
@@ -1612,4 +1594,3 @@ window.removeFromCart = removeFromCart;
 window.renderCartPageItems = renderCartPageItems;
 window.updateCartBadgeCount = updateCartBadgeCount;
 window.initHeroSliders = initHeroSliders;
-window.promptClearDatabase = promptClearDatabase;

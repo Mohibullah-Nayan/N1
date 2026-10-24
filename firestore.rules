@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for security validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      // Allow user to create/update their own profile, but only admin can assign 'admin' role
+      allow create, update: if isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 2. Products Collection (Public Read, Admin Write)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 3. Coupons Collection (Public Read, Admin Write)
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 4. Orders Collection
+    match /orders/{orderId} {
+      // Anyone can create an order (Guests or Registered Users)
+      allow create: if true;
+      // Admin can read all orders, users can read their own
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // Only admin can update order status or delete orders
+      allow update, delete: if isAdmin();
+    }
+
+    // 5. Customer Messages / Contact Inquiries
+    match /messages/{messageId} {
+      // Anyone can submit a contact message
+      allow create: if true;
+      // Only admin can read or delete contact messages
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // 6. Reviews Collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() || true;
+      allow update, delete: if isAdmin();
+    }
+
+    // 7. Shopping Carts (User-specific or guest sync)
+    match /carts/{cartId} {
+      allow read, write: if true;
+    }
+  }
+}
+

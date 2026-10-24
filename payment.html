@@ -1,14 +1,22 @@
 <!doctype html>
 <html lang="bn">
   <head>
+    <!-- Instant Theme & Language Auto Sync (Prevents FOUC on all devices) -->
+    <script>
+      (function(){try{const t=localStorage.getItem('theme');const d=t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else{document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}const l=localStorage.getItem('scent-language')||'en';document.documentElement.lang=l==='bn'?'bn':'en';}catch(e){}})();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Payment Gateway - SCENT.</title>
+    <title>Payment Gateway - SCENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="db.js"></script>
   </head>
   <body
     class="bg-neutral-100 text-neutral-800 flex items-center justify-center min-h-screen"
@@ -109,16 +117,19 @@
           return;
         }
 
-        // টোটাল হিসাব করা (সাবটোটাল + ডেলিভারি চার্জ ৬০ টাকা)
-        let subtotal = pendingOrder.items.reduce((sum, item) => {
-          let cleanPrice =
-            parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
-          return sum + cleanPrice * item.quantity;
-        }, 0);
-
-        let grandTotal = subtotal + 60;
-        document.getElementById("gateway-total").innerText =
-          "৳" + grandTotal.toLocaleString("en-IN");
+        // ডিসকাউন্ট সহ ফাইনাল গ্র্যান্ড টোটাল দেখানো
+        if (pendingOrder.totalAmount) {
+          document.getElementById("gateway-total").innerText = pendingOrder.totalAmount;
+        } else {
+          let subtotal = (pendingOrder.items || []).reduce((sum, item) => {
+            let cleanPrice =
+              parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
+            return sum + cleanPrice * item.quantity;
+          }, 0);
+          let grandTotal = subtotal + 60;
+          document.getElementById("gateway-total").innerText =
+            "৳" + grandTotal.toLocaleString("en-IN");
+        }
       };
 
       function selectGateway(gateway) {
@@ -142,35 +153,65 @@
         }
       }
 
-      function processOnlinePayment() {
-        let phone = document.getElementById("gateway-phone").value;
-        let pin = document.getElementById("gateway-pin").value;
+      async function processOnlinePayment() {
+        let phone = document.getElementById("gateway-phone").value.trim();
+        let pin = document.getElementById("gateway-pin").value.trim();
 
         if (!phone || !pin) {
           alert("Please enter your account number and PIN.");
           return;
         }
 
-        // সফল পেমেন্ট প্রসেসিং সিমুলেশন
-        alert("Payment successful!");
+        if (pin.length < 4) {
+          alert("Please enter a valid PIN.");
+          return;
+        }
 
         let pendingOrder = JSON.parse(localStorage.getItem("pendingOrder"));
-        if (pendingOrder) {
-          pendingOrder.paymentStatus =
-            "Paid (" + selectedGatewayName.toUpperCase() + ")";
-
-          // মূল অর্ডার লিস্টে সেভ করা
-          let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
-          allOrders.push(pendingOrder);
-          localStorage.setItem("orders", JSON.stringify(allOrders));
-
-          // টেম্পোরারি ডেটা এবং কার্ট ক্লিন করা
-          localStorage.removeItem("pendingOrder");
-          localStorage.removeItem("cart");
-
-          // ট্র্যাকিং পেজে রিডাইরেক্ট করা
-          window.location.href = "track-order.html";
+        if (!pendingOrder) {
+          alert("Session expired or order not found!");
+          window.location.href = "index.html";
+          return;
         }
+
+        const gatewayTag = selectedGatewayName.toUpperCase();
+        pendingOrder.paymentStatus = "Paid (" + gatewayTag + ")";
+        pendingOrder.paymentMethod = "online (" + gatewayTag + ")";
+
+        // Firebase Firestore-এ পেমেন্ট স্ট্যাটাস আপডেট করা
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+          try {
+            const db = firebase.firestore();
+            const snap = await db.collection("orders").where("orderId", "==", pendingOrder.orderId).get();
+            if (!snap.empty) {
+              snap.forEach(async (doc) => {
+                await doc.ref.update({
+                  paymentStatus: "Paid (" + gatewayTag + ")",
+                  paymentMethod: "online (" + gatewayTag + ")",
+                  paidAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+              });
+            }
+          } catch (e) {
+            console.warn("Could not sync online payment status to Firebase:", e);
+          }
+        }
+
+        // লোকালস্টোরেজ ব্যাকআপ আপডেট ও ক্লিনআপ
+        let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+        allOrders.push(pendingOrder);
+        localStorage.setItem("orders", JSON.stringify(allOrders));
+
+        localStorage.removeItem("pendingOrder");
+        for (let i = 0; i < localStorage.length; i++) {
+          let k = localStorage.key(i);
+          if (k && k.startsWith("nayan_cart_")) {
+            localStorage.removeItem(k);
+          }
+        }
+
+        alert(`Payment successful via ${gatewayTag}! Order ID: ${pendingOrder.orderId}`);
+        window.location.href = `track-order.html?id=${encodeURIComponent(pendingOrder.orderId)}`;
       }
     </script>
   </body>
