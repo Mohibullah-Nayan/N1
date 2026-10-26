@@ -19,7 +19,7 @@ function renderGlobalNavbar() {
     const currentPath = window.location.pathname.split("/").pop().toLowerCase() || 'index.html';
 
     const isHome = currentPath === '' || currentPath === 'index.html';
-    const isProducts = ['products.html', 'product-details.html', 'oud.html', 'attar.html', 'parfum.html', 'gift-sets.html', 'mens-luxury.html'].includes(currentPath);
+    const isProducts = ['products.html', 'product-details.html', 'oud.html', 'attar.html', 'parfum.html', 'gift-sets.html', 'mens-luxury.html', 'women.html', 'men.html', 'kids.html', 'unisex.html'].includes(currentPath);
     const isAbout = currentPath === 'about.html';
     const isContact = currentPath === 'contact.html';
 
@@ -315,31 +315,31 @@ function renderGlobalNavbar() {
             <p class="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 px-3 mb-2" data-i18n="shopByCategories">SHOP BY CATEGORIES</p>
             <ul class="space-y-1 text-xs font-semibold">
               <li>
-                <a href="parfum.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'parfum.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
+                <a href="men.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'men.html' || currentPath === 'parfum.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
                   <span class="flex items-center gap-2.5"><i class="fa-solid fa-person text-amber-600 text-sm"></i> <span data-i18n="catMen">MEN</span></span>
                   <span class="text-[10px] bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 px-2 py-0.5 rounded-full">Explore</span>
                 </a>
               </li>
               <li>
-                <a href="oud.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'oud.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
+                <a href="women.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'women.html' || currentPath === 'oud.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
                   <span class="flex items-center gap-2.5"><i class="fa-solid fa-person-dress text-amber-600 text-sm"></i> <span data-i18n="catWomen">WOMEN</span></span>
                   <span class="text-[10px] bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 px-2 py-0.5 rounded-full">Explore</span>
                 </a>
               </li>
               <li>
-                <a href="attar.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'attar.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
+                <a href="kids.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'kids.html' || currentPath === 'attar.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
                   <span class="flex items-center gap-2.5"><i class="fa-solid fa-child text-amber-600 text-sm"></i> <span data-i18n="catKids">KIDS</span></span>
                   <span class="text-[10px] bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 px-2 py-0.5 rounded-full">Explore</span>
                 </a>
               </li>
               <li>
-                <a href="gift-sets.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'gift-sets.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
+                <a href="unisex.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'unisex.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
                   <span class="flex items-center gap-2.5"><i class="fa-solid fa-venus-mars text-amber-600 text-sm"></i> <span data-i18n="catUnisex">UNISEX</span></span>
                   <span class="text-[10px] bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 px-2 py-0.5 rounded-full">Explore</span>
                 </a>
               </li>
               <li>
-                <a href="mens-luxury.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'mens-luxury.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
+                <a href="gift-sets.html" class="flex items-center justify-between px-3 py-2 rounded-xl text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-800 transition ${currentPath === 'gift-sets.html' || currentPath === 'mens-luxury.html' ? 'bg-amber-500/10 text-amber-600 font-bold' : ''}">
                   <span class="flex items-center gap-2.5"><i class="fa-solid fa-gift text-amber-600 text-sm"></i> <span data-i18n="catGiftSets">GIFT SETS</span></span>
                   <span class="text-[10px] bg-stone-100 dark:bg-slate-800 text-stone-500 dark:text-slate-400 px-2 py-0.5 rounded-full">Explore</span>
                 </a>

@@ -314,8 +314,9 @@ window.checkLowStockAlerts = function(products) {
             let summaryList = lowStockItems.map(p => {
                 let st = parseInt(p.stock) || 0;
                 let badge = st <= 0 ? '<span class="text-rose-600 font-extrabold underline">Out of Stock</span>' : `<span class="text-amber-800 font-extrabold">${st} pcs left</span>`;
-                return `<strong>${p.title || 'Perfume'}</strong> (${badge})`;
-            }).join(', ');
+                let pId = p.id || 'N/A';
+                return `<span class="inline-flex items-center gap-1.5 bg-amber-100/70 px-2.5 py-1 rounded-xl border border-amber-300/80 shadow-2xs"><strong>${p.title || 'Perfume'}</strong> <span class="font-mono text-[10px] font-bold bg-white text-slate-700 px-1.5 py-0.5 rounded-md border border-slate-300 shadow-2xs">ID: ${pId}</span> (${badge})</span>`;
+            }).join(' ');
 
             alertBanner.classList.remove('hidden');
             alertBanner.innerHTML = `

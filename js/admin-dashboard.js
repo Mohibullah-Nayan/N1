@@ -137,6 +137,7 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
                     let title = p.title || 'Perfume';
                     let rawStock = (p.stock !== undefined && p.stock !== null && p.stock !== '') ? parseInt(p.stock) : null;
                     combinedMap[title] = {
+                        id: p.id || '',
                         title: title,
                         stock: rawStock,
                         sold: 0,
@@ -220,7 +221,10 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
                                         ${item.image ? `<img src="${item.image}" alt="Fragrance" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fa-solid fa-bottle-droplet\\'></i>';">` : `<i class="fa-solid fa-bottle-droplet"></i>`}
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="font-bold text-slate-800 text-sm block truncate" title="${item.title}">${item.title}</span>
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-bold text-slate-800 text-sm block truncate" title="${item.title}">${item.title}</span>
+                                            ${item.id ? `<span class="text-[10px] text-blue-600 font-mono font-bold bg-blue-50/80 px-1.5 py-0.5 rounded border border-blue-200/60 shadow-2xs">ID: ${item.id}</span>` : ''}
+                                        </div>
                                         <div class="mt-1 flex items-center gap-1.5">
                                             ${stockBadge}
                                         </div>

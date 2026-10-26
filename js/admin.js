@@ -76,14 +76,38 @@
     window.firestoreDoc = doc;
     window.firestoreServerTimestamp = serverTimestamp;
 
-    const CLOUD_NAME = "mfq08wvp";      
-    const UPLOAD_PRESET = "nayan_preset"; 
+    // ক্লাউডিনারি ক্রেডেনশিয়ালস এক্সপোর্ট
+    export const CLOUD_NAME = "mfq08wvp";      
+    export const UPLOAD_PRESET = "nayan_preset"; 
+    window.CLOUD_NAME = CLOUD_NAME;
+    window.UPLOAD_PRESET = UPLOAD_PRESET; 
 
     let globalProductsMap = {};
 
     let adminAuthInitialized = false;
 
+    // যদি কোনো কারণে ফায়ারবেস অথেন্টিকেশন রেসপন্স দিতে অস্বাভাবিক সময় নেয়, তবে সর্বোচ্চ ৮ সেকেন্ড পর ইউজারকে বিকল্প অ্যাকশন বা রিডাইরেক্ট দেওয়া
+    const authTimeoutTimer = setTimeout(() => {
+        if (!adminAuthInitialized) {
+            const guardEl = document.getElementById('admin-auth-guard');
+            if (guardEl) {
+                guardEl.innerHTML = `
+                    <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl max-w-sm text-center shadow-2xl">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-3xl mb-3"></i>
+                        <h3 class="text-base font-bold text-white mb-1.5">Authorization Timeout</h3>
+                        <p class="text-xs text-slate-400 mb-4">Credentials verification is taking longer than expected. Please login again or retry.</p>
+                        <div class="flex gap-2 justify-center">
+                            <a href="admin-login.html" class="px-4 py-2 bg-[#F26522] hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition">Login Again</a>
+                            <button onclick="window.location.reload()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer">Retry</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }, 8000);
+
     onAuthStateChanged(auth, async (user) => {
+        clearTimeout(authTimeoutTimer);
         if (!user) {
             window.location.href = 'admin-login.html';
             return;
@@ -115,11 +139,11 @@
                 }, 300);
             }
 
-            await loadProductsMap();
-            await loadAdminProductsTable(); 
-            loadAdminDashboardData();
-            loadCouponsList();
-            loadProductsForCoupon(); 
+            if (typeof window.loadProductsMap === 'function') await window.loadProductsMap();
+            if (typeof window.loadAdminProductsTable === 'function') await window.loadAdminProductsTable(); 
+            if (typeof window.loadAdminDashboardData === 'function') window.loadAdminDashboardData();
+            if (typeof window.loadCouponsList === 'function') window.loadCouponsList();
+            if (typeof window.loadProductsForCoupon === 'function') window.loadProductsForCoupon(); 
         } catch (error) {
             console.error("Admin authorization check failed:", error);
             alert("Admin verification error: " + error.message);

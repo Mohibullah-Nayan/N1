@@ -181,7 +181,7 @@ function renderGlobalFooter() {
                     <nav class="flex flex-col space-y-2 text-sm">
 
                         <a
-                            href="oud.html"
+                            href="women.html"
                             class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
 
                             WOMEN
@@ -189,7 +189,7 @@ function renderGlobalFooter() {
                         </a>
 
                         <a
-                            href="parfum.html"
+                            href="men.html"
                             class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
 
                             MEN
@@ -197,7 +197,7 @@ function renderGlobalFooter() {
                         </a>
 
                         <a
-                            href="attar.html"
+                            href="kids.html"
                             class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
 
                             KIDS
@@ -205,7 +205,7 @@ function renderGlobalFooter() {
                         </a>
 
                         <a
-                            href="mens-luxury.html"
+                            href="unisex.html"
                             class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
 
                             UNISEX
@@ -216,7 +216,7 @@ function renderGlobalFooter() {
                             href="gift-sets.html"
                             class="text-stone-500 dark:text-stone-400 hover:text-amber-600 transition-colors">
 
-                            Gift Sets
+                            GIFT SETS
 
                         </a>
 

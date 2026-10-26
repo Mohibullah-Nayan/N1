@@ -10,6 +10,15 @@
 import { db } from './admin.js';
 import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// ক্লাউডিনারি ইমেজ আপলোড ক্রেডেনশিয়ালস
+export const CLOUD_NAME = "mfq08wvp";
+export const UPLOAD_PRESET = "nayan_preset";
+window.CLOUD_NAME = CLOUD_NAME;
+window.UPLOAD_PRESET = UPLOAD_PRESET;
+
+// গ্লোবাল প্রোডাক্ট ম্যাপ ক্যাশ
+let globalProductsMap = {};
+
 // ৪. অল প্রোডাক্টস ম্যানেজমেন্ট - ফেচ, এডিট ও ডিলিট (Products CRUD Engine)
 // ==========================================================================
 // এই ফাংশনটি ফায়ারস্টোর থেকে প্রোডাক্ট ফেচ করে একটি আইডি-ভিত্তিক ম্যাপে ক্যাশ করে রাখে
@@ -409,6 +418,38 @@ window.uploadProductToCloud = async function (e) {
         const productDocId = isBannerMode
             ? `BANNER-${homeSection.toUpperCase()}-${randSuffix}`
             : (cleanTitleSlug ? `PRD-${cleanTitleSlug}-${randSuffix}` : `PRD-${Date.now()}`);
+
+        // যদি হিরো ব্যানার মোড হয়, তবে আগের ব্যানারগুলোর মধ্যে ১ নম্বর (সবচেয়ে পুরনো) ব্যানার অটো ডিলিট করা
+        // যাতে সবসময় ফায়ারস্টোরে ও ডিসপ্লেতে সর্বশেষ ৩টি ব্যানারই সক্রিয় থাকে
+        if (isBannerMode) {
+            try {
+                const bannerSnapshot = await getDocs(collection(db, "products"));
+                let existingBanners = [];
+                bannerSnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const sec = data.homeSection ? data.homeSection.trim() : '';
+                    if (data.isBanner === true || data.isHeroBanner === true || sec === 'slider-1' || sec.startsWith('slider-')) {
+                        existingBanners.push({
+                            id: docSnap.id,
+                            createdAt: data.createdAt || 0
+                        });
+                    }
+                });
+
+                // পুরনো থেকে নতুন ক্রমানুসারে সাজানো (Oldest first)
+                existingBanners.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+                // ৩ বা তার বেশি ব্যানার থাকলে সবচেয়ে পুরনো ব্যানারটি অটো ডিলিট হবে
+                if (existingBanners.length >= 3) {
+                    const deleteCount = existingBanners.length - 2; // নতুন ১টি যোগ হয়ে মোট ঠিক ৩টি থাকবে
+                    for (let i = 0; i < deleteCount; i++) {
+                        await deleteDoc(doc(db, "products", existingBanners[i].id));
+                    }
+                }
+            } catch (autoDelErr) {
+                console.warn("Auto banner cleanup notice:", autoDelErr);
+            }
+        }
 
         // ফায়ারস্টোরে রিডেবল ডকুমেন্ট আইডিতে ডেটা সেভ করা (ব্যানারের জন্য স্পষ্ট ফ্ল্যাগ সহ)
         await setDoc(doc(db, "products", productDocId), {

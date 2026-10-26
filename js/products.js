@@ -382,19 +382,48 @@ let itemsToShow = 8; // শুরুতে ৮টি প্রোডাক্ট
 const currentPage = window.location.pathname.split("/").pop().replace(".html", "").toLowerCase();
 let resolvedCategory = categoryKey ? decodeURIComponent(categoryKey).trim() : null;
 
+// ক্যাটাগরি ম্যাপিং ও সিনোনিম সাপোর্ট (নতুন ফাইলনেম এবং পুরাতন ডেটাবেজ ক্যাটাগরির মধ্যে নির্ভুল মিল)
+const categoryAliasesMap = {
+    'women': ['women', 'woman', 'oud', 'premium-oud'],
+    'woman': ['women', 'woman', 'oud', 'premium-oud'],
+    'men': ['men', 'man', 'parfum', 'eau-de-parfum'],
+    'man': ['men', 'man', 'parfum', 'eau-de-parfum'],
+    'kids': ['kids', 'kid', 'attar', 'premium-attar'],
+    'kid': ['kids', 'kid', 'attar', 'premium-attar'],
+    'unisex': ['unisex'],
+    'gift-sets': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
+    'giftsets': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
+    'giftset': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
+    'oud': ['women', 'woman', 'oud', 'premium-oud'],
+    'parfum': ['men', 'man', 'parfum', 'eau-de-parfum'],
+    'attar': ['kids', 'kid', 'attar', 'premium-attar'],
+    'mens-luxury': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift']
+};
+
+function getCategoryAliases(cat) {
+    if (!cat) return [];
+    const clean = cat.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+    for (let [key, list] of Object.entries(categoryAliasesMap)) {
+        if (key.replace(/[\s\-_]+/g, '') === clean) {
+            return list.map(item => item.replace(/[\s\-_]+/g, ''));
+        }
+    }
+    return [clean];
+}
+
 if (!resolvedCategory) {
-    if (currentPage === "oud" || currentPage === "premium-oud") {
-        resolvedCategory = "premium-oud";
-    } else if (currentPage.includes("parfum")) {
-        resolvedCategory = "eau-de-parfum";
-    } else if (currentPage === "attar" || currentPage === "premium-attar") {
-        resolvedCategory = "premium-attar";
+    if (currentPage === "women" || currentPage === "woman" || currentPage === "oud" || currentPage === "premium-oud") {
+        resolvedCategory = "women";
+    } else if (currentPage === "men" || currentPage === "man" || currentPage.includes("parfum")) {
+        resolvedCategory = "men";
+    } else if (currentPage === "kids" || currentPage === "kid" || currentPage === "attar" || currentPage === "premium-attar") {
+        resolvedCategory = "kids";
+    } else if (currentPage === "unisex") {
+        resolvedCategory = "unisex";
+    } else if (currentPage === "gift-sets" || currentPage === "giftset" || currentPage === "giftsets" || currentPage === "mens-luxury") {
+        resolvedCategory = "gift-sets";
     } else if (currentPage === "signature-attar" || currentPage === "signature-attar & oils") {
         resolvedCategory = "signature-attar";
-    } else if (currentPage === "gift-sets") {
-        resolvedCategory = "gift-sets";
-    } else if (currentPage === "mens-luxury") {
-        resolvedCategory = "mens-luxury";
     }
 }
 
@@ -431,26 +460,26 @@ function renderProducts(filterCategory) {
         if (titleElement) {
             const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
 
-            if (cleanFilter.includes("parfum")) {
-                titleElement.innerText = "MEN";
-            } else if (cleanFilter.includes("oud")) {
+            if (cleanFilter.includes("women") || cleanFilter.includes("woman") || cleanFilter.includes("oud")) {
                 titleElement.innerText = "WOMEN";
-            } else if (cleanFilter.includes("attar")) {
+            } else if (cleanFilter.includes("men") || cleanFilter.includes("man") || cleanFilter.includes("parfum")) {
+                titleElement.innerText = "MEN";
+            } else if (cleanFilter.includes("kids") || cleanFilter.includes("kid") || cleanFilter.includes("attar")) {
                 titleElement.innerText = "KIDS";
-            } else if (cleanFilter.includes("giftsets") || cleanFilter.includes("gift-sets")) {
+            } else if (cleanFilter.includes("unisex")) {
                 titleElement.innerText = "UNISEX";
-            } else if (cleanFilter.includes("mensluxury") || cleanFilter.includes("mens-luxury")) {
+            } else if (cleanFilter.includes("giftsets") || cleanFilter.includes("giftset") || cleanFilter.includes("gift") || cleanFilter.includes("mensluxury")) {
                 titleElement.innerText = "GIFT SETS";
             } else {
                 titleElement.innerText = filterCategory.replace(/[-_]/g, ' ').toUpperCase();
             }
         }
 
-        const cleanFilter = filterCategory.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+        const aliases = getCategoryAliases(filterCategory);
         matchedProducts = matchedProducts.filter(p => {
             if (!p.category) return false;
             const pCat = p.category.trim().toLowerCase().replace(/[\s\-_]+/g, '');
-            return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
+            return aliases.some(al => pCat === al || pCat.includes(al) || al.includes(pCat));
         });
     } else {
         if (titleElement) {
@@ -518,9 +547,9 @@ function renderProducts(filterCategory) {
 function loadMoreProducts() {
     let matchedProducts = resolvedCategory ? allProducts.filter(p => {
         if (!p.category || isBannerItem(p)) return false;
-        const cleanFilter = resolvedCategory.trim().toLowerCase().replace(/[\s_]+/g, '-');
-        const pCat = p.category.trim().toLowerCase().replace(/[\s_]+/g, '-');
-        return pCat === cleanFilter || pCat.includes(cleanFilter) || cleanFilter.includes(pCat);
+        const aliases = getCategoryAliases(resolvedCategory);
+        const pCat = p.category.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+        return aliases.some(al => pCat === al || pCat.includes(al) || al.includes(pCat));
     }) : allProducts.filter(p => !isBannerItem(p));
 
     if (itemsToShow < matchedProducts.length) {

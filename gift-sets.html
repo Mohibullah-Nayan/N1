@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gift Sets - SCENT</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -57,32 +57,32 @@
         <!-- ==================== GLOBAL UNIFIED NAVBAR ==================== -->
       <div id="navbar-placeholder"></div>
       <!-- Page Header -->
-       <main class="max-w-[1280px] mx-auto px-4 py-8">
-        <div class="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-4">
-            <h2 id="category-title" class="text-2xl font-['Playfair_Display'] font-bold text-neutral-900 dark:text-white">UNISEX</h2>
-            <p class="text-lg text-neutral-500 dark:text-neutral-400 mt-1">Discover our exquisite gift sets, perfect for any occasion.</p>
-        </div>
+<main class="max-w-[1280px] mx-auto px-4 py-8">
+    <div class="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+        <h2 id="category-title" class="text-2xl font-['Playfair_Display'] font-bold text-neutral-900 dark:text-white">GIFT SETS</h2>
+        <p class="text-lg text-neutral-500 dark:text-neutral-400 mt-1">Exclusive luxury gift combos and curated perfume boxes</p>
+    </div>
 
-        <!-- Products Grid (জাভাস্ক্রিপ্ট থেকে স্বয়ংক্রিয়ভাবে প্রোডাক্ট লোড হওয়ার জায়গা) -->
-        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- ডাইনামিক প্রোডাক্ট কার্ড এখানে রেন্ডার হবে -->
-        </div>
+    <!-- Products Grid -->
+    <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- ডাইনামিক প্রোডাক্ট কার্ড এখানে রেন্ডার হবে -->
+    </div>
 
-        <!-- No Product Message -->
-        <div id="no-product-msg" class="hidden text-center py-12 text-neutral-500 dark:text-neutral-400 text-sm">
-            No products available in this category.
-        </div>
+    <!-- No Product Message -->
+    <div id="no-product-msg" class="hidden text-center py-12 text-neutral-500 dark:text-neutral-400 text-sm">
+        There are no products available in this category.
+    </div>
 
-        <!-- Load More Button Section -->
-       <div class="text-center mt-8">
-    <button id="load-more-btn" onclick="loadMoreProducts()" class="border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white px-8 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
-        Load More
-    </button>
-</div>
-
-    </main>
-       <!-- ==================== GLOBAL FOOTER PLACEHOLDER ==================== -->
+    <!-- Load More Button Section -->
+    <div class="text-center mt-8">
+        <button id="load-more-btn" onclick="loadMoreProducts()" class="border border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white px-8 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+            Load More
+        </button>
+    </div>
+</main>
+        <!-- ==================== GLOBAL FOOTER PLACEHOLDER ==================== -->
     <div id="footer-placeholder"></div>
+
   <!-- ১. ফায়ারবেস সিডিএন লাইব্রেরি -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script> <!-- ফায়ারবেস অথ লাইব্রেরি যুক্ত করা হয়েছে -->
