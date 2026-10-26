@@ -16,6 +16,7 @@
 // ০. তাত্ক্ষণিক থিম ও ভাষা প্রয়োগ (Instant FOUC-Free Initialization)
 // স্ক্রিপ্ট পড়ার সাথে সাথে এক্সিকিউট হয় যেন পেইজে কোনো সাদা ফ্লিকার না ঘটে
 // ==========================================================================
+// এই সেলফ-ইনভোকিং ফাংশনটি পেজ লোডের মুহূর্তে ফ্লিকারিং প্রতিরোধ করে তৎক্ষণাৎ সংরক্ষিত থিম ও ভাষা প্রয়োগ করে
 (function initInstantThemeAndLang() {
     try {
         const savedTheme = localStorage.getItem('theme');
@@ -38,6 +39,7 @@
 // ==========================================================================
 // ১. গ্লোবাল ইউনিফাইড ন্যাভবার রেন্ডারার (Global Unified Navbar Renderer)
 // ==========================================================================
+// এই ফাংশনটি সমস্ত ওয়েব পেজে রেসপনসিভ গ্লোবাল ন্যাভবার এবং মোবাইল ড্রয়ার ইনজেক্ট করে
 function renderGlobalNavbar() {
     const placeholder = document.getElementById('navbar-placeholder') || document.querySelector('.custom-navbar-wrapper');
     if (!placeholder) return;
@@ -450,6 +452,7 @@ function renderGlobalNavbar() {
 // ==========================================================================
 // ২. থিম কন্ট্রোলার - ডার্ক, লাইট ও সিস্টেম অটোমেটিক মোড (Theme Engine)
 // ==========================================================================
+// এই ফাংশনটি ডকুমেন্টে ডার্ক বা লাইট মোডের ক্লাস এবং এট্রিবিউট প্রয়োগ করে এবং লোকালস্টোরেজে সংরক্ষণ করে
 function applyTheme(theme, persist = true) {
     const htmlElement = document.documentElement;
     const isDark = theme === 'dark';
@@ -467,11 +470,13 @@ function applyTheme(theme, persist = true) {
     }
 }
 
+// এই ফাংশনটি থিম টগল বাটন ও অপারেটিং সিস্টেমের ডার্ক মোড প্রেফারেন্স পরিবর্তনের লাইভ লিসেনার সেটআপ করে
 function initThemeModule() {
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const drawerThemeToggleBtn = document.getElementById('mobileDrawerThemeToggleBtn');
     const htmlElement = document.documentElement;
 
+    // এই ফাংশনটি থিম বাটনে ক্লিক করা হলে বর্তমান থিম পরিবর্তন (লাইট থেকে ডার্ক বা ডার্ক থেকে লাইট) করে
     function handleToggle() {
         const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -582,6 +587,7 @@ const translations = {
     }
 };
 
+// এই ফাংশনটি নির্বাচিত ভাষা অনুযায়ী ওয়েবসাইটের সমস্ত টেক্সট, ইনপুট প্লেসহোল্ডার এবং ড্রপডাউন অনুবাদ করে
 function changeLanguage(language) {
     const selectedLanguage = translations[language] ? language : 'en';
 
@@ -616,6 +622,7 @@ function changeLanguage(language) {
     }
 }
 
+// এই ফাংশনটি ভাষা পরিবর্তনের সিলেক্ট ড্রপডাউনের জন্য ইভেন্ট হ্যান্ডলার ইনিশিয়ালাইজ করে এবং সংরক্ষিত ভাষা লোড করে
 function initLanguageModule() {
     const languageSelect = document.getElementById('languageSelect');
     const drawerLangSelect = document.getElementById('mobileDrawerLangSelect');
@@ -638,6 +645,7 @@ function initLanguageModule() {
 // ==========================================================================
 // ৪. অ্যাডভান্সড লাইভ ইনস্ট্যান্ট সার্চ ইঞ্জিন (Live Instant Search & Autocomplete)
 // ==========================================================================
+// এই ফাংশনটি ব্যানার ও হিরো স্লাইডার ব্যতীত সকল বিক্রয়যোগ্য পারফিউম প্রোডাক্টের তালিকা রিটার্ন করে
 function getAllAvailableProducts() {
     const isBanner = window.isBannerItem || function(p) {
         if (!p) return false;
@@ -659,6 +667,7 @@ function getAllAvailableProducts() {
     return prods.filter(p => !isBanner(p));
 }
 
+// এই ফাংশনটি সার্চ কুয়েরির ভিত্তিতে পাওয়া প্রোডাক্টগুলোর ড্রপডাউন সাজেশন তালিকা রেন্ডার করে
 function renderSearchDropdownContent(query, matched, containerEl) {
     if (!containerEl) return;
 
@@ -722,6 +731,7 @@ function renderSearchDropdownContent(query, matched, containerEl) {
     containerEl.classList.remove('hidden');
 }
 
+// এই ফাংশনটি সার্চ ইনপুটের বিশেষ ক্যারেক্টারগুলোকে নিরাপদ HTML এনটিটিতে রূপান্তর করে XSS আক্রমণ প্রতিরোধ করে
 function escapeSearchHtml(str) {
     if (!str) return '';
     return String(str)
@@ -732,6 +742,7 @@ function escapeSearchHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+// এই ফাংশনটি ডেস্কটপ ও মোবাইলের সকল ওপেন সার্চ রেজাল্ট ড্রপডাউন বন্ধ ও হাইড করে
 function closeAllSearchDropdowns() {
     const dDesk = document.getElementById('desktop-search-dropdown');
     const dMob = document.getElementById('mobile-search-dropdown');
@@ -739,6 +750,7 @@ function closeAllSearchDropdowns() {
     if (dMob) dMob.classList.add('hidden');
 }
 
+// এই ফাংশনটি লাইভ সার্চ ইনপুট ফিল্ড ও ড্রপডাউনের সমস্ত ইভেন্ট হ্যান্ডলার ইনিশিয়ালাইজ করে
 function initLiveSearchModule() {
     const desktopInput = document.getElementById('productSearchInput');
     const mobileInput = document.getElementById('mobileSearchInput');
@@ -747,6 +759,7 @@ function initLiveSearchModule() {
     const clearBtnDesk = document.getElementById('clearSearchBtnDesktop');
     const clearBtnMob = document.getElementById('clearSearchBtnMobile');
 
+    // এই ফাংশনটি সার্চ ইনপুটে টাইপ করার সাথে সাথে রিয়েল-টাইমে প্রোডাক্ট ফিল্টার করে সাজেস্টেড ফলাফল প্রদর্শন করে
     function handleInputLiveSearch(inputEl, dropdownEl, clearBtn) {
         if (!inputEl || !dropdownEl) return;
 
@@ -777,6 +790,7 @@ function initLiveSearchModule() {
         renderSearchDropdownContent(val, matched, dropdownEl);
     }
 
+    // এই ফাংশনটি সার্চ ফিল্ডে ইনপুট, ফোকাস, ক্লিয়ার বাটন ও কীবোর্ড এন্টার ইভেন্ট যুক্ত করে
     function setupSearchField(inputEl, dropdownEl, clearBtn) {
         if (!inputEl) return;
 
@@ -826,6 +840,7 @@ function initLiveSearchModule() {
 // ==========================================================================
 // ৫. কার্ট ব্যাজ ও ইউজার স্টেট সিঙ্ক (Cart Count & Auth State Initializer)
 // ==========================================================================
+// এই ফাংশনটি লোকালস্টোরেজ থেকে কার্ট আইটেমের সংখ্যা হিসাব করে ন্যাভবারের ব্যাজ কাউন্টারে প্রদর্শন করে
 function initNavbarCartBadge() {
     let cartKey = 'nayan_cart_guest';
     try {
@@ -855,6 +870,7 @@ function initNavbarCartBadge() {
 // ==========================================================================
 // ৬. মোবাইল ড্রয়ার এবং মোবাইল সার্চ ইনিশিয়ালাইজার (Mobile Drawer & UX)
 // ==========================================================================
+// এই ফাংশনটি মোবাইল ডিভাইসের জন্য সাইডবার মেনু ড্রয়ার ওপেন ও ক্লোজ করার হ্যান্ডলার যুক্ত করে
 function initMobileDrawer() {
     const toggleBtn = document.getElementById('mobileMenuToggleBtn');
     const closeBtn = document.getElementById('mobileDrawerCloseBtn');
@@ -907,6 +923,7 @@ function initMobileDrawer() {
     });
 }
 
+// এই ফাংশনটি মোবাইল স্ক্রিনে সার্চ ফিল্ডে স্মুথ স্ক্রোল করে কার্সর ফোকাস করে
 window.focusMobileSearch = function() {
     const mobileInput = document.getElementById('mobileSearchInput');
     if (mobileInput) {

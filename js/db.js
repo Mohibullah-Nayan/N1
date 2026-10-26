@@ -30,6 +30,7 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 // ২. ফায়ারবেস রিয়েল-টাইম প্রোডাক্ট লিসেনার (Real-time Products Listener)
 // ==========================================================================
 // ব্যানার আইটেম কি না তা নিশ্চিত করার ইউনিভার্সাল হেল্পার ফাংশন
+// এই ফাংশনটি একটি আইটেম ব্যানার বা স্লাইডারের অংশ কিনা তা ক্যাটাগরি ও হোম সেকশন দিয়ে যাচাই করে
 function isBannerItem(item) {
     if (!item) return false;
     if (item.isBanner === true || item.isHeroBanner === true || item.type === 'banner') return true;
@@ -41,6 +42,7 @@ function isBannerItem(item) {
 }
 window.isBannerItem = isBannerItem;
 
+// এই ফাংশনটি ফায়ারস্টোর ডাটাবেস থেকে রিয়েল-টাইমে প্রোডাক্ট তালিকা লোড করে সাধারণ প্রোডাক্ট ও ব্যানারে পৃথক করে
 function setupFirebaseListener() {
     console.log("Firebase listener function called!");
 
@@ -85,6 +87,7 @@ function setupFirebaseListener() {
 // ==========================================================================
 // ৩. ইউজার অথেন্টিকেশন ও হেডার ড্রপডাউন লজিক (User Auth & Header Dropdown)
 // ==========================================================================
+// এই ফাংশনটি ফায়ারবেস অথেন্টিকেশন স্টেট পরিবর্তন ট্র্যাক করে হেডারে ইউজারের নাম ও প্রোফাইল ড্রপডাউন আপডেট করে
 function setupAuthHeaderListener() {
     if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged(async (user) => {

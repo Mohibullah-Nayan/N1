@@ -133,97 +133,26 @@
     </main>
 
   <!-- Firebase Auth Integration Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD6TSzBthiUw_HkKfBc3hkQnw_mQEs8FZU",
-            authDomain: "nayan-bc068.firebaseapp.com",
-            projectId: "nayan-bc068",
-            storageBucket: "nayan-bc068.firebasestorage.app",
-            messagingSenderId: "782323259018",
-            appId: "1:782323259018:web:a428fe0d96897711223f73",
-            measurementId: "G-8PJVBLSPZV"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const googleProvider = new GoogleAuthProvider();
-        const facebookProvider = new FacebookAuthProvider();
-
-        const myRealAdminEmail = "mohibullahnayan.cse@gmail.com";
-
-        // ইমেইল পাসওয়ার্ড লগইন
-        window.handleAdminLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                if (email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Login failed! Please check your email or password.');
-                console.error(error);
-            }
-        }
-
-        // গুগল দিয়ে লগইন
-        window.handleGoogleLogin = async function() {
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
-                
-                if (user.email && user.email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Google Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Google Login failed: ' + error.message);
-                console.error(error);
-            }
-        }
-
-        // ফেসবুক দিয়ে লগইন
-        window.handleFacebookLogin = async function() {
-            try {
-                const result = await signInWithPopup(auth, facebookProvider);
-                const user = result.user;
-                
-                if (user.email && user.email.toLowerCase() === myRealAdminEmail.toLowerCase()) {
-                    alert('Welcome, Admin! 🎉');
-                    window.location.href = 'admin.html';
-                } else {
-                    alert('Facebook Login successful! 🎉');
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                alert('Facebook Login failed: ' + error.message);
-                console.error(error);
-            }
-        }
-    </script>
+    <script type="module" src="js/login.js"></script>
     <!-- ১. ফায়ারবেস সিডিএন লাইব্রেরি -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- ৩. আপনার ডেটাবেজ ফাইল -->
-    <script src="db.js"></script>
+    <script src="js/db.js"></script>
 
     <!-- ৪. আপনার মূল লজিক ফাইল -->
-    <script src="script.js"></script>
-<script src="nav.js"></script>
+    <script src="js/slider.js"></script>
+
+    <script src="js/reviews.js"></script>
+
+    <script src="js/cart.js"></script>
+
+    <script src="js/products.js"></script>
+
+    <script src="js/script.js"></script>
+<script src="js/nav.js"></script>
 
 
 </body>

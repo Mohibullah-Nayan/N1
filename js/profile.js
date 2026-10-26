@@ -12,6 +12,7 @@ let currentUser = null;
 let profileUnsubscribe = null;
 
 // ইউটিলিটি: নোটিফিকেশন টোস্ট দেখানো
+// এই ফাংশনটি প্রোফাইল আপডেট বা ভুলের বার্তা দিয়ে কালারফুল অ্যালার্ট টোস্ট নোটিফিকেশন প্রদর্শন করে
 function showProfileAlert(msg, isSuccess = true) {
     const alertBox = document.getElementById("profile-alert-box");
     if (!alertBox) return;
@@ -149,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==========================================================================
 // ৩. কাস্টমার প্রোফাইল তথ্য আপডেট (Email Non-editable & Protected)
 // ==========================================================================
+// এই ফাংশনটি কাস্টমারের নাম, ফোন নম্বর, জেন্ডার ও ডেলিভারি ঠিকানা যাচাই করে ফায়ারস্টোরে সেভ করে
 async function handleProfileSave(event) {
     if (event) event.preventDefault();
     if (!currentUser) {
@@ -205,6 +207,7 @@ async function handleProfileSave(event) {
 // ==========================================================================
 // ৪. সিকিউর পাসওয়ার্ড পরিবর্তন (Firebase Auth Password Update)
 // ==========================================================================
+// এই ফাংশনটি ফায়ারবেস অথেন্টিকেশনের মাধ্যমে ইউজারের সিকিউর একাউন্ট পাসওয়ার্ড পরিবর্তন করে
 async function handlePasswordChange(event) {
     if (event) event.preventDefault();
     if (!currentUser) {
@@ -253,6 +256,7 @@ async function handlePasswordChange(event) {
 }
 
 // পাসওয়ার্ড ভিউ/হাইড টগল
+// এই ফাংশনটি পাসওয়ার্ড ইনপুটের টাইপ (Password/Text) এবং চোখের আইকন টগল করে পাসওয়ার্ড প্রদর্শন করে
 function togglePasswordVisibility(inputId, iconBtn) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -267,6 +271,7 @@ function togglePasswordVisibility(inputId, iconBtn) {
 // ==========================================================================
 // ৫. ইউজার লগআউট সিস্টেম
 // ==========================================================================
+// এই ফাংশনটি ইউজারকে ফায়ারবেস অথেন্টিকেশন থেকে লগআউট করিয়ে লগইন পেজে পাঠায়
 async function handleUserLogout() {
     if (confirm("Are you sure you want to log out of your account?")) {
         try {
