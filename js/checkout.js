@@ -163,7 +163,7 @@
       // ৩. কুপন ডিসকাউন্ট ইঞ্জিন (Coupon Discount Engine)
       // ==========================================================================
       // এই ফাংশনটি কুপন কোড যাচাই করে ডিসকাউন্ট হিসাব করে এবং ফাইনাল বিলে প্রয়োগ করে
-      function applyCoupon() {
+      async function applyCoupon() {
         let codeInput = document
           .getElementById("coupon-input")
           .value.trim()
@@ -176,9 +176,29 @@
           return;
         }
 
-        let adminCoupons =
-          JSON.parse(localStorage.getItem("adminCoupons")) || [];
-        let foundCoupon = adminCoupons.find((c) => c.code === codeInput);
+        msgEl.innerText = "Verifying coupon code...";
+        msgEl.className = "text-[11px] mt-1.5 text-blue-500 font-semibold animate-pulse";
+
+        let foundCoupon = null;
+
+        // ১. ফায়ারস্টোর ক্লাউড থেকে কুপন যাচাই করা
+        try {
+          if (typeof firebase !== "undefined" && firebase.firestore) {
+            const docSnap = await firebase.firestore().collection("coupons").doc(codeInput).get();
+            if (docSnap.exists) {
+              foundCoupon = docSnap.data();
+              foundCoupon.id = docSnap.id;
+            }
+          }
+        } catch (fErr) {
+          console.warn("Firestore coupon fetch notice:", fErr);
+        }
+
+        // ২. লোকালস্টোরেজ ফলব্যাক
+        if (!foundCoupon) {
+          let adminCoupons = JSON.parse(localStorage.getItem("adminCoupons")) || [];
+          foundCoupon = adminCoupons.find((c) => c.code === codeInput || c.id === codeInput);
+        }
 
         if (!foundCoupon) {
           msgEl.innerText = "Invalid or expired coupon code!";
@@ -193,24 +213,48 @@
         let cartKey = getActiveCartKey();
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         let subtotal = 0;
+
+        // যদি কুপন নির্দিষ্ট কিছু প্রোডাক্টের জন্য নির্ধারিত থাকে
+        let eligibleSubtotal = 0;
+        let isSpecific = foundCoupon.scope === "specific" && Array.isArray(foundCoupon.selectedProducts) && foundCoupon.selectedProducts.length > 0;
+
         cart.forEach((item) => {
           let cleanPrice =
             parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
-          subtotal += cleanPrice * item.quantity;
+          let itemTotal = cleanPrice * item.quantity;
+          subtotal += itemTotal;
+
+          if (isSpecific) {
+            if (foundCoupon.selectedProducts.includes(item.id)) {
+              eligibleSubtotal += itemTotal;
+            }
+          }
         });
 
+        if (isSpecific && eligibleSubtotal <= 0) {
+          msgEl.innerText = "This coupon is not applicable to the items in your cart.";
+          msgEl.className = "text-[11px] mt-1.5 text-rose-500 font-semibold";
+          appliedDiscount = 0;
+          appliedCouponCode = "";
+          loadCheckoutSummary();
+          document.getElementById("discount-row").classList.add("hidden");
+          return;
+        }
+
+        let baseAmount = isSpecific ? eligibleSubtotal : subtotal;
+
         if (foundCoupon.type === "percent") {
-          appliedDiscount = Math.round((subtotal * foundCoupon.value) / 100);
+          appliedDiscount = Math.round((baseAmount * Number(foundCoupon.value)) / 100);
         } else {
-          appliedDiscount = foundCoupon.value;
+          appliedDiscount = Number(foundCoupon.value) || 0;
         }
 
-        if (appliedDiscount > subtotal) {
-          appliedDiscount = subtotal;
+        if (appliedDiscount > baseAmount) {
+          appliedDiscount = baseAmount;
         }
 
-        appliedCouponCode = foundCoupon.code;
-        msgEl.innerText = `Success! Coupon "${foundCoupon.code}" applied.`;
+        appliedCouponCode = foundCoupon.code || codeInput;
+        msgEl.innerText = `✓ Success! Coupon "${appliedCouponCode}" applied.`;
         msgEl.className =
           "text-[11px] mt-1.5 text-emerald-600 dark:text-emerald-400 font-bold";
 
@@ -407,6 +451,29 @@
             }
           } catch (stockErr) {
             console.warn("Stock auto-decrement notice:", stockErr);
+          }
+
+          // কুপন ব্যবহার করা হলে ফায়ারস্টোরে কুপন রিডেম্পশন রেকর্ড আপডেট করা
+          if (appliedCouponCode && appliedCouponCode !== "None") {
+            try {
+              if (typeof firebase !== "undefined" && firebase.firestore) {
+                const couponRef = firebase.firestore().collection("coupons").doc(appliedCouponCode);
+                const cSnap = await couponRef.get();
+                if (cSnap.exists) {
+                  await couponRef.update({
+                    usedCount: firebase.firestore.FieldValue.increment(1),
+                    usedByCustomers: firebase.firestore.FieldValue.arrayUnion({
+                      name: customerName,
+                      phone: customerPhone,
+                      orderId: orderId,
+                      usedAt: Date.now()
+                    })
+                  });
+                }
+              }
+            } catch (couponRedeemErr) {
+              console.warn("Coupon redemption sync notice:", couponRedeemErr);
+            }
           }
 
           localStorage.removeItem(cartKey);
