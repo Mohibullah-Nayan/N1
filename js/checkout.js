@@ -268,7 +268,13 @@
           subtotal += itemTotal;
 
           if (isSpecific) {
-            if (foundCoupon.selectedProducts.includes(item.id)) {
+            const isMatch = foundCoupon.selectedProducts.some((pId) => {
+              const strPId = String(pId).trim().toLowerCase();
+              const strItemId = String(item.id || '').trim().toLowerCase();
+              const strItemTitle = String(item.title || '').trim().toLowerCase();
+              return strPId === strItemId || strPId === strItemTitle;
+            });
+            if (isMatch) {
               eligibleSubtotal += itemTotal;
             }
           }

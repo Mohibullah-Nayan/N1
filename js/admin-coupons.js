@@ -26,7 +26,7 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
         }
     };
 
-    // কুপনের জন্য প্রোডাক্ট লোড করার ফাংশন
+    // কুপনের জন্য প্রোডাক্ট লোড করার ফাংশন (মাল্টিপল প্রোডাক্ট সাপোর্ট ও গ্লোবাল ম্যাপ ক্যাশিং সহ)
     window.loadProductsForCoupon = async function() {
         let container = document.getElementById('coupon-products-container'); 
         if (!container) return;
@@ -40,23 +40,67 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
                 return;
             }
 
+            if (!window.globalProductsMap) window.globalProductsMap = {};
             let checkboxesHTML = '';
             querySnapshot.forEach((docSnap) => {
                 let product = docSnap.data();
                 let productId = docSnap.id;
+                let title = product.title || product.name || 'Unnamed Product';
+                window.globalProductsMap[productId] = title;
+
                 const isBanner = product.isBanner || product.isHeroBanner || (product.homeSection && (product.homeSection.startsWith('slider-') || product.homeSection === 'side-banner'));
                 if (!isBanner) {
                     checkboxesHTML += `
-                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg">
-                            <input type="checkbox" name="coupon-product" value="${productId}" class="rounded border-slate-300 text-[#F26522] focus:ring-[#F26522]">
-                            <span class="truncate">${product.title || 'Unnamed Product'}</span>
+                        <label class="coupon-product-item flex items-center justify-between gap-2 text-xs text-slate-700 cursor-pointer hover:bg-white p-2 rounded-xl border border-transparent hover:border-amber-200 transition" data-title="${title.toLowerCase()}">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <input type="checkbox" name="coupon-product" value="${productId}" onchange="updateCouponSelectedCount()" class="coupon-prod-cb rounded border-slate-300 text-[#F26522] focus:ring-[#F26522] w-4 h-4 cursor-pointer">
+                                <span class="truncate font-semibold text-slate-800">${title}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-mono shrink-0">${productId}</span>
                         </label>
                     `;
                 }
             });
             container.innerHTML = checkboxesHTML || `<p class="text-slate-400 text-xs p-2">No items eligible.</p>`;
+            updateCouponSelectedCount();
         } catch (error) {
             console.error("Error loading products for coupon: ", error);
+        }
+    };
+
+    // কুপন প্রোডাক্ট লিস্টে সার্চ ফিল্টার
+    window.filterCouponProductsSearch = function() {
+        const query = (document.getElementById('coupon-product-search')?.value || '').trim().toLowerCase();
+        const items = document.querySelectorAll('.coupon-product-item');
+        items.forEach(item => {
+            const title = item.getAttribute('data-title') || '';
+            if (!query || title.includes(query)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    };
+
+    // সিলেক্ট অল / ক্লিয়ার অল প্রোডাক্টস
+    window.selectAllCouponProducts = function(select) {
+        const visibleCheckboxes = document.querySelectorAll('.coupon-product-item:not([style*="display: none"]) input[name="coupon-product"]');
+        visibleCheckboxes.forEach(cb => {
+            cb.checked = select;
+        });
+        updateCouponSelectedCount();
+    };
+
+    // বর্তমান সিলেক্টেড প্রোডাক্ট সংখ্যা আপডেট
+    window.updateCouponSelectedCount = function() {
+        const checked = document.querySelectorAll('input[name="coupon-product"]:checked');
+        const countSpan = document.getElementById('coupon-selected-count');
+        if (countSpan) {
+            countSpan.innerText = `${checked.length} Selected`;
+        }
+        const submitBtnText = document.getElementById('coupon-submit-btn-text');
+        if (submitBtnText && window.activeEditingCouponCode) {
+            submitBtnText.innerText = `Update Coupon "${window.activeEditingCouponCode}" (${checked.length} Products)`;
         }
     };
 
@@ -91,6 +135,63 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
     }
 
     // এই ফাংশনটি নতুন ডিসকাউন্ট কুপন তৈরি করে ফায়ারস্টোর ও লোকালস্টোরেজে সেভ করে
+    
+    // কুপন এডিট ফাংশন (পূর্বের সকল সিলেক্টেড প্রোডাক্ট প্রিজার্ভ করে এডিট ফর্ম ওপেন করে)
+    window.editCoupon = function(couponCode) {
+        if (!couponCode) return;
+        const codeClean = String(couponCode).trim().toUpperCase();
+
+        let coupons = JSON.parse(localStorage.getItem('adminCoupons')) || [];
+        let coupon = coupons.find(c => c.code === codeClean || c.id === codeClean);
+        if (!coupon) return;
+
+        window.activeEditingCouponCode = codeClean;
+
+        document.getElementById('coupon-code').value = coupon.code;
+        document.getElementById('coupon-type').value = coupon.type || 'percent';
+        document.getElementById('coupon-value').value = coupon.value || '';
+        document.getElementById('coupon-scope').value = coupon.scope || 'all';
+
+        toggleProductSelectionBox();
+
+        // পূর্বের নির্বাচিত সকল প্রোডাক্ট অটোমেটিক টিক দিয়ে রাখা যাতে কোনো প্রোডাক্ট মুছে না যায়
+        const selectedIds = coupon.selectedProducts || [];
+        const allCheckboxes = document.querySelectorAll('input[name="coupon-product"]');
+        allCheckboxes.forEach(cb => {
+            cb.checked = selectedIds.includes(cb.value);
+        });
+
+        updateCouponSelectedCount();
+
+        // এডিট মোড ব্যানার প্রদর্শন
+        const editAlert = document.getElementById('coupon-edit-alert');
+        const editText = document.getElementById('editing-coupon-code-text');
+        if (editAlert) editAlert.classList.remove('hidden');
+        if (editText) editText.innerText = codeClean;
+
+        const submitBtnText = document.getElementById('coupon-submit-btn-text');
+        if (submitBtnText) {
+            submitBtnText.innerText = `Update Coupon "${codeClean}" (${selectedIds.length} Products)`;
+        }
+
+        // স্মুথলি কুপন ফর্মে স্ক্রোল করা
+        const formEl = document.getElementById('coupon-management-section');
+        if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // এডিট মোড বাতিল করা
+    window.cancelCouponEdit = function() {
+        window.activeEditingCouponCode = null;
+        const form = document.getElementById('coupon-form');
+        if (form) form.reset();
+        toggleProductSelectionBox();
+        selectAllCouponProducts(false);
+        const editAlert = document.getElementById('coupon-edit-alert');
+        if (editAlert) editAlert.classList.add('hidden');
+        const submitBtnText = document.getElementById('coupon-submit-btn-text');
+        if (submitBtnText) submitBtnText.innerText = 'Create & Activate Coupon';
+    };
+
     window.createCoupon = async function(e) {
         e.preventDefault();
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -111,6 +212,15 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
                 document.querySelectorAll('input[name="coupon-product"]:checked').forEach((checkbox) => {
                     selectedProducts.push(checkbox.value);
                 });
+
+                // যদি এডিট মোড ছাড়াও আগে থেকে একই কোডের কুপন থেকে থাকে, তবে পূর্বের প্রোডাক্টসহ মার্জ করা
+                let localCoupons = JSON.parse(localStorage.getItem('adminCoupons')) || [];
+                let existingCoupon = localCoupons.find(c => c.code === code || c.id === code);
+                if (existingCoupon && existingCoupon.selectedProducts && Array.isArray(existingCoupon.selectedProducts)) {
+                    // পূর্বের ও নতুন সিলেক্ট করা প্রোডাক্টগুলো একত্রিত (merge) করা
+                    selectedProducts = Array.from(new Set([...existingCoupon.selectedProducts, ...selectedProducts]));
+                }
+
                 if (selectedProducts.length === 0) {
                     alert('Please select at least one product for this specific coupon.');
                     return;
@@ -145,7 +255,7 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
             
             alert(`Coupon "${code}" created and activated successfully! 🎟️`);
             e.target.reset();
-            toggleProductSelectionBox();
+            cancelCouponEdit();
             loadProductsForCoupon();
             renderCouponsTable(coupons);
         } catch (error) {
@@ -267,9 +377,14 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
                     <td class="p-3.5 max-w-xs">${productListHtml}</td>
                     <td class="p-3.5 max-w-xs">${customersHtml}</td>
                     <td class="p-3.5 text-right whitespace-nowrap">
-                        <button type="button" onclick="deleteCoupon('${couponCode}')" class="bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-500/20 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-trash text-[10px]"></i> Delete
-                        </button>
+                        <div class="inline-flex items-center gap-2">
+                            <button type="button" onclick="editCoupon('${couponCode}')" class="bg-amber-500/10 text-amber-700 hover:bg-amber-500 hover:text-white border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer" title="Edit and manage coupon products">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
+                            </button>
+                            <button type="button" onclick="deleteCoupon('${couponCode}')" class="bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-trash text-[10px]"></i> Delete
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -303,3 +418,6 @@ window.loadProductsForCoupon = loadProductsForCoupon;
 window.createCoupon = createCoupon;
 window.loadCouponsList = loadCouponsList;
 window.deleteCoupon = deleteCoupon;
+
+window.editCoupon = editCoupon;
+window.cancelCouponEdit = cancelCouponEdit;
