@@ -458,7 +458,7 @@ const categoryAliasesMap = {
     'man': ['men', 'man', 'parfum', 'eau-de-parfum'],
     'kids': ['kids', 'kid', 'attar', 'premium-attar'],
     'kid': ['kids', 'kid', 'attar', 'premium-attar'],
-    'unisex': ['unisex'],
+    'unisex': ['unisex', 'gift-sets', 'giftsets', 'giftset', 'gift-set'],
     'gift-sets': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
     'giftsets': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
     'giftset': ['gift-sets', 'giftsets', 'giftset', 'mens-luxury', 'gift'],
