@@ -14,6 +14,102 @@ import { collection, addDoc, setDoc, getDocs, getDoc, query, deleteDoc, doc, ser
     // ৮. অ্যাডমিন ড্যাশবোর্ড ও রিয়েল-টাইম অর্ডার ইঞ্জিন (Orders Real-time Engine)
     // ==========================================================================
     // এই ফাংশনটি ড্যাশবোর্ডের মোট বিক্রি, মোট অর্ডার, রিয়েল-টাইম অর্ডার টেবিল ও রেভিনিউ কেপিআই কার্ড লোড করে
+    
+// সার্বজনীন অর্ডার ডেট পার্সার (Firestore Timestamp, ISO, DD/MM/YYYY, বাংলা সংখ্যা নিখুঁতভাবে হ্যান্ডেল করে)
+function parseOrderDate(order) {
+    if (!order) return null;
+    
+    // ১. ফায়ারস্টোর Timestamp অবজেক্ট চেক (.toDate(), .toMillis(), .seconds)
+    if (order.createdAt) {
+        if (typeof order.createdAt.toDate === 'function') {
+            try {
+                const d = order.createdAt.toDate();
+                if (d instanceof Date && !isNaN(d.getTime())) return d;
+            } catch (e) {}
+        }
+        if (typeof order.createdAt.toMillis === 'function') {
+            try {
+                const d = new Date(order.createdAt.toMillis());
+                if (!isNaN(d.getTime())) return d;
+            } catch (e) {}
+        }
+        if (typeof order.createdAt.seconds === 'number') {
+            const d = new Date(order.createdAt.seconds * 1000);
+            if (!isNaN(d.getTime())) return d;
+        }
+        if (typeof order.createdAt._seconds === 'number') {
+            const d = new Date(order.createdAt._seconds * 1000);
+            if (!isNaN(d.getTime())) return d;
+        }
+        if (typeof order.createdAt === 'number') {
+            const d = new Date(order.createdAt);
+            if (!isNaN(d.getTime())) return d;
+        }
+        if (typeof order.createdAt === 'string') {
+            const d = new Date(order.createdAt);
+            if (!isNaN(d.getTime())) return d;
+        }
+    }
+    
+    // ২. বিকল্প টাইমস্ট্যাম্প ফিল্ড
+    const alt = order.timestamp || order.orderDate || order.created_at;
+    if (alt) {
+        if (typeof alt.toDate === 'function') {
+            try { return alt.toDate(); } catch (e) {}
+        }
+        if (typeof alt.seconds === 'number') return new Date(alt.seconds * 1000);
+        const d = new Date(alt);
+        if (!isNaN(d.getTime())) return d;
+    }
+    
+    // ৩. টেক্সট ডেট ফিল্ড (order.date) - ইংরেজি ও বাংলা সংখ্যা উভয়ই সমর্থন করে
+    if (order.date) {
+        let rawDate = String(order.date).trim();
+        const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        bnDigits.forEach((digit, idx) => {
+            rawDate = rawDate.split(digit).join(String(idx));
+        });
+        
+        if (/^\d{4}-\d{1,2}-\d{1,2}/.test(rawDate)) {
+            const d = new Date(rawDate);
+            if (!isNaN(d.getTime())) return d;
+        }
+        
+        const parts = rawDate.split(/[/\-.]/);
+        if (parts.length === 3) {
+            let p0 = parseInt(parts[0], 10);
+            let p1 = parseInt(parts[1], 10);
+            let p2 = parseInt(parts[2], 10);
+            if (p2 < 100) p2 += 2000;
+            
+            if (p0 > 12) {
+                const d = new Date(p2, p1 - 1, p0);
+                if (!isNaN(d.getTime())) return d;
+            } else if (p1 > 12) {
+                const d = new Date(p2, p0 - 1, p1);
+                if (!isNaN(d.getTime())) return d;
+            } else {
+                const d = new Date(p2, p1 - 1, p0);
+                if (!isNaN(d.getTime())) return d;
+            }
+        }
+        const fallback = new Date(rawDate);
+        if (!isNaN(fallback.getTime())) return fallback;
+    }
+    
+    return null;
+}
+window.parseOrderDate = parseOrderDate;
+
+// দুটি ডেট একই দিন (Today) কি না তা শতভাগ নিখুঁতভাবে যাচাই
+function isSameDay(d1, d2) {
+    if (!d1 || !d2) return false;
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+}
+window.isSameDay = isSameDay;
+
     window.loadAdminDashboardData = function(filteredOrders = null) {
         const ordersRef = collection(db, "orders");
         

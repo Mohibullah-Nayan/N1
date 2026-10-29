@@ -55,17 +55,21 @@
             }
 
             // ২. ডেট ক্যালকুলেশন করে গত ৭ দিনের কোনো দিনে পড়ে তা বের করা
-            let orderDateObj = null;
-            if (order.createdAt) {
-                orderDateObj = new Date(order.createdAt);
-            } else if (order.date) {
-                let parts = String(order.date).split('/');
-                if (parts.length === 3) {
-                    orderDateObj = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
-                } else {
-                    orderDateObj = new Date(order.date);
+            const getOrderDate = typeof window.parseOrderDate === 'function' ? window.parseOrderDate : function(o) {
+                if (!o) return null;
+                if (o.createdAt) {
+                    if (typeof o.createdAt.toDate === 'function') return o.createdAt.toDate();
+                    if (o.createdAt.seconds) return new Date(o.createdAt.seconds * 1000);
+                    const d = new Date(o.createdAt);
+                    if (!isNaN(d.getTime())) return d;
                 }
-            }
+                if (o.date) {
+                    const d = new Date(o.date);
+                    if (!isNaN(d.getTime())) return d;
+                }
+                return null;
+            };
+            let orderDateObj = getOrderDate(order);
 
             if (orderDateObj && !isNaN(orderDateObj.getTime())) {
                 const orderMid = new Date(orderDateObj.getFullYear(), orderDateObj.getMonth(), orderDateObj.getDate()).getTime();
