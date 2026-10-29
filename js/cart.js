@@ -27,25 +27,63 @@ function getCartStorageKey() {
 // কার্টে প্রোডাক্ট সেভ করার সেন্ট্রালাইজড ফাংশন
 // এই ফাংশনটি প্রোডাক্ট এবং পরিমাণ কার্টে যুক্ত করে লোকালস্টোরেজে সংরক্ষণ করে এবং ফায়ারবেসে সিঙ্ক করে
 function saveProductToCart(productObj, quantity) {
+    if (!productObj) return false;
+
+    // লাইভ বা অবজেক্ট স্টক পরীক্ষা করা
+    let availableStock = null;
+    let targetStockVal = productObj.stock;
+    if (targetStockVal === undefined && typeof allProducts !== 'undefined' && Array.isArray(allProducts)) {
+        const match = allProducts.find(p => String(p.id) === String(productObj.id) || p.title === productObj.title);
+        if (match && match.stock !== undefined) targetStockVal = match.stock;
+    }
+
+    if (targetStockVal !== undefined && targetStockVal !== null && String(targetStockVal).trim() !== '') {
+        availableStock = parseInt(targetStockVal);
+    }
+
+    // স্টক ০ বা তার কম হলে কোনো অবস্থাতেই কার্টে ঢুকবে না
+    if (availableStock !== null && availableStock <= 0) {
+        showPopupNotification(`Sorry, "${productObj.title || 'Product'}" is completely out of stock! ❌`);
+        return false;
+    }
+
     let cartKey = getCartStorageKey();
     let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
     let existingIndex = cart.findIndex(item => item.id == productObj.id);
+    let toAdd = parseInt(quantity) || 1;
 
     if (existingIndex > -1) {
-        cart[existingIndex].quantity += parseInt(quantity);
+        let currentInCart = parseInt(cart[existingIndex].quantity) || 0;
+        if (availableStock !== null && (currentInCart + toAdd) > availableStock) {
+            let allowedMore = Math.max(0, availableStock - currentInCart);
+            if (allowedMore <= 0) {
+                showPopupNotification(`You already have the maximum available stock (${availableStock} pcs) of "${productObj.title}" in your cart! ⚠️`);
+                return false;
+            } else {
+                cart[existingIndex].quantity = availableStock;
+                showPopupNotification(`Only ${availableStock} items in stock! Cart quantity set to maximum (${availableStock}). ⚠️`);
+            }
+        } else {
+            cart[existingIndex].quantity += toAdd;
+        }
     } else {
+        if (availableStock !== null && toAdd > availableStock) {
+            toAdd = availableStock;
+            showPopupNotification(`Only ${availableStock} available in stock! Added ${availableStock} to cart. ⚠️`);
+        }
         cart.push({
             id: productObj.id,
             title: productObj.title,
             price: productObj.price,
+            stock: availableStock,
             image: productObj.images && productObj.images[0] ? productObj.images[0] : (productObj.image || ''),
-            quantity: parseInt(quantity)
+            quantity: toAdd
         });
     }
-    localStorage.setItem(cartKey, JSON.stringify(cart));
 
-    // ব্যাকগ্রাউন্ডে ফায়ারবেস ডেটাবেসে সিঙ্ক করার জন্য অতিরিক্ত কল
+    localStorage.setItem(cartKey, JSON.stringify(cart));
     syncCartToFirebaseDatabase(cart);
+    return true;
 }
 
 // এই ফাংশনটি ইউজার লগইন যাচাই করে কার্টে প্রোডাক্ট যুক্ত করা বা সরাসরি চেকআউট প্রক্রিয়া সম্পন্ন করে
@@ -58,6 +96,15 @@ function handleProtectedAction(actionType) {
             window.location.href = "login.html";
         }, 1500);
         return false;
+    }
+
+    const prod = typeof currentProduct !== 'undefined' && currentProduct ? currentProduct : null;
+    if (prod) {
+        const isStockOut = (typeof isOutOfStock === 'function') ? isOutOfStock(prod) : ((prod.stock !== undefined && prod.stock !== null && String(prod.stock).trim() !== '' && Number(prod.stock) <= 0) || prod.isOutOfStock === true);
+        if (isStockOut) {
+            showPopupNotification(`Sorry, "${prod.title || 'This perfume'}" is currently out of stock! ❌`);
+            return false;
+        }
     }
 
     const input = document.getElementById('quantity-input');
@@ -99,6 +146,11 @@ function addProductToCartDirect(prodId) {
 
     const prod = typeof allProducts !== 'undefined' ? allProducts.find(p => p.id == prodId) : null;
     if (prod) {
+        const isStockOut = (typeof isOutOfStock === 'function') ? isOutOfStock(prod) : ((prod.stock !== undefined && prod.stock !== null && String(prod.stock).trim() !== '' && Number(prod.stock) <= 0) || prod.isOutOfStock === true);
+        if (isStockOut) {
+            showPopupNotification(`Sorry, "${prod.title}" is currently out of stock! ❌`);
+            return;
+        }
         saveProductToCart(prod, 1);
         showPopupNotification(`"${prod.title}" added to cart! 🛒`);
         updateCartBadgeCount();
@@ -150,22 +202,42 @@ function renderCartPageItems() {
 
     let totalPrice = 0;
 
+    let hasOutOfStockItems = false;
+
     cart.forEach(item => {
         let cleanPrice = parseInt(String(item.price).replace(/[^\d]/g, '')) || 0;
         let itemTotal = cleanPrice * item.quantity;
         totalPrice += itemTotal;
 
+        // লাইভ স্টক স্টেট চেক
+        const liveMatch = (typeof allProducts !== 'undefined' && Array.isArray(allProducts))
+            ? allProducts.find(p => String(p.id) === String(item.id) || p.title === item.title)
+            : null;
+        let liveStock = null;
+        if (liveMatch && liveMatch.stock !== undefined && liveMatch.stock !== null && String(liveMatch.stock).trim() !== '') {
+            liveStock = parseInt(liveMatch.stock);
+        } else if (item.stock !== undefined && item.stock !== null && String(item.stock).trim() !== '') {
+            liveStock = parseInt(item.stock);
+        }
+
+        const isSoldOut = (liveStock !== null && liveStock <= 0) || (liveMatch && liveMatch.isOutOfStock === true);
+        if (isSoldOut) hasOutOfStockItems = true;
+
         const cardDiv = document.createElement('div');
-        cardDiv.className = "bg-white border border-neutral-200/80 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs hover:shadow-md hover:border-[#F26522]/50 transition-all cursor-pointer";
+        cardDiv.className = `bg-white border ${isSoldOut ? 'border-rose-300 ring-1 ring-rose-200' : 'border-neutral-200/80'} rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all cursor-pointer`;
         cardDiv.setAttribute('onclick', `window.location.href='product-details.html?id=${item.id}'`);
 
         cardDiv.innerHTML = `
             <div class="flex items-center gap-4 w-full sm:w-auto">
                 <img src="${item.image}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-neutral-200 shrink-0" alt="${escapeHTML(item.title)}">
                 <div class="space-y-1">
-                    <h4 class="font-semibold text-neutral-900 text-sm sm:text-base">${escapeHTML(item.title)}</h4>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-semibold text-neutral-900 text-sm sm:text-base">${escapeHTML(item.title)}</h4>
+                        ${isSoldOut ? '<span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fa-solid fa-circle-xmark text-rose-500"></i> Stock Out</span>' : ''}
+                    </div>
                     <p class="text-xs text-neutral-500">Price: <span class="font-medium text-neutral-700">${escapeHTML(item.price)}</span></p>
                     <p class="text-xs text-neutral-500">Quantity: <span class="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">${item.quantity} quantity</span></p>
+                    ${isSoldOut ? '<p class="text-[11px] text-rose-600 font-bold mt-1">⚠️ এই প্রোডাক্টের স্টক শেষ হয়ে গেছে। অর্ডার করতে এটি রিমুভ করুন।</p>' : ''}
                 </div>
             </div>
             
@@ -181,6 +253,13 @@ function renderCartPageItems() {
         `;
         cartContainer.appendChild(cardDiv);
     });
+
+    if (hasOutOfStockItems) {
+        const warnBanner = document.createElement('div');
+        warnBanner.className = "bg-rose-50 border border-rose-300 rounded-xl p-3.5 mb-3 text-xs font-bold text-rose-700 flex items-center gap-2.5 shadow-2xs";
+        warnBanner.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-500 text-sm"></i> <span>আপনার কার্টের কিছু প্রোডাক্টের স্টক শেষ হয়ে গেছে। চেকআউটে যাওয়ার আগে স্টক শেষ হওয়া প্রোডাক্টটি ডিলিট করুন।</span>';
+        cartContainer.prepend(warnBanner);
+    }
 
     let deliveryCharge = 60;
     let grandTotal = totalPrice + deliveryCharge;
@@ -310,3 +389,39 @@ window.handleProtectedAction = handleProtectedAction;
 window.addProductToCartDirect = addProductToCartDirect;
 window.renderCartPageItems = renderCartPageItems;
 window.updateCartBadgeCount = updateCartBadgeCount;
+
+// চেকআউটে যাওয়ার আগে স্টক ভ্যালিডেশন
+function proceedToCheckout() {
+    let cartKey = getCartStorageKey();
+    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+    if (cart.length === 0) {
+        showPopupNotification("Your cart is empty! Please add products first.");
+        return;
+    }
+
+    let hasOut = false;
+    let outTitle = "";
+    cart.forEach(item => {
+        const liveMatch = (typeof allProducts !== 'undefined' && Array.isArray(allProducts))
+            ? allProducts.find(p => String(p.id) === String(item.id) || p.title === item.title)
+            : null;
+        let liveStock = null;
+        if (liveMatch && liveMatch.stock !== undefined && liveMatch.stock !== null && String(liveMatch.stock).trim() !== '') {
+            liveStock = parseInt(liveMatch.stock);
+        } else if (item.stock !== undefined && item.stock !== null && String(item.stock).trim() !== '') {
+            liveStock = parseInt(item.stock);
+        }
+        if ((liveStock !== null && liveStock <= 0) || (liveMatch && liveMatch.isOutOfStock === true)) {
+            hasOut = true;
+            outTitle = item.title || "Product";
+        }
+    });
+
+    if (hasOut) {
+        alert(`দুঃখিত! আপনার কার্টে থাকা "${outTitle}" প্রোডাক্টটির স্টক শেষ হয়ে গেছে। অনুগ্রহ করে কার্ট থেকে আইটেমটি বাদ দিয়ে চেকআউটে যান।`);
+        return;
+    }
+
+    window.location.href = "checkout.html";
+}
+window.proceedToCheckout = proceedToCheckout;

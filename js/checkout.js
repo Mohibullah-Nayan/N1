@@ -124,6 +124,9 @@
           return;
         }
 
+        let hasCheckoutOutItems = false;
+        let outItemNames = [];
+
         cart.forEach((item) => {
           let cleanPrice =
             parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
@@ -137,20 +140,60 @@
             (item.images && item.images[0]) ||
             "./images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg";
 
+          let isItemOut = false;
+          let currentStock = null;
+          if (item.stock !== undefined && item.stock !== null && String(item.stock).trim() !== '') {
+            currentStock = parseInt(item.stock);
+          }
+          if (typeof window.allProducts !== 'undefined' && Array.isArray(window.allProducts)) {
+            const p = window.allProducts.find(x => String(x.id) === String(item.id) || x.title === item.title);
+            if (p && p.stock !== undefined && p.stock !== null && String(p.stock).trim() !== '') {
+              currentStock = parseInt(p.stock);
+            }
+          }
+          if (currentStock !== null && currentStock <= 0) {
+            isItemOut = true;
+            hasCheckoutOutItems = true;
+            outItemNames.push(item.title || "Product");
+          }
+
           itemsContainer.innerHTML += `
-            <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-stone-50/70 dark:bg-slate-800/50 border border-stone-200/70 dark:border-slate-700/60 hover:border-amber-500/40 transition-all">
+            <div class="flex items-center gap-3.5 p-3 rounded-2xl ${isItemOut ? 'bg-rose-50/80 dark:bg-rose-950/40 border-2 border-rose-400' : 'bg-stone-50/70 dark:bg-slate-800/50 border border-stone-200/70 dark:border-slate-700/60'} hover:border-amber-500/40 transition-all">
                 <div class="relative w-14 h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-900 border border-stone-200/80 dark:border-slate-700 shrink-0 flex items-center justify-center p-1">
                     <img src="${itemImage}" class="w-full h-full object-contain" alt="${item.title || "Product"}" onerror="this.onerror=null; this.src='./images/logo/Gemini_Generated_Image_jnlkx1jnlkx1jnlk.jpeg';">
                     <span class="absolute -top-1 -right-1 bg-stone-900 text-amber-400 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-amber-500/40 shadow-xs">${qty}</span>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-stone-900 dark:text-white text-xs sm:text-sm line-clamp-1">${item.title || "Product"}</h4>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-stone-900 dark:text-white text-xs sm:text-sm line-clamp-1">${item.title || "Product"}</h4>
+                        ${isItemOut ? '<span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded border border-rose-300">Out of Stock</span>' : ''}
+                    </div>
                     <p class="text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">৳${cleanPrice.toLocaleString("en-IN")} × ${qty}</p>
+                    ${isItemOut ? '<p class="text-[10px] text-rose-600 font-bold">⚠️ স্টক শেষ হয়ে গেছে। অর্ডার নিশ্চিত করতে এটি কার্ট থেকে বাদ দিন।</p>' : ''}
                 </div>
                 <span class="font-black text-sm text-[#F26522] whitespace-nowrap">৳${itemTotal.toLocaleString("en-IN")}</span>
             </div>
           `;
         });
+
+        const orderBtn = document.getElementById("order-btn");
+        if (hasCheckoutOutItems) {
+          itemsContainer.insertAdjacentHTML('afterbegin', `
+            <div class="p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-triangle-exclamation text-rose-500 text-sm"></i>
+              <span>"${outItemNames.join(', ')}" এর স্টক শেষ হয়ে গেছে। অনুগ্রহ করে কার্ট পেজ থেকে এটি রিমুভ করুন।</span>
+            </div>
+          `);
+          if (orderBtn) {
+            orderBtn.disabled = true;
+            orderBtn.classList.add("opacity-50", "cursor-not-allowed");
+            orderBtn.innerHTML = '<i class="fa-solid fa-ban"></i> <span>Out of Stock Item in Cart</span>';
+          }
+        } else if (orderBtn) {
+          orderBtn.disabled = false;
+          orderBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          orderBtn.innerHTML = '<span>Confirm Order</span> <i class="fa-solid fa-arrow-right text-xs"></i>';
+        }
 
         if (countBadge) {
           countBadge.innerText = `${totalQtyCount} ${totalQtyCount === 1 ? "item" : "items"}`;
@@ -287,7 +330,7 @@
       // ৫. অর্ডার সাবমিশন ও ক্লাউড সিঙ্ক (Order Submission & EmailJS / Firestore)
       // ==========================================================================
       // এই ফাংশনটি চেকআউট ফর্ম সাবমিট হ্যান্ডেল করে, তথ্য ভ্যালিডেট করে এবং EmailJS এর মাধ্যমে নিশ্চিতকরণ ইমেইল পাঠায়
-      function handleOrderSubmit(event) {
+      async function handleOrderSubmit(event) {
         event.preventDefault();
 
         let name = document.getElementById("customer-name").value.trim();
@@ -363,8 +406,67 @@
 
         let submitBtn = document.getElementById("order-btn");
         submitBtn.innerHTML =
-          '<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Confirming Order...</span>';
+          '<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Verifying Stock...</span>';
         submitBtn.disabled = true;
+
+        // ==========================================================================
+        // রিয়েল-টাইম ফায়ারস্টোর স্টক ভ্যালিডেশন (Zero Stock Prevention)
+        // অর্ডার কনফার্ম হওয়ার আগে লাইভ ডেটাবেস থেকে স্টক ০ বা অপর্যাপ্ত কি না যাচাই
+        // ==========================================================================
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+          try {
+            const db = firebase.firestore();
+            for (const item of cart) {
+              let liveStock = null;
+              let itemTitle = item.title || "Product";
+
+              if (item.id) {
+                const docSnap = await db.collection("products").doc(String(item.id)).get();
+                if (docSnap.exists) {
+                  const data = docSnap.data();
+                  if (data.stock !== undefined && data.stock !== null && String(data.stock).trim() !== '') {
+                    liveStock = parseInt(data.stock);
+                  }
+                  if (data.isOutOfStock === true) liveStock = 0;
+                  if (data.title) itemTitle = data.title;
+                }
+              }
+
+              if (liveStock === null && item.title) {
+                const snap = await db.collection("products").where("title", "==", item.title).limit(1).get();
+                if (!snap.empty) {
+                  const data = snap.docs[0].data();
+                  if (data.stock !== undefined && data.stock !== null && String(data.stock).trim() !== '') {
+                    liveStock = parseInt(data.stock);
+                  }
+                  if (data.isOutOfStock === true) liveStock = 0;
+                }
+              }
+
+              if (liveStock !== null && liveStock <= 0) {
+                alert(`দুঃখিত! "${itemTitle}" এর স্টক শেষ হয়ে গেছে (Stock: 0)। এই মুহূর্তে এই পণ্যটি অর্ডার করা সম্ভব নয়। দয়া করে কার্ট থেকে আইটেমটি বাদ দিন।`);
+                submitBtn.innerHTML = '<span>Confirm Order</span> <i class="fa-solid fa-arrow-right text-xs"></i>';
+                submitBtn.disabled = false;
+                loadCheckoutSummary();
+                return;
+              }
+
+              const reqQty = parseInt(item.quantity) || 1;
+              if (liveStock !== null && reqQty > liveStock) {
+                alert(`দুঃখিত! "${itemTitle}" এর পর্যাপ্ত স্টক নেই (স্টকে আছে মাত্র ${liveStock} টি, কিন্তু আপনার কার্টে আছে ${reqQty} টি)। দয়া করে পরিমাণ কমিয়ে আবার চেষ্টা করুন।`);
+                submitBtn.innerHTML = '<span>Confirm Order</span> <i class="fa-solid fa-arrow-right text-xs"></i>';
+                submitBtn.disabled = false;
+                loadCheckoutSummary();
+                return;
+              }
+            }
+          } catch (liveCheckErr) {
+            console.warn("Live stock check warning:", liveCheckErr);
+          }
+        }
+
+        submitBtn.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Confirming Order...</span>';
 
         let itemsListText = cart
           .map((item) => `${item.title} (${item.quantity} pcs) - ${item.price}`)
@@ -433,8 +535,10 @@
                 const prodSnap = await prodRef.get();
                 if (prodSnap.exists && prodSnap.data().stock !== undefined && prodSnap.data().stock !== null) {
                   const currentStock = parseInt(prodSnap.data().stock) || 0;
+                  const remainingStock = Math.max(0, currentStock - qtyToDeduct);
                   await prodRef.update({
-                    stock: Math.max(0, currentStock - qtyToDeduct)
+                    stock: remainingStock,
+                    isOutOfStock: remainingStock <= 0
                   });
                 }
               } else if (item.title) {
@@ -442,8 +546,10 @@
                 snap.forEach(async (docSnap) => {
                   if (docSnap.exists && docSnap.data().stock !== undefined && docSnap.data().stock !== null) {
                     const currentStock = parseInt(docSnap.data().stock) || 0;
+                    const remainingStock = Math.max(0, currentStock - qtyToDeduct);
                     await docSnap.ref.update({
-                      stock: Math.max(0, currentStock - qtyToDeduct)
+                      stock: remainingStock,
+                      isOutOfStock: remainingStock <= 0
                     });
                   }
                 });

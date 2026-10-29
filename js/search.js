@@ -29,7 +29,17 @@ function getAllAvailableProducts() {
     } else if (typeof productsData !== 'undefined' && productsData) {
         prods = Object.values(productsData);
     }
-    return prods.filter(p => !isBanner(p));
+    const isStockOut = (typeof window.isOutOfStock === 'function') ? window.isOutOfStock : function(p) {
+        if (!p) return false;
+        if (p.isOutOfStock === true || p.status === 'out-of-stock') return true;
+        if (p.stock !== undefined && p.stock !== null && String(p.stock).trim() !== '') {
+            const num = Number(p.stock);
+            if (!isNaN(num) && num <= 0) return true;
+        }
+        return false;
+    };
+
+    return prods.filter(p => !isBanner(p) && !isStockOut(p));
 }
 
 // এই ফাংশনটি সার্চ কুয়েরির ভিত্তিতে পাওয়া প্রোডাক্টগুলোর ড্রপডাউন সাজেশন তালিকা রেন্ডার করে

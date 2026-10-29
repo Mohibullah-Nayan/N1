@@ -48,6 +48,22 @@ function isBannerItem(item) {
 }
 window.isBannerItem = isBannerItem;
 
+// স্টক শেষ (Out of Stock) কি না তা শতভাগ নিশ্চিত করার সার্বজনীন হেল্পার ফাংশন
+// কোনো প্রোডাক্টের স্টক ০ বা শূন্যের নিচে থাকলে অথবা আউট অফ স্টক স্ট্যাটাস থাকলে সেটি ট্রু রিটার্ন করবে
+function isOutOfStock(product) {
+    if (!product) return false;
+    if (isBannerItem(product)) return false;
+    if (product.isOutOfStock === true || product.status === 'out-of-stock') return true;
+    if (product.stock !== undefined && product.stock !== null && String(product.stock).trim() !== '') {
+        const num = Number(product.stock);
+        if (!isNaN(num) && num <= 0) {
+            return true;
+        }
+    }
+    return false;
+}
+window.isOutOfStock = isOutOfStock;
+
 // ১০০% নিশ্চিত করার জন্য গ্লোবাল অ্যারে তৈরি করা হলো (ফায়ারবেস বা স্ট্যাটিক ডেটা থেকে) - ব্যানার সম্পূর্ণ বাদ দেওয়া হলো
 let allProducts = typeof productsData !== 'undefined' ? Object.values(productsData).filter(p => !isBannerItem(p)) : [];
 
@@ -295,6 +311,58 @@ function bindProductDetails(prod) {
 
     // প্রোডাক্ট ডিটেইলস পেজে রিভিউ রেন্ডার করার ফাংশন কল
     renderProductReviews(prod.id);
+
+    // স্টক স্ট্যাটাস হ্যান্ডলিং ও ব্যাজ/বাটন স্টেট আপডেট
+    const stockBadgeEl = document.getElementById('product-stock-badge');
+    const addToCartBtn = document.getElementById('detail-add-to-cart-btn') || document.querySelector('button[onclick*="addToCart"]');
+    const buyNowBtn = document.getElementById('detail-buy-now-btn') || document.querySelector('button[onclick*="buyNow"]');
+    const qtyWrapper = document.getElementById('product-quantity-wrapper');
+
+    if (isOutOfStock(prod)) {
+        if (stockBadgeEl) {
+            stockBadgeEl.innerHTML = `<span class="bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-circle-xmark text-rose-500"></i> Out of Stock</span>`;
+            stockBadgeEl.style.display = 'inline-block';
+        }
+        if (addToCartBtn) {
+            addToCartBtn.disabled = true;
+            addToCartBtn.classList.remove('bg-[#F26522]', 'hover:bg-[#d8551b]', 'cursor-pointer');
+            addToCartBtn.classList.add('bg-neutral-300', 'dark:bg-neutral-700', 'text-neutral-500', 'dark:text-neutral-400', 'cursor-not-allowed', 'opacity-70');
+            addToCartBtn.innerHTML = `<i class="fa-solid fa-ban"></i> OUT OF STOCK`;
+        }
+        if (buyNowBtn) {
+            buyNowBtn.disabled = true;
+            buyNowBtn.classList.remove('bg-neutral-900', 'dark:bg-neutral-800', 'hover:bg-neutral-800', 'cursor-pointer');
+            buyNowBtn.classList.add('bg-neutral-200', 'dark:bg-neutral-700', 'text-neutral-400', 'cursor-not-allowed', 'opacity-70');
+            buyNowBtn.innerHTML = `<i class="fa-solid fa-ban"></i> UNAVAILABLE`;
+        }
+        if (qtyWrapper) {
+            qtyWrapper.classList.add('opacity-50', 'pointer-events-none');
+        }
+    } else {
+        if (stockBadgeEl) {
+            if (prod.stock !== undefined && prod.stock !== null && String(prod.stock).trim() !== '' && Number(prod.stock) <= 10) {
+                stockBadgeEl.innerHTML = `<span class="bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 shadow-xs animate-pulse"><i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Low Stock: Only ${prod.stock} left!</span>`;
+                stockBadgeEl.style.display = 'inline-block';
+            } else {
+                stockBadgeEl.style.display = 'none';
+            }
+        }
+        if (addToCartBtn) {
+            addToCartBtn.disabled = false;
+            addToCartBtn.classList.add('bg-[#F26522]', 'hover:bg-[#d8551b]', 'cursor-pointer');
+            addToCartBtn.classList.remove('bg-neutral-300', 'dark:bg-neutral-700', 'text-neutral-500', 'dark:text-neutral-400', 'cursor-not-allowed', 'opacity-70');
+            addToCartBtn.innerHTML = `<i class="fa-solid fa-cart-shopping"></i> ADD TO CART`;
+        }
+        if (buyNowBtn) {
+            buyNowBtn.disabled = false;
+            buyNowBtn.classList.add('bg-neutral-900', 'dark:bg-neutral-800', 'hover:bg-neutral-800', 'cursor-pointer');
+            buyNowBtn.classList.remove('bg-neutral-200', 'dark:bg-neutral-700', 'text-neutral-400', 'cursor-not-allowed', 'opacity-70');
+            buyNowBtn.innerHTML = `<i class="fa-solid fa-bag-shopping"></i> BUY NOW`;
+        }
+        if (qtyWrapper) {
+            qtyWrapper.classList.remove('opacity-50', 'pointer-events-none');
+        }
+    }
 }
 
 // রিলেটেড প্রোডাক্ট রেন্ডার করার ফাংশন
@@ -313,11 +381,11 @@ function loadRelatedProducts(currentId, currentCategory, productsArray) {
     };
 
     // বর্তমান প্রডাক্ট বাদে একই ক্যাটেগরির প্রডাক্ট ফিল্টার করা
-    let related = productsArray.filter(p => String(p.id) !== String(currentId) && p.category === currentCategory);
+    let related = productsArray.filter(p => String(p.id) !== String(currentId) && !isBannerItem(p) && !isOutOfStock(p) && p.category === currentCategory);
 
     // পর্যাপ্ত না থাকলে অন্য ক্যাটেগরি থেকে নেওয়া
     if (related.length < 4) {
-        const others = productsArray.filter(p => String(p.id) !== String(currentId) && p.category !== currentCategory);
+        const others = productsArray.filter(p => String(p.id) !== String(currentId) && !isBannerItem(p) && !isOutOfStock(p) && p.category !== currentCategory);
         related = [...related, ...others];
     }
 
@@ -433,7 +501,7 @@ function renderProducts(filterCategory) {
 
     gridContainer.innerHTML = "";
     // হিরো ব্যানার কোনো অবস্থাতেই প্রোডাক্ট গ্রিডে দেখানো হবে না
-    let matchedProducts = allProducts.filter(p => !isBannerItem(p));
+    let matchedProducts = allProducts.filter(p => !isBannerItem(p) && !isOutOfStock(p));
 
     // ==========================================
     // ১. প্রথমে চেক করা হচ্ছে ইউআরএলে কোনো সার্চ কুয়েরি আছে কি না
@@ -546,11 +614,11 @@ function renderProducts(filterCategory) {
 // এই ফাংশনটি 'Load More' বাটনে ক্লিক করলে পরবর্তী ধাপের প্রোডাক্টগুলো গ্রিডে যুক্ত করে
 function loadMoreProducts() {
     let matchedProducts = resolvedCategory ? allProducts.filter(p => {
-        if (!p.category || isBannerItem(p)) return false;
+        if (!p.category || isBannerItem(p) || isOutOfStock(p)) return false;
         const aliases = getCategoryAliases(resolvedCategory);
         const pCat = p.category.trim().toLowerCase().replace(/[\s\-_]+/g, '');
         return aliases.some(al => pCat === al || pCat.includes(al) || al.includes(pCat));
-    }) : allProducts.filter(p => !isBannerItem(p));
+    }) : allProducts.filter(p => !isBannerItem(p) && !isOutOfStock(p));
 
     if (itemsToShow < matchedProducts.length) {
         itemsToShow += 4;
@@ -591,7 +659,7 @@ function renderHomeSectionProducts(sectionName, containerId) {
 
     // ব্যানার আইটেমগুলোকে মূল প্রোডাক্ট সেকশন থেকে সম্পূর্ণরূপে ফিল্টার করে বাদ দেওয়া হয়েছে
     const matched = allProducts.filter(p => {
-        if (isBannerItem(p)) return false;
+        if (isBannerItem(p) || isOutOfStock(p)) return false;
         const pSection = p.homeSection ? p.homeSection.trim().toLowerCase() : "";
         const targetSection = sectionName.trim().toLowerCase();
         return pSection === targetSection;

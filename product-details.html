@@ -87,14 +87,15 @@
                     <h1 id="product-title" class="text-[15px] md:text-2xl font-bold text-neutral-900 dark:text-white mb-3">Loading...</h1>
                     
                     <!-- Price -->
-                    <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center gap-3 mb-4 flex-wrap">
                         <span id="product-price" class="text-2xl font-bold text-[#F26522]">৳0.00</span>
                         <span id="product-old-price" class=" font-bold text-lg text-neutral-400 dark:text-neutral-500 line-through">৳0.00</span>
                         <span id="price-save-badge" class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-[12px] font-bold px-2 py-0.5 rounded" style="display: none;">Save 0%</span>
+                        <span id="product-stock-badge" style="display: none;"></span>
                     </div>
 
                     <!-- Quantity Selector -->
-                    <div class="flex items-center gap-4 mb-5">
+                    <div id="product-quantity-wrapper" class="flex items-center gap-4 mb-5">
                         <span class="text-xl font-semibold text-neutral-600 dark:text-neutral-300">Quantity:</span>
                         <div class="flex items-center border border-neutral-300 dark:border-neutral-700 rounded overflow-hidden bg-white dark:bg-neutral-800">
                             <button onclick="decreaseQty()" class="px-3 py-1 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-200 text-sm font-bold transition-colors cursor-pointer">-</button>
@@ -105,10 +106,10 @@
 
                     <!-- Action Buttons -->
                     <div class="grid grid-row-2 gap-3 mb-4">
-                        <button onclick="addToCart()" class=" w-full sm:w-80 md:w-60 bg-[#F26522] hover:bg-[#d8551b] text-white text-xs font-bold py-3 rounded shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                        <button id="detail-add-to-cart-btn" onclick="addToCart()" class=" w-full sm:w-80 md:w-60 bg-[#F26522] hover:bg-[#d8551b] text-white text-xs font-bold py-3 rounded shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-cart-shopping"></i> ADD TO CART
                         </button>
-                        <button onclick="buyNow()" class="w-full sm:w-80 md:w-60 bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white text-xs font-bold py-3 rounded shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                        <button id="detail-buy-now-btn" onclick="buyNow()" class="w-full sm:w-80 md:w-60 bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white text-xs font-bold py-3 rounded shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-bag-shopping"></i> BUY NOW
                         </button>
                     </div>
